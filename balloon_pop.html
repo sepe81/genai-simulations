@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Balloon Pop Simulation</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #222;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            border: 1px solid white;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+            cursor: none;
+        }
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        #stats {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+        button {
+            padding: 8px 15px;
+            margin: 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <button onclick="resetSimulation()">Reset (R)</button>
+        <div style="margin-top: 5px; font-size: 12px;">Move mouse to control needle</div>
+    </div>
+    <div id="stats">
+        Popped: <span id="poppedCount">0</span> / <span id="totalCount">20</span>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <script>
+        // Matter.js setup
+        const { Engine, Render, World, Bodies, Body, Constraint, Events, Vector, Composite } = Matter;
+        const engine = Engine.create();
+        engine.gravity.y = -0.3; // Negative gravity makes balloons float up
+
+        const canvas = document.createElement('canvas');
+        canvas.width = 800;
+        canvas.height = 600;
+        document.body.appendChild(canvas);
+
+        const render = Render.create({
+            canvas: canvas,
+            engine: engine,
+            options: {
+                width: 800,
+                height: 600,
+                wireframes: false,
+                background: 'transparent'
+            }
+        });
+
+        // Balloon colors
+        const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#FF8FB1', '#FFA07A', '#9B59B6', '#3498DB'];
+
+        // Game state
+        let balloons = [];
+        let strings = [];
+        let needle;
+        let poppedCount = 0;
+        let totalBalloons = 20;
+        let gameCompleted = false;
+
+        // Audio context for sound effects
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playPopSound(frequency = 400) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        // Create a balloon with string
+        function createBalloon(x, y) {
+            const size = Math.random() * 20 + 20; // 20-40px radius
+            const color = colors[Math.floor(Math.random() * colors.length)];
+
+            const balloon = Bodies.circle(x, y, size, {
+                density: 0.001,
+                friction: 0.05,
+                frictionAir: 0.01,
+                restitution: 0.6,
+                render: {
+                    visible: false // Custom rendering below
+                }
+            });
+
+            // Anchor point at bottom
+            const anchor = Bodies.circle(x, 590, 2, {
+                isStatic: true,
+                render: { fillStyle: '#333' }
+            });
+
+            // String connecting balloon to anchor
+            const string = Constraint.create({
+                bodyA: balloon,
+                bodyB: anchor,
+                length: Math.random() * 200 + 150, // 150-350px string length
+                stiffness: 0.1,
+                render: {
+                    strokeStyle: '#333',
+                    lineWidth: 2
+                }
+            });
+
+            balloon.size = size; // Store size for sound frequency
+            balloon.color = color; // Store color for custom rendering
+            balloon.isPopped = false;
+
+            return { balloon, string, anchor };
+        }
+
+        // Create needle (syringe-style with custom rendering)
+        function createNeedle() {
+            // Single body for collision detection (invisible)
+            needle = Bodies.rectangle(400, 300, 3, 50, {
+                density: 0.01,
+                render: {
+                    visible: false // We'll draw custom syringe
+                }
+            });
+            Body.setStatic(needle, true);
+            World.add(engine.world, needle);
+        }
+
+        // Custom rendering for syringe
+        Events.on(render, 'afterRender', () => {
+            if (!needle) return;
+
+            const ctx = render.context;
+            const pos = needle.position;
+            const angle = needle.angle;
+
+            ctx.save();
+            ctx.translate(pos.x, pos.y);
+            ctx.rotate(angle);
+
+            // Draw needle tip (sharp, gray)
+            ctx.fillStyle = '#A9A9A9';
+            ctx.fillRect(-1, -25, 2, 25);
+
+            // Draw barrel (transparent with outline)
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.strokeStyle = '#888';
+            ctx.lineWidth = 1.5;
+            ctx.fillRect(-4, 0, 8, 20);
+            ctx.strokeRect(-4, 0, 8, 20);
+
+            // Draw plunger (red cap at back)
+            ctx.fillStyle = '#FF6B6B';
+            ctx.fillRect(-3, 20, 6, 5);
+
+            ctx.restore();
+
+            // Draw realistic balloons
+            balloons.forEach(balloon => {
+                if (balloon.isPopped) return;
+
+                const pos = balloon.position;
+                const size = balloon.size;
+                const color = balloon.color;
+
+                ctx.save();
+                ctx.translate(pos.x, pos.y);
+
+                // Draw balloon body with gradient (3D effect)
+                const gradient = ctx.createRadialGradient(
+                    -size * 0.3, -size * 0.3, size * 0.1,
+                    0, 0, size
+                );
+
+                // Lighter at top-left, darker at edges for 3D effect
+                gradient.addColorStop(0, lightenColor(color, 40));
+                gradient.addColorStop(0.5, color);
+                gradient.addColorStop(1, darkenColor(color, 30));
+
+                // Draw balloon shape (slightly oval, wider at top)
+                ctx.beginPath();
+                ctx.ellipse(0, 0, size * 0.95, size, 0, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+
+                // Add highlight for shine effect
+                ctx.beginPath();
+                ctx.ellipse(-size * 0.3, -size * 0.35, size * 0.25, size * 0.35, -0.3, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.fill();
+
+                // Draw knot at bottom
+                ctx.beginPath();
+                ctx.ellipse(0, size + 3, 4, 6, 0, 0, Math.PI * 2);
+                ctx.fillStyle = darkenColor(color, 40);
+                ctx.fill();
+
+                ctx.restore();
+            });
+        });
+
+        // Helper functions for color manipulation
+        function lightenColor(color, percent) {
+            const num = parseInt(color.replace("#",""), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = Math.min(255, (num >> 16) + amt);
+            const G = Math.min(255, (num >> 8 & 0x00FF) + amt);
+            const B = Math.min(255, (num & 0x0000FF) + amt);
+            return `rgb(${R},${G},${B})`;
+        }
+
+        function darkenColor(color, percent) {
+            const num = parseInt(color.replace("#",""), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = Math.max(0, (num >> 16) - amt);
+            const G = Math.max(0, (num >> 8 & 0x00FF) - amt);
+            const B = Math.max(0, (num & 0x0000FF) - amt);
+            return `rgb(${R},${G},${B})`;
+        }
+
+        // Initialize balloons
+        function initBalloons() {
+            balloons = [];
+            strings = [];
+
+            for (let i = 0; i < totalBalloons; i++) {
+                const x = Math.random() * 700 + 50;
+                const y = Math.random() * 400 + 100;
+                const { balloon, string, anchor } = createBalloon(x, y);
+
+                balloons.push(balloon);
+                strings.push(string);
+                World.add(engine.world, [balloon, anchor, string]);
+            }
+        }
+
+        // Pop balloon with explosion effect
+        function popBalloon(balloon, needlePos) {
+            if (balloon.isPopped) return;
+
+            balloon.isPopped = true;
+            poppedCount++;
+            document.getElementById('poppedCount').textContent = poppedCount;
+
+            // Play pop sound (higher pitch for smaller balloons)
+            const frequency = 600 - (balloon.size * 5);
+            playPopSound(frequency);
+
+            // Apply shockwave to nearby balloons
+            const shockwaveRadius = 150;
+            const shockwaveForce = 0.05;
+
+            balloons.forEach(otherBalloon => {
+                if (otherBalloon === balloon || otherBalloon.isPopped) return;
+
+                const distance = Vector.magnitude(
+                    Vector.sub(otherBalloon.position, balloon.position)
+                );
+
+                if (distance < shockwaveRadius) {
+                    const direction = Vector.normalise(
+                        Vector.sub(otherBalloon.position, balloon.position)
+                    );
+                    const forceMagnitude = shockwaveForce * (1 - distance / shockwaveRadius);
+                    const force = Vector.mult(direction, forceMagnitude);
+                    Body.applyForce(otherBalloon, otherBalloon.position, force);
+                }
+            });
+
+            // Remove balloon from world
+            World.remove(engine.world, balloon);
+
+            // Find and remove associated string
+            const index = balloons.indexOf(balloon);
+            if (index > -1 && strings[index]) {
+                World.remove(engine.world, strings[index]);
+            }
+        }
+
+        // Mouse tracking for needle
+        let mousePos = { x: 400, y: 300 };
+        let lastMousePos = { x: 400, y: 300 };
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            lastMousePos = { ...mousePos };
+            mousePos = {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+        });
+
+        // Smooth angle interpolation helper
+        function lerpAngle(from, to, t) {
+            let diff = to - from;
+            // Handle angle wrapping (shortest path)
+            while (diff > Math.PI) diff -= Math.PI * 2;
+            while (diff < -Math.PI) diff += Math.PI * 2;
+            return from + diff * t;
+        }
+
+        // Update needle position and rotation
+        Events.on(engine, 'beforeUpdate', () => {
+            if (needle) {
+                // Calculate target angle from movement direction
+                const dx = mousePos.x - lastMousePos.x;
+                const dy = mousePos.y - lastMousePos.y;
+
+                // Only update target angle if there's significant movement
+                if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+                    const targetAngle = Math.atan2(dy, dx) + Math.PI / 2;
+
+                    // Smooth rotation with interpolation
+                    const currentAngle = needle.angle;
+                    const smoothAngle = lerpAngle(currentAngle, targetAngle, 0.2);
+                    Body.setAngle(needle, smoothAngle);
+                }
+
+                // Update position after angle calculation
+                Body.setPosition(needle, mousePos);
+            }
+        });
+
+        // Collision detection for popping
+        Events.on(engine, 'collisionStart', (event) => {
+            event.pairs.forEach(pair => {
+                const { bodyA, bodyB } = pair;
+
+                if (bodyA === needle && balloons.includes(bodyB)) {
+                    popBalloon(bodyB, needle.position);
+                } else if (bodyB === needle && balloons.includes(bodyA)) {
+                    popBalloon(bodyA, needle.position);
+                }
+            });
+        });
+
+        // Reset simulation
+        function resetSimulation() {
+            World.clear(engine.world);
+            Engine.clear(engine);
+            poppedCount = 0;
+            gameCompleted = false;
+            document.getElementById('poppedCount').textContent = poppedCount;
+
+            initBalloons();
+            createNeedle();
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'r' || e.key === 'R') {
+                resetSimulation();
+            }
+        });
+
+        // Check if all balloons are popped
+        Events.on(engine, 'afterUpdate', () => {
+            const activeBalloonsCount = balloons.filter(b => !b.isPopped).length;
+            if (activeBalloonsCount === 0 && poppedCount > 0 && !gameCompleted) {
+                gameCompleted = true;
+                setTimeout(() => {
+                    if (confirm('All balloons popped! Play again?')) {
+                        resetSimulation();
+                    }
+                }, 500);
+            }
+        });
+
+        // Start simulation
+        initBalloons();
+        createNeedle();
+        Render.run(render);
+        const runner = Matter.Runner.create();
+        Matter.Runner.run(runner, engine);
+
+        console.log('Balloon Pop Simulation Ready! Move mouse to control needle.');
+    </script>
+</body>
+</html>
