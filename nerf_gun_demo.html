@@ -979,7 +979,17 @@
             }, 800);
         }
 
+        // Play appropriate sound based on current gun
         function playShootSound() {
+            if (currentGun === 1) {
+                playBasicShootSound(); // Simple sound for basic gun
+            } else {
+                playAdvancedShootSound(); // Advanced sound for elite guns
+            }
+        }
+
+        // Basic shoot sound for standard Nerf gun (Gun 1)
+        function playBasicShootSound() {
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
@@ -995,6 +1005,50 @@
 
             oscillator.start(audioContext.currentTime);
             oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        // Advanced shoot sound for elite Nerf guns (Gun 2 & 3)
+        function playAdvancedShootSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const now = audioContext.currentTime;
+
+            // Low frequency "thump" for spring mechanism
+            const bassOsc = audioContext.createOscillator();
+            const bassGain = audioContext.createGain();
+            bassOsc.connect(bassGain);
+            bassGain.connect(audioContext.destination);
+            bassOsc.type = 'sine';
+            bassOsc.frequency.setValueAtTime(120, now);
+            bassOsc.frequency.exponentialRampToValueAtTime(60, now + 0.1);
+            bassGain.gain.setValueAtTime(0.5, now);
+            bassGain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+            bassOsc.start(now);
+            bassOsc.stop(now + 0.15);
+
+            // Mid frequency for air release
+            const midOsc = audioContext.createOscillator();
+            const midGain = audioContext.createGain();
+            midOsc.connect(midGain);
+            midGain.connect(audioContext.destination);
+            midOsc.type = 'square';
+            midOsc.frequency.setValueAtTime(200, now);
+            midOsc.frequency.exponentialRampToValueAtTime(100, now + 0.08);
+            midGain.gain.setValueAtTime(0.2, now);
+            midGain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+            midOsc.start(now);
+            midOsc.stop(now + 0.08);
+
+            // High frequency click for mechanical action
+            const clickOsc = audioContext.createOscillator();
+            const clickGain = audioContext.createGain();
+            clickOsc.connect(clickGain);
+            clickGain.connect(audioContext.destination);
+            clickOsc.type = 'triangle';
+            clickOsc.frequency.value = 800;
+            clickGain.gain.setValueAtTime(0.15, now);
+            clickGain.gain.exponentialRampToValueAtTime(0.01, now + 0.03);
+            clickOsc.start(now);
+            clickOsc.stop(now + 0.03);
         }
 
         // Mouse aiming - track mouse position
