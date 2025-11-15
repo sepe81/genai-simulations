@@ -68,6 +68,46 @@ open nerf_gun_demo.html
 - **Canvas API** – Custom rendering for 3D effects
 - **Web Audio API** – Dynamic sound generation
 
+## 🧪 Testing
+
+This project now includes a comprehensive testing infrastructure using Vitest. See [TESTING.md](TESTING.md) for detailed information about test coverage and areas for improvement.
+
+### Running Tests
+
+```bash
+# Install dependencies
+npm install
+
+# Run tests
+npm test
+
+# Run tests once (CI mode)
+npm run test:run
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run tests with UI
+npm run test:ui
+```
+
+### Current Test Coverage
+
+- ✅ **71 unit tests passing**
+- ✅ Color utilities (lighten/darken colors)
+- ✅ Math utilities (angle interpolation, distance)
+- ✅ Nerf gun scoring system
+
+### Areas for Improvement
+
+- ❌ Balloon pop game logic
+- ❌ Nerf gun game logic (mode switching, gun switching, etc.)
+- ❌ Physics integration tests
+- ❌ Audio system tests
+- ❌ End-to-end tests
+
+See [TESTING.md](TESTING.md) for a comprehensive analysis and recommendations.
+
 ## 📝 License
 
 MIT

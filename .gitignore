@@ -2,3 +2,9 @@
 .DS_Store
 .idea/
 .vscode/
+
+# Testing
+node_modules/
+coverage/
+.nyc_output/
+*.log
