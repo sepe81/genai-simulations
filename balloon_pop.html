@@ -267,7 +267,7 @@
         // Create needle (syringe-style with custom rendering)
         function createNeedle() {
             // Single body for collision detection (invisible)
-            needle = Bodies.rectangle(400, 300, 3, 50, {
+            needle = Bodies.rectangle(400, 50, 3, 50, {
                 density: 0.01,
                 render: {
                     visible: false // We'll draw custom syringe
@@ -452,8 +452,8 @@
         }
 
         // Mouse tracking for needle
-        let mousePos = { x: 400, y: 300 };
-        let lastMousePos = { x: 400, y: 300 };
+        let mousePos = { x: 400, y: 50 };
+        let lastMousePos = { x: 400, y: 50 };
 
         canvas.addEventListener('mousedown', () => {
             if (audioContext.state === 'suspended') {
