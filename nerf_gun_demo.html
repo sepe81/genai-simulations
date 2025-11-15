@@ -53,6 +53,21 @@
 
         .target-wrapper {
             flex-shrink: 0;
+            position: relative;
+        }
+
+        .score-display {
+            position: absolute;
+            top: -30px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: #ffd700;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            white-space: nowrap;
         }
 
         .gun-wrapper:hover {
@@ -407,6 +422,7 @@
             </div>
 
             <div class="target-wrapper">
+                <div class="score-display">Punkte: <span id="scoreValue">0</span></div>
                 <svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
                     <!-- Klassische Zielscheibe wie Bogenschießen -->
 
@@ -489,7 +505,7 @@
         <div class="controls" style="text-align: center; margin-top: 20px;">
             <button class="btn" onclick="fireGun()">🔫 Feuer!</button>
             <button class="btn" id="gunSelector" onclick="switchGun()">🔄 Nerf wechseln</button>
-            <button class="btn" onclick="location.reload()">🔄 Reset</button>
+            <button class="btn" onclick="resetGame()">🔄 Reset</button>
         </div>
 
         <div class="features">
@@ -576,6 +592,7 @@
     <script>
         let dartCount = 0;
         let currentGun = 1; // Start with gun 1
+        let totalScore = 0;
 
         function switchGun() {
             // Cycle through guns 1, 2, 3
@@ -592,6 +609,62 @@
             // Show selected gun and flash
             document.getElementById('nerfGun' + currentGun).style.display = 'block';
             document.getElementById('muzzleFlash' + currentGun).style.display = 'block';
+        }
+
+        function calculateScore(targetX, targetY) {
+            // Get target position and dimensions
+            const targetSvg = document.querySelector('.target-wrapper svg');
+            const targetRect = targetSvg.getBoundingClientRect();
+
+            // Target center in screen coordinates
+            const centerX = targetRect.left + targetRect.width / 2;
+            const centerY = targetRect.top + targetRect.height / 2;
+
+            // Calculate distance from center in pixels
+            const dx = targetX - centerX;
+            const dy = targetY - centerY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            // Convert to target radius units (target viewBox is 250x250, center at 125,125)
+            // Physical target radius is 120px in viewBox coordinates
+            const scale = targetRect.width / 250; // Scale factor from viewBox to screen
+            const distanceInViewBox = distance / scale;
+
+            // Score based on rings (from center outward):
+            // Ring 10: r <= 10 (innermost yellow)
+            // Ring 9: r <= 20
+            // Ring 8: r <= 30 (red)
+            // Ring 7: r <= 40
+            // Ring 6: r <= 50 (cyan)
+            // Ring 5: r <= 60
+            // Ring 4: r <= 70 (white)
+            // Ring 3: r <= 80
+            // Ring 2: r <= 90 (black)
+            // Ring 1: r <= 100
+            // Outside: r > 120 (0 points)
+
+            if (distanceInViewBox <= 10) return 10;
+            if (distanceInViewBox <= 20) return 9;
+            if (distanceInViewBox <= 30) return 8;
+            if (distanceInViewBox <= 40) return 7;
+            if (distanceInViewBox <= 50) return 6;
+            if (distanceInViewBox <= 60) return 5;
+            if (distanceInViewBox <= 70) return 4;
+            if (distanceInViewBox <= 80) return 3;
+            if (distanceInViewBox <= 90) return 2;
+            if (distanceInViewBox <= 100) return 1;
+            if (distanceInViewBox <= 120) return 1; // Outermost white ring
+            return 0; // Miss
+        }
+
+        function updateScore(points) {
+            totalScore += points;
+            document.getElementById('scoreValue').textContent = totalScore;
+        }
+
+        function resetGame() {
+            totalScore = 0;
+            document.getElementById('scoreValue').textContent = '0';
         }
 
         function fireGun() {
@@ -664,6 +737,26 @@
                 dart.style.top = targetY + 'px';
                 dart.style.transform = 'rotate(' + angleDeg + 'deg)';
             }, 10);
+
+            // Calculate and update score when dart hits
+            // We need to calculate the tip position, not the dart center
+            setTimeout(() => {
+                // The dart is positioned by its left edge (CSS left/top)
+                // Dart is 50px wide (body) + 12px (tip) = 62px total
+                // The blue tip is at the front (right side when flying right)
+                // Calculate tip position based on rotation angle
+                const tipOffsetDistance = 31; // Half of dart length to get to the tip
+                const dartTipOffsetX = Math.cos(angle) * tipOffsetDistance;
+                const dartTipOffsetY = Math.sin(angle) * tipOffsetDistance;
+
+                const tipX = targetX + dartTipOffsetX;
+                const tipY = targetY + dartTipOffsetY;
+
+                const points = calculateScore(tipX, tipY);
+                if (points > 0) {
+                    updateScore(points);
+                }
+            }, 600); // Score when dart reaches target
 
             // Remove dart after animation
             setTimeout(() => {
