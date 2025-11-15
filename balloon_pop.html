@@ -64,7 +64,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <script>
         // Matter.js setup
-        const { Engine, Render, World, Bodies, Body, Constraint, Events, Vector, Composite } = Matter;
+        const { Engine, Render, World, Bodies, Body, Constraint, Events, Vector } = Matter;
         const engine = Engine.create();
         engine.gravity.y = -0.3; // Negative gravity makes balloons float up
 
@@ -130,10 +130,10 @@
                 this.rotationSpeed = (Math.random() - 0.5) * 0.3; // -0.15 to 0.15 rad/frame
 
                 // Particle type (confetti, sparkle, or rubber fragment)
-                this.type = Math.random();
-                if (this.type < 0.6) {
+                const rand = Math.random();
+                if (rand < 0.6) {
                     this.particleType = 'confetti'; // 60% confetti
-                } else if (this.type < 0.85) {
+                } else if (rand < 0.85) {
                     this.particleType = 'sparkle'; // 25% sparkles
                 } else {
                     this.particleType = 'rubber'; // 15% rubber fragments
@@ -381,7 +381,7 @@
         }
 
         // Pop balloon with explosion effect
-        function popBalloon(balloon, needlePos) {
+        function popBalloon(balloon) {
             if (balloon.isPopped) return;
 
             balloon.isPopped = true;
@@ -491,9 +491,9 @@
                 const { bodyA, bodyB } = pair;
 
                 if (bodyA === needle && balloons.includes(bodyB)) {
-                    popBalloon(bodyB, needle.position);
+                    popBalloon(bodyB);
                 } else if (bodyB === needle && balloons.includes(bodyA)) {
-                    popBalloon(bodyA, needle.position);
+                    popBalloon(bodyA);
                 }
             });
         });
