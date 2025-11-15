@@ -5,11 +5,13 @@ Interactive physics simulations and creative coding experiments built with Matte
 ## 🎈 Simulations
 
 ### Balloon Pop
+
 **[balloon_pop.html](balloon_pop.html)**
 
 Interactive balloon popping game with realistic physics and 3D-styled balloons. Control a syringe with your mouse to pop colorful floating balloons—each pop creates a shockwave that pushes nearby balloons.
 
 **Features:**
+
 - Realistic 3D balloon rendering with gradients and shine effects
 - Physics-based shock waves that affect nearby balloons
 - Dynamic sound effects (pitch varies by balloon size)
@@ -19,6 +21,28 @@ Interactive balloon popping game with realistic physics and 3D-styled balloons. 
 **Tech:** Matter.js, Web Audio API, Canvas 2D
 
 **How to run:** Simply open `balloon_pop.html` in your browser. No build process or dependencies needed!
+
+---
+
+### Nerf Gun Shooting Gallery
+
+**[nerf_gun_demo.html](nerf_gun_demo.html)**
+
+Interactive shooting gallery with two game modes: precision target shooting and physics-based tower destruction. Aim with your mouse (vertical movement controls angle) and fire foam darts at targets or knock down colorful block towers.
+
+**Features:**
+
+- Mouse-controlled aiming with smooth rotation (-20° to +40°)
+- Two game modes: Target Practice and Tower Destruction
+- Three different Nerf gun models to choose from
+- Physics-based recoil that follows gun rotation
+- Scoring system for target mode
+- Matter.js powered tower physics with realistic block collapse
+- Dynamic projectile behavior based on aim angle
+
+**Tech:** Matter.js, SVG Graphics, Web Audio API, Canvas 2D
+
+**How to run:** Simply open `nerf_gun_demo.html` in your browser. No build process or dependencies needed!
 
 ---
 
