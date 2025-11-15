@@ -299,8 +299,8 @@
             ctx.restore();
 
             // Draw realistic balloons
-            balloons.forEach(balloon => {
-                if (balloon.isPopped) return;
+            for (const balloon of balloons) {
+                if (balloon.isPopped) continue;
 
                 const pos = balloon.position;
                 const size = balloon.size;
@@ -339,10 +339,12 @@
                 ctx.fill();
 
                 ctx.restore();
-            });
+            }
 
             // Draw particles (after balloons, before needle)
-            particles.forEach(particle => particle.draw(ctx));
+            for (const particle of particles) {
+                particle.draw(ctx);
+            }
         });
 
         // Helper functions for color manipulation
@@ -408,8 +410,8 @@
             const shockwaveRadius = 150;
             const shockwaveForce = 0.05;
 
-            balloons.forEach(otherBalloon => {
-                if (otherBalloon === balloon || otherBalloon.isPopped) return;
+            for (const otherBalloon of balloons) {
+                if (otherBalloon === balloon || otherBalloon.isPopped) continue;
 
                 const distance = Vector.magnitude(
                     Vector.sub(otherBalloon.position, balloon.position)
@@ -423,7 +425,7 @@
                     const force = Vector.mult(direction, forceMagnitude);
                     Body.applyForce(otherBalloon, otherBalloon.position, force);
                 }
-            });
+            }
 
             // Remove balloon from world
             World.remove(engine.world, balloon);
@@ -479,7 +481,9 @@
             }
 
             // Update particles
-            particles.forEach(particle => particle.update());
+            for (const particle of particles) {
+                particle.update();
+            }
 
             // Remove dead particles
             particles = particles.filter(particle => !particle.isDead());
@@ -487,7 +491,7 @@
 
         // Collision detection for popping
         Events.on(engine, 'collisionStart', (event) => {
-            event.pairs.forEach(pair => {
+            for (const pair of event.pairs) {
                 const { bodyA, bodyB } = pair;
 
                 if (bodyA === needle && balloons.includes(bodyB)) {
@@ -495,7 +499,7 @@
                 } else if (bodyB === needle && balloons.includes(bodyA)) {
                     popBalloon(bodyA);
                 }
-            });
+            }
         });
 
         // Reset simulation
