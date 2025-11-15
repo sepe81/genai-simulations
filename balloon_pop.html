@@ -55,11 +55,12 @@
 <body>
     <div id="controls">
         <button onclick="resetSimulation()">Reset (R)</button>
-        <div style="margin-top: 5px; font-size: 12px;">Move mouse to control needle</div>
+        <div style="margin-top: 5px; font-size: 12px;">Move the mouse to control the needle.</div>
         <div style="font-size: 12px;">Click or press any key to enable sound.</div>
     </div>
     <div id="stats">
-        Popped: <span id="poppedCount">0</span> / <span id="totalCount">20</span>
+        Popped: <span id="poppedCount">0</span> / <span id="totalCount">20</span><br>
+        Time: <span id="timer">0.0</span>s
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
@@ -96,6 +97,12 @@
         let totalBalloons = 20;
         let gameCompleted = false;
         let particles = []; // Array to hold explosion particles
+
+        // Timer state
+        let timerStartTime = null;
+        let timerElapsed = 0;
+        let timerRunning = false;
+        let finalTime = 0;
 
         // Audio context for sound effects
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -391,6 +398,12 @@
             poppedCount++;
             document.getElementById('poppedCount').textContent = poppedCount;
 
+            // Start timer on first balloon pop
+            if (poppedCount === 1 && !timerRunning) {
+                timerStartTime = Date.now();
+                timerRunning = true;
+            }
+
             // Play pop sound (higher pitch for smaller balloons)
             const frequency = 600 - (balloon.size * 5);
             playPopSound(frequency);
@@ -487,6 +500,12 @@
                 Body.setPosition(needle, mousePos);
             }
 
+            // Update timer display
+            if (timerRunning) {
+                timerElapsed = (Date.now() - timerStartTime) / 1000;
+                document.getElementById('timer').textContent = timerElapsed.toFixed(1);
+            }
+
             // Update particles
             for (const particle of particles) {
                 particle.update();
@@ -518,6 +537,13 @@
             particles = []; // Clear all particles
             document.getElementById('poppedCount').textContent = poppedCount;
 
+            // Reset timer
+            timerStartTime = null;
+            timerElapsed = 0;
+            timerRunning = false;
+            finalTime = 0;
+            document.getElementById('timer').textContent = '0.0';
+
             initBalloons();
             createNeedle();
         }
@@ -534,8 +560,15 @@
             const activeBalloonsCount = balloons.filter(b => !b.isPopped).length;
             if (activeBalloonsCount === 0 && poppedCount > 0 && !gameCompleted) {
                 gameCompleted = true;
+
+                // Stop timer and save final time
+                if (timerRunning) {
+                    timerRunning = false;
+                    finalTime = timerElapsed;
+                }
+
                 setTimeout(() => {
-                    if (confirm('All balloons popped! Play again?')) {
+                    if (confirm(`All balloons popped in ${finalTime.toFixed(1)}s! Play again?`)) {
                         resetSimulation();
                     }
                 }, 500);
