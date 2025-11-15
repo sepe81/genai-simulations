@@ -515,10 +515,10 @@
         </div>
 
         <div class="controls" style="text-align: center; margin-top: 20px;">
-            <button class="btn" onclick="fireGun()">🔫 Feuer!</button>
-            <button class="btn" id="gunSelector" onclick="switchGun()">🔄 Nerf wechseln</button>
-            <button class="btn" onclick="switchMode()">🎮 Modus</button>
-            <button class="btn" onclick="resetGame()">🔄 Reset</button>
+            <button class="btn" onclick="fireGun()">🔫 Feuer! (Space)</button>
+            <button class="btn" id="gunSelector" onclick="switchGun()">🔄 Nerf wechseln (C)</button>
+            <button class="btn" onclick="switchMode()">🎮 Modus (M)</button>
+            <button class="btn" onclick="resetGame()">🔄 Reset (R)</button>
         </div>
 
         <div class="features">
@@ -1107,6 +1107,15 @@
             if (e.code === 'Space') {
                 e.preventDefault();
                 fireGun();
+            } else if (e.key === 'c' || e.key === 'C') {
+                e.preventDefault();
+                switchGun();
+            } else if (e.key === 'm' || e.key === 'M') {
+                e.preventDefault();
+                switchMode();
+            } else if (e.key === 'r' || e.key === 'R') {
+                e.preventDefault();
+                resetGame();
             }
         });
     </script>
