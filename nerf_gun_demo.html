@@ -39,13 +39,20 @@
             padding: 40px;
             margin-bottom: 40px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 40px;
         }
 
         .gun-wrapper {
-            display: inline-block;
             cursor: pointer;
             transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .target-wrapper {
+            flex-shrink: 0;
         }
 
         .gun-wrapper:hover {
@@ -192,7 +199,7 @@
 
         <div class="gun-display">
             <div class="gun-wrapper" id="gunWrapper">
-                <svg width="400" height="200" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                <svg width="350" height="200" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
                     <!-- Hauptkörper -->
                     <g id="nerfGun">
                         <!-- Magazin -->
@@ -254,10 +261,89 @@
                 </svg>
             </div>
 
-            <div class="controls">
-                <button class="btn" onclick="fireGun()">🔫 Feuer!</button>
-                <button class="btn" onclick="location.reload()">🔄 Reset</button>
+            <div class="target-wrapper">
+                <svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Klassische Zielscheibe wie Bogenschießen -->
+
+                    <!-- Ring 1 - Äußerster weißer Ring -->
+                    <circle cx="125" cy="125" r="120" fill="white" stroke="#333" stroke-width="2"/>
+
+                    <!-- Ring 2 - Schwarz -->
+                    <circle cx="125" cy="125" r="100" fill="#1a1a1a"/>
+
+                    <!-- Ring 3 - Schwarz (dünnerer Ring) -->
+                    <circle cx="125" cy="125" r="90" fill="#1a1a1a"/>
+
+                    <!-- Ring 4 - Weiß -->
+                    <circle cx="125" cy="125" r="80" fill="white"/>
+
+                    <!-- Ring 5 - Weiß (dünnerer Ring) -->
+                    <circle cx="125" cy="125" r="70" fill="white"/>
+
+                    <!-- Ring 6 - Cyan/Türkis -->
+                    <circle cx="125" cy="125" r="60" fill="#00bcd4"/>
+
+                    <!-- Ring 7 - Cyan (dünnerer Ring) -->
+                    <circle cx="125" cy="125" r="50" fill="#00bcd4"/>
+
+                    <!-- Ring 8 - Rot -->
+                    <circle cx="125" cy="125" r="40" fill="#e53935"/>
+
+                    <!-- Ring 9 - Rot (dünnerer Ring) -->
+                    <circle cx="125" cy="125" r="30" fill="#e53935"/>
+
+                    <!-- Ring 10 - Gelb/Gold (Bullseye) -->
+                    <circle cx="125" cy="125" r="20" fill="#ffd600"/>
+
+                    <!-- Ring 11 - Gelb (innerer Ring) -->
+                    <circle cx="125" cy="125" r="10" fill="#ffd600"/>
+
+                    <!-- Trennlinien zwischen den Ringen -->
+                    <circle cx="125" cy="125" r="100" fill="none" stroke="#333" stroke-width="1"/>
+                    <circle cx="125" cy="125" r="90" fill="none" stroke="#333" stroke-width="1"/>
+                    <circle cx="125" cy="125" r="80" fill="none" stroke="#333" stroke-width="1"/>
+                    <circle cx="125" cy="125" r="70" fill="none" stroke="#333" stroke-width="1"/>
+                    <circle cx="125" cy="125" r="60" fill="none" stroke="#333" stroke-width="1"/>
+                    <circle cx="125" cy="125" r="50" fill="none" stroke="#333" stroke-width="1"/>
+                    <circle cx="125" cy="125" r="40" fill="none" stroke="#333" stroke-width="1"/>
+                    <circle cx="125" cy="125" r="30" fill="none" stroke="#333" stroke-width="1"/>
+                    <circle cx="125" cy="125" r="20" fill="none" stroke="#333" stroke-width="1"/>
+                    <circle cx="125" cy="125" r="10" fill="none" stroke="#333" stroke-width="1"/>
+
+                    <!-- Punktzahlen (alle oben in der Mitte, auf verschiedenen Ringen) -->
+                    <!-- 1 - äußerster weißer Ring (r=110, y=125-110=15) -->
+                    <text x="125" y="15" text-anchor="middle" dominant-baseline="middle" fill="#333" font-size="8" font-weight="bold">1</text>
+                    <!-- 2 - schwarzer Ring außen (r=95, y=125-95=30) -->
+                    <text x="125" y="30" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="8" font-weight="bold">2</text>
+                    <!-- 3 - schwarzer Ring innen (r=85, y=125-85=40) -->
+                    <text x="125" y="40" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="8" font-weight="bold">3</text>
+                    <!-- 4 - weißer Ring außen (r=75, y=125-75=50) -->
+                    <text x="125" y="50" text-anchor="middle" dominant-baseline="middle" fill="#333" font-size="8" font-weight="bold">4</text>
+                    <!-- 5 - weißer Ring innen (r=65, y=125-65=60) -->
+                    <text x="125" y="60" text-anchor="middle" dominant-baseline="middle" fill="#333" font-size="8" font-weight="bold">5</text>
+                    <!-- 6 - cyan Ring außen (r=55, y=125-55=70) -->
+                    <text x="125" y="70" text-anchor="middle" dominant-baseline="middle" fill="#333" font-size="8" font-weight="bold">6</text>
+                    <!-- 7 - cyan Ring innen (r=45, y=125-45=80) -->
+                    <text x="125" y="80" text-anchor="middle" dominant-baseline="middle" fill="#333" font-size="8" font-weight="bold">7</text>
+                    <!-- 8 - roter Ring außen (r=35, y=125-35=90) -->
+                    <text x="125" y="90" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="8" font-weight="bold">8</text>
+                    <!-- 9 - roter Ring innen (r=25, y=125-25=100) -->
+                    <text x="125" y="100" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="8" font-weight="bold">9</text>
+                    <!-- 10 - gelber Ring (r=15, y=125-15=110) -->
+                    <text x="125" y="110" text-anchor="middle" dominant-baseline="middle" fill="#333" font-size="8" font-weight="bold">10</text>
+
+                    <!-- Kreuzlinien für Orientierung -->
+                    <line x1="125" y1="0" x2="125" y2="10" stroke="#333" stroke-width="1.5"/>
+                    <line x1="125" y1="240" x2="125" y2="250" stroke="#333" stroke-width="1.5"/>
+                    <line x1="0" y1="125" x2="10" y2="125" stroke="#333" stroke-width="1.5"/>
+                    <line x1="240" y1="125" x2="250" y2="125" stroke="#333" stroke-width="1.5"/>
+                </svg>
             </div>
+        </div>
+
+        <div class="controls" style="text-align: center; margin-top: 20px;">
+            <button class="btn" onclick="fireGun()">🔫 Feuer!</button>
+            <button class="btn" onclick="location.reload()">🔄 Reset</button>
         </div>
 
         <div class="features">
@@ -365,8 +451,8 @@
 
         function createDart() {
             // Get the actual position of the muzzle on screen
-            const svg = document.querySelector('svg');
-            const svgRect = svg.getBoundingClientRect();
+            const gunSvg = document.querySelector('.gun-wrapper svg');
+            const gunRect = gunSvg.getBoundingClientRect();
 
             // Muzzle is at SVG coordinates (380, 100)
             // Calculate screen position relative to SVG viewBox
@@ -374,11 +460,27 @@
             const muzzleYInSVG = 100;
 
             // Convert SVG coordinates to screen coordinates
-            const scaleX = svgRect.width / 400; // SVG viewBox width is 400
-            const scaleY = svgRect.height / 200; // SVG viewBox height is 200
+            const scaleX = gunRect.width / 400; // SVG viewBox width is 400
+            const scaleY = gunRect.height / 200; // SVG viewBox height is 200
 
-            const muzzleScreenX = svgRect.left + (muzzleXInSVG * scaleX);
-            const muzzleScreenY = svgRect.top + (muzzleYInSVG * scaleY);
+            const muzzleScreenX = gunRect.left + (muzzleXInSVG * scaleX);
+            const muzzleScreenY = gunRect.top + (muzzleYInSVG * scaleY);
+
+            // Get target position
+            const targetSvg = document.querySelector('.target-wrapper svg');
+            const targetRect = targetSvg.getBoundingClientRect();
+
+            // Target center is at (125, 125) in viewBox
+            const targetCenterX = targetRect.left + (targetRect.width / 2);
+            const targetCenterY = targetRect.top + (targetRect.height / 2);
+
+            // Add random spread - some darts will miss!
+            // Spread increases with distance (max ±80px from center)
+            const spreadX = (Math.random() - 0.5) * 160;
+            const spreadY = (Math.random() - 0.5) * 160;
+
+            const targetX = targetCenterX + spreadX;
+            const targetY = targetCenterY + spreadY;
 
             const dart = document.createElement('div');
             dart.className = 'dart';
@@ -386,19 +488,25 @@
             dart.style.top = muzzleScreenY + 'px';
             document.body.appendChild(dart);
 
-            // Animate dart flying across screen
+            // Calculate angle to target for rotation
+            const angle = Math.atan2(targetY - muzzleScreenY, targetX - muzzleScreenX);
+            const angleDeg = angle * 180 / Math.PI;
+
+            // Animate dart flying to target
             setTimeout(() => {
                 dart.style.opacity = '1';
-                dart.style.transition = 'all 0.8s ease-out';
-                dart.style.left = window.innerWidth + 'px';
-                dart.style.top = (muzzleScreenY + Math.random() * 100 - 50) + 'px';
-                dart.style.transform = 'rotate(' + (Math.random() * 20 - 10) + 'deg)';
+                dart.style.transition = 'all 0.6s cubic-bezier(0.25, 0.1, 0.25, 1)';
+                dart.style.left = targetX + 'px';
+                dart.style.top = targetY + 'px';
+                dart.style.transform = 'rotate(' + angleDeg + 'deg)';
             }, 10);
 
             // Remove dart after animation
             setTimeout(() => {
-                dart.remove();
-            }, 1000);
+                dart.style.transition = 'opacity 0.3s';
+                dart.style.opacity = '0';
+                setTimeout(() => dart.remove(), 300);
+            }, 800);
         }
 
         function playShootSound() {
