@@ -212,8 +212,8 @@
         <div class="gun-display">
             <div class="gun-wrapper" id="gunWrapper">
                 <svg width="350" height="200" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Hauptkörper -->
-                    <g id="nerfGun">
+                    <!-- Klassische Nerf Gun -->
+                    <g id="nerfGun1" class="gun-model">
                         <!-- Magazin -->
                         <rect x="120" y="100" width="40" height="60" rx="5" fill="#2c3e50" stroke="#1a252f" stroke-width="2"/>
                         <rect x="125" y="105" width="30" height="10" rx="2" fill="#3498db"/>
@@ -263,12 +263,145 @@
                         <rect x="55" y="100" width="40" height="10" rx="2" fill="#34495e"/>
                     </g>
 
-                    <!-- Mündungsfeuer (initially hidden) -->
-                    <g id="muzzleFlash" opacity="0">
+                    <!-- Futuristische Nerf Gun -->
+                    <g id="nerfGun2" class="gun-model" style="display: none;">
+                        <!-- Schulterstütze -->
+                        <rect x="30" y="88" width="60" height="24" rx="4" fill="#5a7c9f" stroke="#3d5a7a" stroke-width="2"/>
+                        <rect x="35" y="92" width="50" height="8" rx="2" fill="#6b8db5"/>
+                        <rect x="35" y="102" width="50" height="6" rx="1" fill="#ff6b35"/>
+
+                        <!-- Hauptkörper (blau-grau) -->
+                        <path d="M 90 75 L 280 75 L 280 125 L 90 125 Z" fill="#5a7c9f" stroke="#3d5a7a" stroke-width="2"/>
+                        <rect x="95" y="80" width="180" height="15" rx="3" fill="#6b8db5"/>
+                        <rect x="95" y="105" width="180" height="15" rx="3" fill="#6b8db5"/>
+
+                        <!-- Griff -->
+                        <path d="M 120 110 Q 105 120 100 140 L 100 165 Q 100 175 110 175 L 125 175 Q 130 175 130 170 L 130 125 Z"
+                              fill="#5a7c9f" stroke="#3d5a7a" stroke-width="2"/>
+                        <ellipse cx="115" cy="145" rx="8" ry="15" fill="#6b8db5" opacity="0.6"/>
+
+                        <!-- Abzug -->
+                        <path d="M 125 128 Q 120 133 125 138" stroke="#ff6b35" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+                        <!-- Oberer Scope/Rail -->
+                        <rect x="140" y="60" width="100" height="12" rx="2" fill="#5a7c9f" stroke="#3d5a7a" stroke-width="1.5"/>
+                        <rect x="145" y="63" width="90" height="6" rx="1" fill="#ff6b35"/>
+
+                        <!-- Magazin oben -->
+                        <rect x="160" y="45" width="35" height="20" rx="3" fill="#ff6b35" stroke="#d45028" stroke-width="2"/>
+                        <rect x="165" y="48" width="25" height="4" rx="1" fill="#ff8e53"/>
+                        <rect x="165" y="54" width="25" height="4" rx="1" fill="#ff8e53"/>
+                        <rect x="165" y="60" width="25" height="4" rx="1" fill="#ff8e53"/>
+
+                        <!-- Lauf (orange) -->
+                        <rect x="280" y="82" width="90" height="36" rx="18" fill="#ff6b35" stroke="#d45028" stroke-width="2"/>
+                        <rect x="285" y="88" width="80" height="24" rx="12" fill="#ff8e53"/>
+
+                        <!-- Laufdetails -->
+                        <line x1="300" y1="85" x2="300" y2="115" stroke="#d45028" stroke-width="2"/>
+                        <line x1="320" y1="85" x2="320" y2="115" stroke="#d45028" stroke-width="2"/>
+                        <line x1="340" y1="85" x2="340" y2="115" stroke="#d45028" stroke-width="2"/>
+                        <line x1="355" y1="85" x2="355" y2="115" stroke="#d45028" stroke-width="2"/>
+
+                        <!-- Mündung -->
+                        <circle cx="370" cy="100" r="10" fill="#d45028"/>
+                        <circle cx="370" cy="100" r="6" fill="#1a252f"/>
+
+                        <!-- Seitendetails -->
+                        <circle cx="150" cy="100" r="6" fill="#1a252f" stroke="#ff6b35" stroke-width="1"/>
+                        <circle cx="200" cy="100" r="6" fill="#1a252f" stroke="#ff6b35" stroke-width="1"/>
+                        <circle cx="250" cy="100" r="6" fill="#1a252f" stroke="#ff6b35" stroke-width="1"/>
+
+                        <!-- Ventilationsschlitze -->
+                        <rect x="180" y="90" width="3" height="20" rx="1" fill="#3d5a7a"/>
+                        <rect x="190" y="90" width="3" height="20" rx="1" fill="#3d5a7a"/>
+                        <rect x="220" y="90" width="3" height="20" rx="1" fill="#3d5a7a"/>
+                        <rect x="230" y="90" width="3" height="20" rx="1" fill="#3d5a7a"/>
+                    </g>
+
+                    <!-- Nerf Gun mit Trommelmagazin -->
+                    <g id="nerfGun3" class="gun-model" style="display: none;">
+                        <!-- Schulterstütze -->
+                        <rect x="40" y="92" width="45" height="16" rx="3" fill="#2c5aa0" stroke="#1a3d7a" stroke-width="2"/>
+                        <rect x="45" y="96" width="35" height="8" rx="2" fill="#3d6bb5"/>
+
+                        <!-- Hauptkörper (blau) -->
+                        <rect x="85" y="78" width="200" height="44" rx="6" fill="#2c5aa0" stroke="#1a3d7a" stroke-width="2"/>
+                        <rect x="90" y="84" width="190" height="12" rx="2" fill="#3d6bb5"/>
+                        <rect x="90" y="104" width="190" height="12" rx="2" fill="#3d6bb5"/>
+
+                        <!-- Griff (schwarz) -->
+                        <path d="M 130 108 Q 120 118 115 135 L 115 160 Q 115 170 125 170 L 140 170 Q 145 170 145 165 L 145 122 Z"
+                              fill="#1a1a1a" stroke="#0a0a0a" stroke-width="2"/>
+                        <rect x="120" y="125" width="20" height="35" rx="2" fill="#2a2a2a"/>
+
+                        <!-- Abzug (orange) -->
+                        <path d="M 140 125 Q 135 130 140 135" stroke="#ff6b35" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+                        <!-- Trommelmagazin (grün) -->
+                        <circle cx="180" cy="130" r="45" fill="#4CAF50" stroke="#2e7d32" stroke-width="3"/>
+                        <circle cx="180" cy="130" r="38" fill="#66BB6A"/>
+
+                        <!-- Trommel Rillen -->
+                        <line x1="180" y1="85" x2="180" y2="95" stroke="#2e7d32" stroke-width="2"/>
+                        <line x1="212" y1="100" x2="220" y2="107" stroke="#2e7d32" stroke-width="2"/>
+                        <line x1="225" y1="130" x2="235" y2="130" stroke="#2e7d32" stroke-width="2"/>
+                        <line x1="212" y1="160" x2="220" y2="153" stroke="#2e7d32" stroke-width="2"/>
+                        <line x1="180" y1="175" x2="180" y2="165" stroke="#2e7d32" stroke-width="2"/>
+                        <line x1="148" y1="160" x2="140" y2="153" stroke="#2e7d32" stroke-width="2"/>
+                        <line x1="135" y1="130" x2="125" y2="130" stroke="#2e7d32" stroke-width="2"/>
+                        <line x1="148" y1="100" x2="140" y2="107" stroke="#2e7d32" stroke-width="2"/>
+
+                        <!-- Trommel Zentrum -->
+                        <circle cx="180" cy="130" r="12" fill="#2e7d32"/>
+                        <circle cx="180" cy="130" r="6" fill="#1b5e20"/>
+
+                        <!-- Lauf vorne (orange/schwarz) -->
+                        <rect x="275" y="88" width="80" height="24" rx="12" fill="#1a1a1a" stroke="#0a0a0a" stroke-width="2"/>
+                        <rect x="280" y="92" width="70" height="16" rx="8" fill="#2a2a2a"/>
+
+                        <!-- Laufrillen -->
+                        <line x1="295" y1="90" x2="295" y2="110" stroke="#0a0a0a" stroke-width="1.5"/>
+                        <line x1="310" y1="90" x2="310" y2="110" stroke="#0a0a0a" stroke-width="1.5"/>
+                        <line x1="325" y1="90" x2="325" y2="110" stroke="#0a0a0a" stroke-width="1.5"/>
+                        <line x1="340" y1="90" x2="340" y2="110" stroke="#0a0a0a" stroke-width="1.5"/>
+
+                        <!-- Mündung (orange) -->
+                        <circle cx="355" cy="100" r="10" fill="#ff6b35"/>
+                        <circle cx="355" cy="100" r="6" fill="#d45028"/>
+
+                        <!-- Oberer Rail -->
+                        <rect x="180" y="68" width="80" height="8" rx="2" fill="#1a1a1a" stroke="#0a0a0a" stroke-width="1"/>
+                        <rect x="185" y="70" width="70" height="4" rx="1" fill="#ff6b35"/>
+
+                        <!-- Seitendetails (orange) -->
+                        <rect x="240" y="95" width="8" height="10" rx="2" fill="#ff6b35"/>
+                        <rect x="255" y="95" width="8" height="10" rx="2" fill="#ff6b35"/>
+                        <circle cx="210" cy="100" r="5" fill="#ff6b35"/>
+                    </g>
+
+                    <!-- Mündungsfeuer für Gun 1 -->
+                    <g id="muzzleFlash1" class="muzzle-flash" opacity="0">
                         <circle cx="380" cy="100" r="15" fill="#ffeb3b" opacity="0.8"/>
                         <circle cx="380" cy="100" r="10" fill="#ffd93d" opacity="0.9"/>
                         <polygon points="385,100 400,95 395,100 400,105" fill="#ff6b35" opacity="0.7"/>
                         <polygon points="385,100 398,92 395,100 398,108" fill="#ffeb3b" opacity="0.6"/>
+                    </g>
+
+                    <!-- Mündungsfeuer für Gun 2 -->
+                    <g id="muzzleFlash2" class="muzzle-flash" opacity="0" style="display: none;">
+                        <circle cx="370" cy="100" r="15" fill="#ffeb3b" opacity="0.8"/>
+                        <circle cx="370" cy="100" r="10" fill="#ffd93d" opacity="0.9"/>
+                        <polygon points="375,100 390,95 385,100 390,105" fill="#ff6b35" opacity="0.7"/>
+                        <polygon points="375,100 388,92 385,100 388,108" fill="#ffeb3b" opacity="0.6"/>
+                    </g>
+
+                    <!-- Mündungsfeuer für Gun 3 -->
+                    <g id="muzzleFlash3" class="muzzle-flash" opacity="0" style="display: none;">
+                        <circle cx="355" cy="100" r="15" fill="#ffeb3b" opacity="0.8"/>
+                        <circle cx="355" cy="100" r="10" fill="#ffd93d" opacity="0.9"/>
+                        <polygon points="360,100 375,95 370,100 375,105" fill="#ff6b35" opacity="0.7"/>
+                        <polygon points="360,100 373,92 370,100 373,108" fill="#ffeb3b" opacity="0.6"/>
                     </g>
                 </svg>
             </div>
@@ -355,6 +488,7 @@
 
         <div class="controls" style="text-align: center; margin-top: 20px;">
             <button class="btn" onclick="fireGun()">🔫 Feuer!</button>
+            <button class="btn" id="gunSelector" onclick="switchGun()">🔄 Nerf wechseln</button>
             <button class="btn" onclick="location.reload()">🔄 Reset</button>
         </div>
 
@@ -441,10 +575,28 @@
 
     <script>
         let dartCount = 0;
+        let currentGun = 1; // Start with gun 1
+
+        function switchGun() {
+            // Cycle through guns 1, 2, 3
+            currentGun = currentGun === 3 ? 1 : currentGun + 1;
+
+            // Hide all guns and flashes
+            document.getElementById('nerfGun1').style.display = 'none';
+            document.getElementById('nerfGun2').style.display = 'none';
+            document.getElementById('nerfGun3').style.display = 'none';
+            document.getElementById('muzzleFlash1').style.display = 'none';
+            document.getElementById('muzzleFlash2').style.display = 'none';
+            document.getElementById('muzzleFlash3').style.display = 'none';
+
+            // Show selected gun and flash
+            document.getElementById('nerfGun' + currentGun).style.display = 'block';
+            document.getElementById('muzzleFlash' + currentGun).style.display = 'block';
+        }
 
         function fireGun() {
             const gunWrapper = document.getElementById('gunWrapper');
-            const muzzleFlash = document.getElementById('muzzleFlash');
+            const muzzleFlash = document.getElementById('muzzleFlash' + currentGun);
 
             // Recoil animation
             gunWrapper.classList.add('firing');
@@ -466,9 +618,9 @@
             const gunSvg = document.querySelector('.gun-wrapper svg');
             const gunRect = gunSvg.getBoundingClientRect();
 
-            // Muzzle is at SVG coordinates (380, 100)
-            // Calculate screen position relative to SVG viewBox
-            const muzzleXInSVG = 380;
+            // Muzzle coordinates differ per gun
+            // Gun 1: (380, 100), Gun 2: (370, 100), Gun 3: (355, 100)
+            const muzzleXInSVG = currentGun === 1 ? 380 : (currentGun === 2 ? 370 : 355);
             const muzzleYInSVG = 100;
 
             // Convert SVG coordinates to screen coordinates
