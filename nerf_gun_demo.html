@@ -88,13 +88,7 @@
         }
 
         .gun-wrapper.firing {
-            animation: recoil 0.3s ease;
-        }
-
-        @keyframes recoil {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-15px); }
-            50% { transform: translateX(5px); }
+            /* Recoil animation handled via JavaScript for rotation-aware movement */
         }
 
         .controls {
@@ -619,6 +613,12 @@
         let blocks = [];
         let projectiles = [];
 
+        // Gun aiming
+        let gunRotation = 0; // degrees, 0 = horizontal
+        let targetGunRotation = 0;
+        let recoilOffset = 0; // Recoil displacement
+        let recoilVelocity = 0;
+
         function switchMode() {
             gameMode = gameMode === 'target' ? 'tower' : 'target';
 
@@ -826,9 +826,8 @@
             const gunWrapper = document.getElementById('gunWrapper');
             const muzzleFlash = document.getElementById('muzzleFlash' + currentGun);
 
-            // Recoil animation
-            gunWrapper.classList.add('firing');
-            setTimeout(() => gunWrapper.classList.remove('firing'), 300);
+            // Trigger recoil based on current gun angle
+            recoilVelocity = -15; // Recoil force backwards
 
             // Muzzle flash
             muzzleFlash.setAttribute('opacity', '1');
@@ -868,20 +867,25 @@
             const canvasY = muzzleScreenY - canvasRect.top;
 
             // Create physics projectile
-            const projectile = Bodies.circle(canvasX, canvasY, 6, {
+            const projectile = Bodies.circle(canvasX, canvasY, 8, {
                 render: { fillStyle: '#ff6b35' },
                 restitution: 0.6,
                 friction: 0.1,
-                density: 0.04
+                density: 0.15
             });
 
-            // Launch toward tower center with some spread
-            const targetX = 300 + (Math.random() - 0.5) * 100;
-            const targetY = 350;
-            const forceX = (targetX - canvasX) * 0.015;
-            const forceY = (targetY - canvasY) * 0.015;
+            // Calculate launch angle based on gun rotation
+            const angleInRadians = gunRotation * Math.PI / 180;
+            const baseSpeed = 25;
 
-            Body.setVelocity(projectile, { x: forceX * 10, y: forceY * 10 });
+            // Add some random spread
+            const spreadAngle = (Math.random() - 0.5) * 0.2;
+            const totalAngle = angleInRadians + spreadAngle;
+
+            const velocityX = Math.cos(totalAngle) * baseSpeed;
+            const velocityY = Math.sin(totalAngle) * baseSpeed;
+
+            Body.setVelocity(projectile, { x: velocityX, y: velocityY });
             World.add(world, projectile);
             projectiles.push(projectile);
 
@@ -913,21 +917,20 @@
             const muzzleScreenX = gunRect.left + (muzzleXInSVG * scaleX);
             const muzzleScreenY = gunRect.top + (muzzleYInSVG * scaleY);
 
-            // Get target position
-            const targetSvg = document.querySelector('.target-wrapper svg');
-            const targetRect = targetSvg.getBoundingClientRect();
+            // Calculate base trajectory based on gun rotation
+            const angleInRadians = gunRotation * Math.PI / 180;
+            const distance = 600; // Base distance
 
-            // Target center is at (125, 125) in viewBox
-            const targetCenterX = targetRect.left + (targetRect.width / 2);
-            const targetCenterY = targetRect.top + (targetRect.height / 2);
+            // Calculate target point based on gun angle
+            let targetX = muzzleScreenX + Math.cos(angleInRadians) * distance;
+            let targetY = muzzleScreenY + Math.sin(angleInRadians) * distance;
 
-            // Add random spread - some darts will miss!
-            // Spread increases with distance (max ±80px from center)
-            const spreadX = (Math.random() - 0.5) * 160;
-            const spreadY = (Math.random() - 0.5) * 160;
+            // Add random spread
+            const spreadX = (Math.random() - 0.5) * 80;
+            const spreadY = (Math.random() - 0.5) * 80;
 
-            const targetX = targetCenterX + spreadX;
-            const targetY = targetCenterY + spreadY;
+            targetX += spreadX;
+            targetY += spreadY;
 
             const dart = document.createElement('div');
             dart.className = 'dart';
@@ -993,6 +996,54 @@
             oscillator.start(audioContext.currentTime);
             oscillator.stop(audioContext.currentTime + 0.1);
         }
+
+        // Mouse aiming - track mouse position
+        document.addEventListener('mousemove', (e) => {
+            const gunWrapper = document.getElementById('gunWrapper');
+            const gunRect = gunWrapper.getBoundingClientRect();
+            const gunCenterY = gunRect.top + gunRect.height / 2;
+
+            // Calculate angle based on mouse Y position
+            // Max rotation: -20° up, +40° down (to reach lower blocks)
+            const mouseY = e.clientY;
+            const deltaY = mouseY - gunCenterY;
+
+            // Scale with smooth response
+            const maxAngleUp = 20;
+            const maxAngleDown = 40;
+            const sensitivity = 0.15; // Lower = less sensitive
+            const angle = deltaY * sensitivity;
+
+            targetGunRotation = Math.max(-maxAngleUp, Math.min(maxAngleDown, angle));
+        });
+
+        // Smooth gun rotation and recoil animation
+        function updateGunRotation() {
+            // Smooth interpolation for rotation
+            const lerpFactor = 0.1;
+            gunRotation += (targetGunRotation - gunRotation) * lerpFactor;
+
+            // Recoil physics (spring-like motion)
+            const recoilSpring = 0.3;
+            const recoilDamping = 0.85;
+
+            recoilVelocity += -recoilOffset * recoilSpring; // Spring force
+            recoilVelocity *= recoilDamping; // Damping
+            recoilOffset += recoilVelocity; // Update position
+
+            // Calculate recoil movement based on gun angle
+            const angleInRadians = gunRotation * Math.PI / 180;
+            const recoilX = Math.cos(angleInRadians) * recoilOffset;
+            const recoilY = Math.sin(angleInRadians) * recoilOffset;
+
+            // Apply rotation and recoil to gun
+            const gunWrapper = document.getElementById('gunWrapper');
+            gunWrapper.style.transform = `translate(${recoilX}px, ${recoilY}px) rotate(${gunRotation}deg)`;
+            gunWrapper.style.transformOrigin = 'center center';
+
+            requestAnimationFrame(updateGunRotation);
+        }
+        updateGunRotation();
 
         // Click anywhere on gun to fire
         document.getElementById('gunWrapper').addEventListener('click', fireGun);
