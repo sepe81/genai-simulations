@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nerf Gun Demo & Simulation Ideas</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.20.0/matter.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -681,7 +681,7 @@
         let gameMode = 'target'; // 'target' or 'tower'
 
         // Matter.js variables
-        let engine, world, render;
+        let engine, world, render, runner;
         let blocks = [];
         let projectiles = [];
 
@@ -701,6 +701,10 @@
             } else {
                 document.getElementById('targetWrapper').style.display = 'block';
                 document.getElementById('towerWrapper').style.display = 'none';
+                if (runner) {
+                    Matter.Runner.stop(runner);
+                    runner = null;
+                }
                 if (render) {
                     Matter.Render.stop(render);
                     Matter.Engine.clear(engine);
@@ -710,7 +714,19 @@
         }
 
         function initTower() {
-            const { Engine, Render, World, Bodies, Runner } = Matter;
+            const { Engine, Render, World, Bodies, Runner, Sleeping } = Matter;
+
+            // Stop and clear existing instances
+            if (runner) {
+                Runner.stop(runner);
+                runner = null;
+            }
+            if (render) {
+                Render.stop(render);
+            }
+            if (engine) {
+                Engine.clear(engine);
+            }
 
             // Create engine
             engine = Engine.create();
@@ -763,7 +779,7 @@
                         blockWidth,
                         blockHeight,
                         {
-                            isStatic: true, // Start as static
+                            isSleeping: true, // Start as sleeping
                             render: { fillStyle: colors[blockCount % colors.length] },
                             friction: 0.8,
                             restitution: 0.15,
@@ -776,20 +792,25 @@
                 }
             }
 
-            // Make all blocks dynamic after a short delay to ensure stable initial state
+            // Wake all blocks after a short delay to ensure stable initial state
             setTimeout(() => {
                 // First enable gravity
                 world.gravity.y = 1;
 
-                // Then make blocks dynamic
+                // Then wake blocks
                 blocks.forEach(block => {
-                    Matter.Body.setStatic(block, false);
+                    Sleeping.set(block, false);
                 });
             }, 100);
 
             // Run renderer and engine
             Render.run(render);
-            Runner.run(Runner.create(), engine);
+
+            // Create runner with fixed timestep (Matter.js 0.20.0 uses fixed timestep by default)
+            runner = Runner.create({
+                delta: 1000 / 60  // 60 FPS fixed timestep
+            });
+            Runner.run(runner, engine);
 
             // Update total block count display
             document.getElementById('totalBlocks').textContent = blocks.length;
@@ -885,9 +906,15 @@
                 totalScore = 0;
                 document.getElementById('scoreValue').textContent = '0';
             } else if (gameMode === 'tower') {
-                // Rebuild tower
+                // Rebuild tower - full cleanup
+                if (runner) {
+                    Matter.Runner.stop(runner);
+                    runner = null;
+                }
                 if (render) {
                     Matter.Render.stop(render);
+                }
+                if (engine) {
                     Matter.Engine.clear(engine);
                 }
                 initTower();
