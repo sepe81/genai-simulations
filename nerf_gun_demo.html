@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nerf Gun Demo & Simulation Ideas</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .gun-display {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .gun-wrapper {
+            display: inline-block;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .gun-wrapper:hover {
+            transform: scale(1.05) rotate(-2deg);
+        }
+
+        .gun-wrapper.firing {
+            animation: recoil 0.3s ease;
+        }
+
+        @keyframes recoil {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-15px); }
+            50% { transform: translateX(5px); }
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 0 10px;
+            box-shadow: 0 4px 15px rgba(255,107,107,0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255,107,107,0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .ideas-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .idea-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .idea-card:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.4);
+            transform: translateY(-5px);
+        }
+
+        .idea-card h3 {
+            margin-top: 0;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .idea-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .idea-card li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .idea-card li:before {
+            content: "🎯";
+            position: absolute;
+            left: 0;
+        }
+
+        .dart {
+            position: fixed;
+            width: 60px;
+            height: 15px;
+            background: linear-gradient(90deg, #ff6b6b 0%, #ff8e53 70%, #ffd93d 100%);
+            border-radius: 10px 2px 2px 10px;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+            box-shadow: 0 2px 10px rgba(255,107,107,0.6);
+        }
+
+        .dart:before {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid #ffd93d;
+            border-top: 7px solid transparent;
+            border-bottom: 7px solid transparent;
+        }
+
+        .features {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .features h2 {
+            margin-top: 0;
+        }
+
+        .features ul {
+            columns: 2;
+            column-gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .features ul {
+                columns: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Nerf Gun Simulation Konzept</h1>
+        <p class="subtitle">Klicke auf die Nerf-Gun zum Schießen!</p>
+
+        <div class="gun-display">
+            <div class="gun-wrapper" id="gunWrapper">
+                <svg width="400" height="200" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Hauptkörper -->
+                    <g id="nerfGun">
+                        <!-- Magazin -->
+                        <rect x="120" y="100" width="40" height="60" rx="5" fill="#2c3e50" stroke="#1a252f" stroke-width="2"/>
+                        <rect x="125" y="105" width="30" height="10" rx="2" fill="#3498db"/>
+                        <rect x="125" y="120" width="30" height="10" rx="2" fill="#3498db"/>
+                        <rect x="125" y="135" width="30" height="10" rx="2" fill="#3498db"/>
+
+                        <!-- Griff -->
+                        <path d="M 120 110 Q 100 120 90 140 L 90 160 Q 90 170 100 170 L 115 170 Q 120 170 120 165 Z"
+                              fill="#ff6b35" stroke="#d45028" stroke-width="2"/>
+                        <ellipse cx="105" cy="140" rx="8" ry="12" fill="#ff8e53" opacity="0.6"/>
+
+                        <!-- Abzug -->
+                        <path d="M 115 125 Q 110 130 115 135" stroke="#3498db" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+                        <!-- Hauptgehäuse -->
+                        <rect x="120" y="80" width="180" height="40" rx="8" fill="#ff6b35" stroke="#d45028" stroke-width="2"/>
+                        <rect x="130" y="88" width="160" height="8" rx="2" fill="#ff8e53"/>
+                        <rect x="130" y="104" width="160" height="8" rx="2" fill="#ff8e53"/>
+
+                        <!-- Lauf -->
+                        <rect x="280" y="85" width="100" height="30" rx="15" fill="#2c3e50" stroke="#1a252f" stroke-width="2"/>
+                        <rect x="285" y="92" width="90" height="16" rx="8" fill="#34495e"/>
+
+                        <!-- Laufdetails (Rillen) -->
+                        <line x1="300" y1="90" x2="300" y2="110" stroke="#1a252f" stroke-width="2"/>
+                        <line x1="320" y1="90" x2="320" y2="110" stroke="#1a252f" stroke-width="2"/>
+                        <line x1="340" y1="90" x2="340" y2="110" stroke="#1a252f" stroke-width="2"/>
+                        <line x1="360" y1="90" x2="360" y2="110" stroke="#1a252f" stroke-width="2"/>
+
+                        <!-- Mündung -->
+                        <circle cx="380" cy="100" r="8" fill="#1a252f"/>
+                        <circle cx="380" cy="100" r="5" fill="#2c3e50"/>
+
+                        <!-- Zielfernrohr/Scope -->
+                        <ellipse cx="200" cy="65" rx="35" ry="12" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+                        <rect x="185" y="65" width="8" height="15" fill="#2c3e50"/>
+                        <rect x="207" y="65" width="8" height="15" fill="#2c3e50"/>
+                        <ellipse cx="200" cy="65" rx="20" ry="8" fill="#5dade2" opacity="0.6"/>
+
+                        <!-- Seitendetails -->
+                        <rect x="140" y="95" width="30" height="5" rx="2" fill="#ffd93d"/>
+                        <circle cx="250" cy="95" r="8" fill="#2c3e50" stroke="#1a252f" stroke-width="1"/>
+                        <circle cx="250" cy="95" r="4" fill="#3498db"/>
+
+                        <!-- Schulterstütze -->
+                        <rect x="50" y="95" width="50" height="20" rx="5" fill="#2c3e50" stroke="#1a252f" stroke-width="2"/>
+                        <rect x="55" y="100" width="40" height="10" rx="2" fill="#34495e"/>
+                    </g>
+
+                    <!-- Mündungsfeuer (initially hidden) -->
+                    <g id="muzzleFlash" opacity="0">
+                        <circle cx="380" cy="100" r="15" fill="#ffeb3b" opacity="0.8"/>
+                        <circle cx="380" cy="100" r="10" fill="#ffd93d" opacity="0.9"/>
+                        <polygon points="385,100 400,95 395,100 400,105" fill="#ff6b35" opacity="0.7"/>
+                        <polygon points="385,100 398,92 395,100 398,108" fill="#ffeb3b" opacity="0.6"/>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="controls">
+                <button class="btn" onclick="fireGun()">🔫 Feuer!</button>
+                <button class="btn" onclick="location.reload()">🔄 Reset</button>
+            </div>
+        </div>
+
+        <div class="features">
+            <h2>🎮 Mögliche Simulationen mit Nerf-Gun</h2>
+            <ul>
+                <li><strong>Ballistik-Simulation:</strong> Realistische Flugbahnen mit Schwerkraft und Luftwiderstand</li>
+                <li><strong>Target-Practice:</strong> Treffsicherheit auf bewegliche und statische Ziele</li>
+                <li><strong>Ricochet-Physics:</strong> Darts prallen von Wänden und Objekten ab</li>
+                <li><strong>Destruction-Game:</strong> Stapel von Objekten umschießen</li>
+                <li><strong>Rapid-Fire-Mode:</strong> Mehrere Darts gleichzeitig abfeuern</li>
+                <li><strong>Slow-Motion:</strong> Zeitlupe für präzises Tracking der Projektile</li>
+            </ul>
+        </div>
+
+        <div class="ideas-section">
+            <div class="idea-card">
+                <h3>🎯 Target Shooting Range</h3>
+                <ul>
+                    <li>Verschiedene Ziele mit Punktewertung</li>
+                    <li>Bewegliche Ziele (Pendel, rotierende Scheiben)</li>
+                    <li>Combo-System für schnelle Treffer</li>
+                    <li>Winkel- und Kraftsteuerung</li>
+                    <li>Highscore-Tracking</li>
+                </ul>
+            </div>
+
+            <div class="idea-card">
+                <h3>💥 Physics Destruction</h3>
+                <ul>
+                    <li>Türme aus Blöcken aufbauen und umschießen</li>
+                    <li>Kettenreaktionen mit fallenden Dominosteinen</li>
+                    <li>Explosive Fässer als Multiplikatoren</li>
+                    <li>Strukturstabilität berechnen</li>
+                    <li>Partikel-Explosionen bei Treffern</li>
+                </ul>
+            </div>
+
+            <div class="idea-card">
+                <h3>🏃 Moving Target Training</h3>
+                <ul>
+                    <li>Gegner bewegen sich horizontal/vertikal</li>
+                    <li>Vorhersage-Linien für Flugbahn</li>
+                    <li>Verschiedene Schwierigkeitsstufen</li>
+                    <li>Zeitbasierte Herausforderungen</li>
+                    <li>Reflextraining</li>
+                </ul>
+            </div>
+
+            <div class="idea-card">
+                <h3>🎨 Creative Dart Art</h3>
+                <ul>
+                    <li>Darts hinterlassen farbige Spuren</li>
+                    <li>Zeichnen durch Schießen</li>
+                    <li>Verschiedene Dart-Farben wählen</li>
+                    <li>Muster und Formen erstellen</li>
+                    <li>Galerie-Modus für Kunstwerke</li>
+                </ul>
+            </div>
+
+            <div class="idea-card">
+                <h3>🌪️ Wind & Environmental Effects</h3>
+                <ul>
+                    <li>Windrichtung und -stärke beeinflussen Flug</li>
+                    <li>Regen verändert Dart-Geschwindigkeit</li>
+                    <li>Antigravitations-Zonen</li>
+                    <li>Portale für teleportierende Darts</li>
+                    <li>Dynamische Hindernisse</li>
+                </ul>
+            </div>
+
+            <div class="idea-card">
+                <h3>🎪 Trick Shot Challenge</h3>
+                <ul>
+                    <li>Komplexe Level mit Hindernissen</li>
+                    <li>Mehrfach-Ricochet-Schüsse</li>
+                    <li>Durch enge Passagen schießen</li>
+                    <li>Timing-basierte Mechaniken</li>
+                    <li>Kreative Lösungswege belohnen</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let dartCount = 0;
+
+        function fireGun() {
+            const gunWrapper = document.getElementById('gunWrapper');
+            const muzzleFlash = document.getElementById('muzzleFlash');
+
+            // Recoil animation
+            gunWrapper.classList.add('firing');
+            setTimeout(() => gunWrapper.classList.remove('firing'), 300);
+
+            // Muzzle flash
+            muzzleFlash.setAttribute('opacity', '1');
+            setTimeout(() => muzzleFlash.setAttribute('opacity', '0'), 100);
+
+            // Create and animate dart
+            createDart();
+
+            // Sound effect (simple beep)
+            playShootSound();
+        }
+
+        function createDart() {
+            // Get the actual position of the muzzle on screen
+            const svg = document.querySelector('svg');
+            const svgRect = svg.getBoundingClientRect();
+
+            // Muzzle is at SVG coordinates (380, 100)
+            // Calculate screen position relative to SVG viewBox
+            const muzzleXInSVG = 380;
+            const muzzleYInSVG = 100;
+
+            // Convert SVG coordinates to screen coordinates
+            const scaleX = svgRect.width / 400; // SVG viewBox width is 400
+            const scaleY = svgRect.height / 200; // SVG viewBox height is 200
+
+            const muzzleScreenX = svgRect.left + (muzzleXInSVG * scaleX);
+            const muzzleScreenY = svgRect.top + (muzzleYInSVG * scaleY);
+
+            const dart = document.createElement('div');
+            dart.className = 'dart';
+            dart.style.left = muzzleScreenX + 'px';
+            dart.style.top = muzzleScreenY + 'px';
+            document.body.appendChild(dart);
+
+            // Animate dart flying across screen
+            setTimeout(() => {
+                dart.style.opacity = '1';
+                dart.style.transition = 'all 0.8s ease-out';
+                dart.style.left = window.innerWidth + 'px';
+                dart.style.top = (muzzleScreenY + Math.random() * 100 - 50) + 'px';
+                dart.style.transform = 'rotate(' + (Math.random() * 20 - 10) + 'deg)';
+            }, 10);
+
+            // Remove dart after animation
+            setTimeout(() => {
+                dart.remove();
+            }, 1000);
+        }
+
+        function playShootSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = 300;
+            oscillator.type = 'square';
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        // Click anywhere on gun to fire
+        document.getElementById('gunWrapper').addEventListener('click', fireGun);
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                fireGun();
+            }
+        });
+    </script>
+</body>
+</html>
