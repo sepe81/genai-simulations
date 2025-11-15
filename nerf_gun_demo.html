@@ -164,19 +164,24 @@
             left: 0;
         }
 
+        /* Dart Base Styles */
         .dart {
             position: fixed;
             width: 50px;
             height: 12px;
-            background: linear-gradient(90deg, #ff6b35 0%, #ff7f4d 50%, #ff8e53 100%);
             border-radius: 6px 0 0 6px;
             pointer-events: none;
             z-index: 1000;
             opacity: 0;
+        }
+
+        /* Gun 1: Classic Orange mit blauer Spitze */
+        .dart-gun1 {
+            background: linear-gradient(90deg, #ff6b35 0%, #ff7f4d 50%, #ff8e53 100%);
             box-shadow: 0 2px 8px rgba(255,107,53,0.4);
         }
 
-        .dart:before {
+        .dart-gun1:before {
             content: '';
             position: absolute;
             right: -12px;
@@ -189,7 +194,69 @@
             box-shadow: inset -2px 0 4px rgba(0,0,0,0.2);
         }
 
-        .dart:after {
+        .dart-gun1:after {
+            content: '';
+            position: absolute;
+            left: 3px;
+            top: 3px;
+            width: 44px;
+            height: 6px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 100%);
+            border-radius: 3px 0 0 3px;
+            pointer-events: none;
+        }
+
+        /* Gun 2: Elite Blau mit orangener Spitze */
+        .dart-gun2 {
+            background: linear-gradient(90deg, #2196F3 0%, #42a5f5 50%, #64b5f6 100%);
+            box-shadow: 0 2px 8px rgba(33,150,243,0.4);
+        }
+
+        .dart-gun2:before {
+            content: '';
+            position: absolute;
+            right: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: #ff6b35;
+            border-radius: 0 6px 6px 0;
+            box-shadow: inset -2px 0 4px rgba(0,0,0,0.2);
+        }
+
+        .dart-gun2:after {
+            content: '';
+            position: absolute;
+            left: 3px;
+            top: 3px;
+            width: 44px;
+            height: 6px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 100%);
+            border-radius: 3px 0 0 3px;
+            pointer-events: none;
+        }
+
+        /* Gun 3: Grün mit schwarzer Spitze (Zombie Strike) */
+        .dart-gun3 {
+            background: linear-gradient(90deg, #4CAF50 0%, #66BB6A 50%, #81C784 100%);
+            box-shadow: 0 2px 8px rgba(76,175,80,0.4);
+        }
+
+        .dart-gun3:before {
+            content: '';
+            position: absolute;
+            right: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: #2c3e50;
+            border-radius: 0 6px 6px 0;
+            box-shadow: inset -2px 0 4px rgba(0,0,0,0.3);
+        }
+
+        .dart-gun3:after {
             content: '';
             position: absolute;
             left: 3px;
@@ -867,9 +934,15 @@
             const canvasX = muzzleScreenX - canvasRect.left;
             const canvasY = muzzleScreenY - canvasRect.top;
 
-            // Create physics projectile
+            // Create physics projectile with gun-specific color
+            const projectileColors = {
+                1: '#ff6b35', // Orange for Gun 1
+                2: '#2196F3', // Blue for Gun 2
+                3: '#4CAF50'  // Green for Gun 3
+            };
+
             const projectile = Bodies.circle(canvasX, canvasY, 8, {
-                render: { fillStyle: '#ff6b35' },
+                render: { fillStyle: projectileColors[currentGun] },
                 restitution: 0.6,
                 friction: 0.1,
                 density: 0.15
@@ -934,7 +1007,7 @@
             targetY += spreadY;
 
             const dart = document.createElement('div');
-            dart.className = 'dart';
+            dart.className = 'dart dart-gun' + currentGun;
             dart.style.left = muzzleScreenX + 'px';
             dart.style.top = muzzleScreenY + 'px';
             document.body.appendChild(dart);
