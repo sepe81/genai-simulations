@@ -57,7 +57,8 @@ All simulations are self-contained HTML files. To run:
 ```bash
 git clone https://github.com/sepe81/genai-simulations.git
 cd genai-simulations
-open balloon_pop.html  # macOS
+open balloon_pop.html
+open nerf_gun_demo.html
 # or just double-click the file
 ```
 
