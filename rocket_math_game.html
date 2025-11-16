@@ -209,7 +209,7 @@
         let keyboardInput = ''; // For multi-digit number input
 
         // Audio context
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
 
         // Level configuration
         const levels = [
@@ -325,16 +325,16 @@
                 }
 
                 // Update flames
-                this.flames.forEach(flame => {
+                for (const flame of this.flames) {
                     flame.x -= 2;
                     flame.life -= 0.05;
-                });
+                }
                 this.flames = this.flames.filter(f => f.life > 0);
             }
 
             draw() {
                 // Draw flames
-                this.flames.forEach(flame => {
+                for (const flame of this.flames) {
                     const gradient = ctx.createRadialGradient(
                         flame.x, flame.y, 0,
                         flame.x, flame.y, flame.size
@@ -347,7 +347,7 @@
                     ctx.beginPath();
                     ctx.arc(flame.x, flame.y, flame.size, 0, Math.PI * 2);
                     ctx.fill();
-                });
+                }
 
                 ctx.save();
                 ctx.translate(this.x + this.width / 2, this.y);
@@ -442,17 +442,17 @@
             }
 
             update() {
-                this.particles.forEach(p => {
+                for (const p of this.particles) {
                     p.x += p.vx;
                     p.y += p.vy;
                     p.vy += 0.2; // Gravity
                     p.life -= 0.02;
-                });
+                }
                 this.particles = this.particles.filter(p => p.life > 0);
             }
 
             draw() {
-                this.particles.forEach(p => {
+                for (const p of this.particles) {
                     ctx.fillStyle = p.color.replace(')', `, ${p.life})`).replace('hsl', 'hsla');
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
@@ -465,7 +465,7 @@
                         ctx.fill();
                         ctx.shadowBlur = 0;
                     }
-                });
+                }
             }
 
             isDead() {
@@ -532,13 +532,13 @@
 
             // Create buttons
             buttonsDiv.innerHTML = '';
-            answers.forEach(answer => {
+            for (const answer of answers) {
                 const btn = document.createElement('button');
                 btn.className = 'answerBtn';
                 btn.textContent = answer;
                 btn.onclick = () => checkAnswer(answer);
                 buttonsDiv.appendChild(btn);
-            });
+            }
 
             panel.style.display = 'block';
         }
@@ -622,7 +622,7 @@
         // Sound effects
         function playSuccessSound() {
             const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
-            notes.forEach((freq, i) => {
+            for (const [i, freq] of notes.entries()) {
                 const osc = audioContext.createOscillator();
                 const gain = audioContext.createGain();
                 osc.connect(gain);
@@ -636,7 +636,7 @@
 
                 osc.start(startTime);
                 osc.stop(startTime + 0.3);
-            });
+            }
         }
 
         function playErrorSound() {
@@ -661,13 +661,15 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             // Draw stars
-            stars.forEach(star => {
+            for (const star of stars) {
                 star.update();
                 star.draw();
-            });
+            }
 
             // Draw planets
-            planets.forEach(planet => planet.draw());
+            for (const planet of planets) {
+                planet.draw();
+            }
 
             if (gameRunning) {
                 // Spawn rockets
@@ -678,7 +680,8 @@
                 }
 
                 // Update rockets
-                rockets.forEach((rocket, index) => {
+                for (let i = rockets.length - 1; i >= 0; i--) {
+                    const rocket = rockets[i];
                     rocket.update();
                     rocket.draw();
 
@@ -689,24 +692,27 @@
 
                     // Remove off-screen rockets
                     if (rocket.isOffScreen()) {
-                        rockets.splice(index, 1);
+                        rockets.splice(i, 1);
                         combo = 0;
                         updateStats();
                     }
-                });
+                }
             } else {
                 // Still draw existing rockets
-                rockets.forEach(rocket => rocket.draw());
+                for (const rocket of rockets) {
+                    rocket.draw();
+                }
             }
 
             // Update explosions
-            explosions.forEach((explosion, index) => {
+            for (let i = explosions.length - 1; i >= 0; i--) {
+                const explosion = explosions[i];
                 explosion.update();
                 explosion.draw();
                 if (explosion.isDead()) {
-                    explosions.splice(index, 1);
+                    explosions.splice(i, 1);
                 }
-            });
+            }
 
             requestAnimationFrame(gameLoop);
         }
