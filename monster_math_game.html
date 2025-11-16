@@ -114,7 +114,7 @@
         // Matter.js setup
         const { Engine, Render, World, Bodies, Body, Events, Mouse, MouseConstraint } = Matter;
         const engine = Engine.create();
-        engine.gravity.y = 0.2; // Reduced gravity so kids have time to think
+        engine.gravity.y = 0.4; // Reduced gravity so kids have time to think
 
         const canvas = document.createElement('canvas');
         canvas.width = 1000;
@@ -411,7 +411,7 @@
             const fruit = Bodies.circle(x, y, size, {
                 restitution: 0.5,
                 friction: 0.05,
-                frictionAir: 0.08, // Added air friction to slow down falling fruits
+                frictionAir: 0.04, // Added air friction to slow down falling fruits
                 density: 0.001,
                 render: { visible: false }
             });
