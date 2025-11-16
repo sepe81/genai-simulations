@@ -71,6 +71,24 @@
             gap: 15px;
             justify-content: center;
         }
+        #keyboardInputDisplay {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 36px;
+            font-weight: bold;
+            padding: 10px 25px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+            min-width: 100px;
+            border: 3px solid #FFD700;
+        }
+        #inputHint {
+            color: #90EE90;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+        }
         .answerBtn {
             padding: 15px 30px;
             font-size: 28px;
@@ -161,6 +179,8 @@
 
     <div id="answerPanel">
         <div id="questionText"></div>
+        <div id="keyboardInputDisplay">_</div>
+        <div id="inputHint">Tippe die Antwort oder klicke auf einen Button | Enter = Bestätigen | Backspace = Löschen</div>
         <div id="answerButtons"></div>
     </div>
 
@@ -186,6 +206,7 @@
         let currentQuestion = null;
         let gameRunning = true;
         let lastRocketTime = 0;
+        let keyboardInput = ''; // For multi-digit number input
 
         // Audio context
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -477,10 +498,18 @@
             rockets.push(new Rocket(a, b));
         }
 
+        // Update keyboard input display
+        function updateKeyboardDisplay() {
+            const display = document.getElementById('keyboardInputDisplay');
+            display.textContent = keyboardInput || '_';
+        }
+
         // Show question panel
         function showQuestion(rocket) {
             currentQuestion = rocket;
             gameRunning = false;
+            keyboardInput = ''; // Reset keyboard input
+            updateKeyboardDisplay();
 
             const panel = document.getElementById('answerPanel');
             const questionText = document.getElementById('questionText');
@@ -700,16 +729,32 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'r' || e.key === 'R') {
                 resetGame();
+                return;
             }
 
-            // Number keys for quick answer
-            if (e.key >= '0' && e.key <= '9' && currentQuestion) {
-                const buttons = document.querySelectorAll('.answerBtn');
-                buttons.forEach(btn => {
-                    if (btn.textContent === e.key) {
-                        btn.click();
-                    }
-                });
+            // Only process other keys when question is active
+            if (!currentQuestion) return;
+
+            // Handle number input (0-9)
+            if (e.key >= '0' && e.key <= '9') {
+                // Limit to 3 digits (max answer is 100)
+                if (keyboardInput.length < 3) {
+                    keyboardInput += e.key;
+                    updateKeyboardDisplay();
+                }
+                e.preventDefault();
+            }
+            // Handle backspace
+            else if (e.key === 'Backspace') {
+                keyboardInput = keyboardInput.slice(0, -1);
+                updateKeyboardDisplay();
+                e.preventDefault();
+            }
+            // Handle Enter to submit answer
+            else if (e.key === 'Enter' && keyboardInput.length > 0) {
+                const answer = parseInt(keyboardInput, 10);
+                checkAnswer(answer);
+                e.preventDefault();
             }
         });
 
