@@ -140,10 +140,9 @@
         let score = 0;
         let correctAnswers = 0;
         let wrongAnswers = 0;
-        let draggingFruit = null;
 
         // Audio context
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
 
         // Monster class
         class Monster {
@@ -442,7 +441,9 @@
         // Spawn new fruits
         function spawnFruits() {
             // Clear existing fruits
-            fruits.forEach(f => World.remove(engine.world, f));
+            for (const f of fruits) {
+                World.remove(engine.world, f);
+            }
             fruits = [];
 
             // Create new fruits based on level
@@ -488,7 +489,7 @@
             for (const monster of monsters) {
                 const dx = fruitPos.x - monster.x;
                 const dy = fruitPos.y - monster.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
+                const distance = Math.hypot(dx, dy);
 
                 if (distance < 60) {
                     // Collision detected
@@ -622,10 +623,10 @@
             }
 
             // Draw monsters
-            monsters.forEach(monster => {
+            for (const monster of monsters) {
                 monster.update();
                 monster.draw(ctx);
-            });
+            }
 
             // Draw fruits
             for (const fruit of fruits) {
@@ -683,12 +684,14 @@
             }
 
             // Check if fruit is near monster (for mouth opening)
-            monsters.forEach(m => m.closeMouth());
+            for (const m of monsters) {
+                m.closeMouth();
+            }
             for (const fruit of fruits) {
                 for (const monster of monsters) {
                     const dx = fruit.position.x - monster.x;
                     const dy = fruit.position.y - monster.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const distance = Math.hypot(dx, dy);
 
                     if (distance < 100) {
                         monster.openMouth();
