@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>🎈 Ballon-Rechnen - 1x1 lernen</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+            font-family: 'Comic Sans MS', cursive, Arial, sans-serif;
+            overflow: hidden;
+        }
+        canvas {
+            border: 3px solid white;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 18px;
+        }
+        #stats {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 20px;
+            text-align: right;
+        }
+        #levelDisplay {
+            font-size: 28px;
+            font-weight: bold;
+            color: #FFD700;
+            margin-bottom: 10px;
+        }
+        #scoreDisplay {
+            font-size: 24px;
+            color: #90EE90;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            background: #4CAF50;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        #message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 215, 0, 0.95);
+            color: #333;
+            padding: 30px 50px;
+            border-radius: 20px;
+            font-size: 36px;
+            font-weight: bold;
+            display: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            z-index: 1000;
+            text-align: center;
+        }
+        .star {
+            position: absolute;
+            font-size: 30px;
+            pointer-events: none;
+            animation: starFloat 1s ease-out forwards;
+        }
+        @keyframes starFloat {
+            0% {
+                transform: translateY(0) scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(1.5);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <button onclick="resetGame()">🔄 Neues Spiel (R)</button>
+        <div style="margin-top: 10px; font-size: 14px;">Klicke auf die richtige Antwort!</div>
+    </div>
+    <div id="stats">
+        <div id="levelDisplay">Level 1: 1er Reihe</div>
+        <div id="scoreDisplay">⭐ Punkte: <span id="score">0</span></div>
+        <div style="font-size: 16px; margin-top: 5px;">Richtig: <span id="correct">0</span> | Falsch: <span id="wrong">0</span></div>
+    </div>
+
+    <div id="message"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.20.0/matter.min.js"></script>
+    <script>
+        // Matter.js setup
+        const { Engine, Render, World, Bodies, Body, Events, Vector } = Matter;
+        const engine = Engine.create();
+        engine.gravity.y = -0.25; // Negative gravity makes balloons float up
+
+        const canvas = document.createElement('canvas');
+        canvas.width = 900;
+        canvas.height = 700;
+        document.body.appendChild(canvas);
+
+        const render = Render.create({
+            canvas: canvas,
+            engine: engine,
+            options: {
+                width: 900,
+                height: 700,
+                wireframes: false,
+                background: 'transparent'
+            }
+        });
+
+        // Game state
+        let balloons = [];
+        let particles = [];
+        let currentLevel = 1;
+        let score = 0;
+        let correctAnswers = 0;
+        let wrongAnswers = 0;
+        let questionBalloon = null;
+        let answerBalloons = [];
+        let correctAnswer = 0;
+
+        // Audio context
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        // Balloon colors
+        const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#FF8FB1', '#FFA07A', '#9B59B6', '#3498DB'];
+
+        // Level configuration
+        const levels = [
+            { number: 1, name: "1er Reihe", color: "#FF6B6B" },
+            { number: 2, name: "2er Reihe", color: "#4ECDC4" },
+            { number: 3, name: "3er Reihe", color: "#FFE66D" },
+            { number: 4, name: "4er Reihe", color: "#95E1D3" },
+            { number: 5, name: "5er Reihe", color: "#FF8FB1" },
+            { number: 6, name: "6er Reihe", color: "#FFA07A" },
+            { number: 7, name: "7er Reihe", color: "#9B59B6" },
+            { number: 8, name: "8er Reihe", color: "#3498DB" },
+            { number: 9, name: "9er Reihe", color: "#FF6B6B" },
+            { number: 10, name: "10er Reihe", color: "#4ECDC4" }
+        ];
+
+        // Particle class
+        class Particle {
+            constructor(x, y, balloonColor) {
+                this.x = x;
+                this.y = y;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 8 + 3;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.gravity = 0.15;
+                this.drag = 0.98;
+                this.color = balloonColor;
+                this.alpha = 1.0;
+                this.fadeRate = Math.random() * 0.02 + 0.015;
+                this.size = Math.random() * 10 + 8;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.3;
+            }
+
+            update() {
+                this.vy += this.gravity;
+                this.vx *= this.drag;
+                this.vy *= this.drag;
+                this.x += this.vx;
+                this.y += this.vy;
+                this.rotation += this.rotationSpeed;
+                this.alpha -= this.fadeRate;
+            }
+
+            draw(ctx) {
+                if (this.alpha <= 0) return;
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.fillStyle = this.color;
+                ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size * 1.5);
+                ctx.restore();
+            }
+
+            isDead() {
+                return this.alpha <= 0;
+            }
+        }
+
+        // Create balloon with text
+        function createBalloon(x, y, text, isCorrect = false) {
+            const size = 35;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+
+            const balloon = Bodies.circle(x, y, size, {
+                density: 0.0008,
+                friction: 0.05,
+                frictionAir: 0.008,
+                restitution: 0.6,
+                render: { visible: false }
+            });
+
+            balloon.size = size;
+            balloon.color = color;
+            balloon.isPopped = false;
+            balloon.text = text;
+            balloon.isCorrect = isCorrect;
+            balloon.isQuestion = false;
+
+            return balloon;
+        }
+
+        // Create question balloon
+        function createQuestionBalloon() {
+            const x = 450;
+            const y = 600;
+            const size = 50;
+            const multiplier = Math.floor(Math.random() * 10) + 1;
+            correctAnswer = currentLevel * multiplier;
+            const text = `${currentLevel} × ${multiplier}`;
+
+            const balloon = Bodies.circle(x, y, size, {
+                density: 0.0006,
+                friction: 0.05,
+                frictionAir: 0.008,
+                restitution: 0.6,
+                render: { visible: false }
+            });
+
+            balloon.size = size;
+            balloon.color = levels[currentLevel - 1].color;
+            balloon.isPopped = false;
+            balloon.text = text;
+            balloon.isQuestion = true;
+
+            return balloon;
+        }
+
+        // Create answer balloons
+        function createAnswerBalloons() {
+            const answers = [correctAnswer];
+
+            // Generate wrong answers
+            while (answers.length < 4) {
+                const offset = Math.floor(Math.random() * 20) - 10;
+                const wrongAnswer = correctAnswer + offset;
+                if (wrongAnswer > 0 && wrongAnswer <= 100 && !answers.includes(wrongAnswer)) {
+                    answers.push(wrongAnswer);
+                }
+            }
+
+            // Shuffle answers
+            for (let i = answers.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [answers[i], answers[j]] = [answers[j], answers[i]];
+            }
+
+            const balloons = [];
+            const positions = [200, 400, 600, 800];
+
+            for (let i = 0; i < 4; i++) {
+                const balloon = createBalloon(
+                    positions[i],
+                    650,
+                    answers[i].toString(),
+                    answers[i] === correctAnswer
+                );
+                balloons.push(balloon);
+            }
+
+            return balloons;
+        }
+
+        // Initialize new round
+        function initRound() {
+            // Clear existing balloons
+            balloons.forEach(b => World.remove(engine.world, b));
+            balloons = [];
+
+            // Create question balloon
+            questionBalloon = createQuestionBalloon();
+            World.add(engine.world, questionBalloon);
+            balloons.push(questionBalloon);
+
+            // Create answer balloons
+            answerBalloons = createAnswerBalloons();
+            answerBalloons.forEach(b => {
+                World.add(engine.world, b);
+                balloons.push(b);
+            });
+        }
+
+        // Pop balloon with explosion
+        function popBalloon(balloon, isCorrect) {
+            if (balloon.isPopped) return;
+
+            balloon.isPopped = true;
+
+            // Play sound
+            if (isCorrect) {
+                playSuccessSound();
+            } else {
+                playErrorSound();
+            }
+
+            // Create particle explosion
+            const particleCount = isCorrect ? 50 : 20;
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle(
+                    balloon.position.x,
+                    balloon.position.y,
+                    isCorrect ? '#FFD700' : balloon.color
+                ));
+            }
+
+            // Remove balloon
+            World.remove(engine.world, balloon);
+
+            if (isCorrect) {
+                // Show success message
+                correctAnswers++;
+                score += currentLevel * 10;
+                updateStats();
+                showStars(balloon.position.x, balloon.position.y);
+
+                // Check if ready for next level
+                if (correctAnswers % 5 === 0 && currentLevel < 10) {
+                    setTimeout(() => {
+                        currentLevel++;
+                        updateStats();
+                        showMessage(`🎉 Level ${currentLevel}!<br>${levels[currentLevel - 1].name}`);
+                        setTimeout(initRound, 2000);
+                    }, 1000);
+                } else {
+                    setTimeout(initRound, 1000);
+                }
+            } else {
+                wrongAnswers++;
+                updateStats();
+            }
+        }
+
+        // Show stars animation
+        function showStars(x, y) {
+            const rect = canvas.getBoundingClientRect();
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.textContent = '⭐';
+                    star.style.left = (rect.left + x - 15) + 'px';
+                    star.style.top = (rect.top + y - 15) + 'px';
+                    document.body.appendChild(star);
+                    setTimeout(() => star.remove(), 1000);
+                }, i * 100);
+            }
+        }
+
+        // Show message
+        function showMessage(text) {
+            const msg = document.getElementById('message');
+            msg.innerHTML = text;
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 1500);
+        }
+
+        // Update stats display
+        function updateStats() {
+            document.getElementById('levelDisplay').textContent =
+                `Level ${currentLevel}: ${levels[currentLevel - 1].name}`;
+            document.getElementById('score').textContent = score;
+            document.getElementById('correct').textContent = correctAnswers;
+            document.getElementById('wrong').textContent = wrongAnswers;
+        }
+
+        // Sound effects
+        function playSuccessSound() {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+
+            osc.frequency.value = 523.25; // C5
+            osc.type = 'sine';
+            gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + 0.3);
+
+            // Second note
+            const osc2 = audioContext.createOscillator();
+            const gain2 = audioContext.createGain();
+            osc2.connect(gain2);
+            gain2.connect(audioContext.destination);
+
+            osc2.frequency.value = 659.25; // E5
+            osc2.type = 'sine';
+            gain2.gain.setValueAtTime(0.3, audioContext.currentTime + 0.1);
+            gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+
+            osc2.start(audioContext.currentTime + 0.1);
+            osc2.stop(audioContext.currentTime + 0.4);
+        }
+
+        function playErrorSound() {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+
+            osc.frequency.value = 200;
+            osc.type = 'sawtooth';
+            gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + 0.2);
+        }
+
+        // Custom rendering
+        Events.on(render, 'afterRender', () => {
+            const ctx = render.context;
+
+            // Draw balloons
+            for (const balloon of balloons) {
+                if (balloon.isPopped) continue;
+
+                const pos = balloon.position;
+                const size = balloon.size;
+                const color = balloon.color;
+
+                ctx.save();
+                ctx.translate(pos.x, pos.y);
+
+                // Draw balloon body with gradient
+                const gradient = ctx.createRadialGradient(
+                    -size * 0.3, -size * 0.3, size * 0.1,
+                    0, 0, size
+                );
+                gradient.addColorStop(0, lightenColor(color, 40));
+                gradient.addColorStop(0.5, color);
+                gradient.addColorStop(1, darkenColor(color, 30));
+
+                ctx.beginPath();
+                ctx.ellipse(0, 0, size * 0.95, size, 0, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+
+                // Highlight
+                ctx.beginPath();
+                ctx.ellipse(-size * 0.3, -size * 0.35, size * 0.25, size * 0.35, -0.3, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.fill();
+
+                // Draw knot
+                ctx.beginPath();
+                ctx.ellipse(0, size + 3, 4, 6, 0, 0, Math.PI * 2);
+                ctx.fillStyle = darkenColor(color, 40);
+                ctx.fill();
+
+                // Draw text
+                ctx.fillStyle = '#000';
+                ctx.font = `bold ${balloon.isQuestion ? 24 : 28}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(balloon.text, 0, 0);
+
+                // Draw white outline for better readability
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 3;
+                ctx.strokeText(balloon.text, 0, 0);
+                ctx.fillStyle = '#000';
+                ctx.fillText(balloon.text, 0, 0);
+
+                ctx.restore();
+            }
+
+            // Draw particles
+            for (const particle of particles) {
+                particle.draw(ctx);
+            }
+        });
+
+        // Helper functions
+        function lightenColor(color, percent) {
+            const num = parseInt(color.replace("#",""), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = Math.min(255, (num >> 16) + amt);
+            const G = Math.min(255, (num >> 8 & 0x00FF) + amt);
+            const B = Math.min(255, (num & 0x0000FF) + amt);
+            return `rgb(${R},${G},${B})`;
+        }
+
+        function darkenColor(color, percent) {
+            const num = parseInt(color.replace("#",""), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = Math.max(0, (num >> 16) - amt);
+            const G = Math.max(0, (num >> 8 & 0x00FF) - amt);
+            const B = Math.max(0, (num & 0x0000FF) - amt);
+            return `rgb(${R},${G},${B})`;
+        }
+
+        // Update particles
+        Events.on(engine, 'beforeUpdate', () => {
+            for (const particle of particles) {
+                particle.update();
+            }
+            particles = particles.filter(p => !p.isDead());
+
+            // Keep balloons in bounds
+            for (const balloon of balloons) {
+                if (balloon.position.y < 50) {
+                    Body.setPosition(balloon, { x: balloon.position.x, y: 650 });
+                }
+            }
+        });
+
+        // Click detection
+        canvas.addEventListener('click', (e) => {
+            // Resume audio context on first click
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            for (const balloon of answerBalloons) {
+                if (balloon.isPopped) continue;
+
+                const dx = mouseX - balloon.position.x;
+                const dy = mouseY - balloon.position.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < balloon.size) {
+                    popBalloon(balloon, balloon.isCorrect);
+                    break;
+                }
+            }
+        });
+
+        // Reset game
+        function resetGame() {
+            currentLevel = 1;
+            score = 0;
+            correctAnswers = 0;
+            wrongAnswers = 0;
+            updateStats();
+            initRound();
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'r' || e.key === 'R') {
+                resetGame();
+            }
+        });
+
+        // Start game
+        initRound();
+        Render.run(render);
+        const runner = Matter.Runner.create();
+        Matter.Runner.run(runner, engine);
+
+        console.log('🎈 Ballon-Rechnen ready!');
+    </script>
+</body>
+</html>
