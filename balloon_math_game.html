@@ -111,7 +111,7 @@
 <body>
     <div id="controls">
         <button onclick="resetGame()">🔄 Neues Spiel (R)</button>
-        <div style="margin-top: 10px; font-size: 14px;">Klicke auf die richtige Antwort!</div>
+        <div style="margin-top: 10px; font-size: 14px;">Klicke oder tippe die Antwort!</div>
         <div style="font-size: 12px; margin-top: 5px; opacity: 0.8;">+/- für Geschwindigkeit</div>
     </div>
     <div id="stats">
@@ -156,6 +156,7 @@
         let questionBalloon = null;
         let answerBalloons = [];
         let correctAnswer = 0;
+        let keyboardInput = ''; // For invisible keyboard input
 
         // Audio context
         const audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
@@ -313,6 +314,7 @@
                 World.remove(engine.world, b);
             }
             balloons = [];
+            keyboardInput = ''; // Reset keyboard input
 
             // Create question balloon
             questionBalloon = createQuestionBalloon();
@@ -599,17 +601,47 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'r' || e.key === 'R') {
                 resetGame();
+                return;
             }
             // Increase speed with + or =
             else if (e.key === '+' || e.key === '=') {
                 engine.gravity.y = Math.max(-0.5, engine.gravity.y - 0.05); // More negative = faster up
                 updateSpeedDisplay();
                 e.preventDefault();
+                return;
             }
             // Decrease speed with -
             else if (e.key === '-' || e.key === '_') {
                 engine.gravity.y = Math.min(-0.05, engine.gravity.y + 0.05); // Less negative = slower up
                 updateSpeedDisplay();
+                e.preventDefault();
+                return;
+            }
+
+            // Handle number input (0-9) - invisible input for auto-submit
+            if (e.key >= '0' && e.key <= '9') {
+                // Limit to 3 digits (max answer is 100)
+                if (keyboardInput.length < 3) {
+                    keyboardInput += e.key;
+
+                    // Check if entered number matches the correct answer
+                    const enteredNumber = parseInt(keyboardInput, 10);
+                    if (enteredNumber === correctAnswer) {
+                        // Find and pop the correct balloon
+                        for (const balloon of answerBalloons) {
+                            if (!balloon.isPopped && balloon.isCorrect) {
+                                popBalloon(balloon, true);
+                                keyboardInput = '';
+                                break;
+                            }
+                        }
+                    }
+                }
+                e.preventDefault();
+            }
+            // Handle backspace to reset input
+            else if (e.key === 'Backspace') {
+                keyboardInput = '';
                 e.preventDefault();
             }
         });
