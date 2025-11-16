@@ -111,7 +111,7 @@
         <div id="levelDisplay">Level 1: Einfach</div>
         <div id="scoreDisplay">⭐ Punkte: <span id="score">0</span></div>
         <div style="font-size: 16px; margin-top: 5px;">Richtig: <span id="correct">0</span> | Falsch: <span id="wrong">0</span></div>
-        <div id="speedDisplay">Geschw.: <span id="gravityValue">0.3</span><br><small>(+/- zum Anpassen)</small></div>
+        <div id="speedDisplay">Geschw.: <span id="gravityValue">0.15</span><br><small>(+/- zum Anpassen)</small></div>
     </div>
 
     <div id="instructions">Klicke auf die Frucht und ziehe sie zum hungrigen Monster! 🍎➡️🦖</div>
@@ -123,7 +123,7 @@
         // Matter.js setup
         const { Engine, Render, World, Bodies, Body, Events, Mouse, MouseConstraint } = Matter;
         const engine = Engine.create();
-        engine.gravity.y = 0.3; // Reduced gravity so kids have time to think
+        engine.gravity.y = 0.15; // Reduced gravity so kids have time to think
 
         const canvas = document.createElement('canvas');
         canvas.width = 1000;
@@ -750,13 +750,13 @@
             }
             // Increase speed with + or =
             else if (e.key === '+' || e.key === '=') {
-                engine.gravity.y = Math.min(1.0, engine.gravity.y + 0.05);
+                engine.gravity.y = Math.min(0.5, engine.gravity.y + 0.05);
                 updateSpeedDisplay();
                 e.preventDefault();
             }
             // Decrease speed with -
             else if (e.key === '-' || e.key === '_') {
-                engine.gravity.y = Math.max(0.1, engine.gravity.y - 0.05);
+                engine.gravity.y = Math.max(0.05, engine.gravity.y - 0.05);
                 updateSpeedDisplay();
                 e.preventDefault();
             }
