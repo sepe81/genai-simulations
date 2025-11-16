@@ -157,6 +157,7 @@
         let answerBalloons = [];
         let correctAnswer = 0;
         let keyboardInput = ''; // For invisible keyboard input
+        let roundActive = true; // Prevents multiple "too slow" triggers
 
         // Audio context
         const audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
@@ -248,7 +249,7 @@
 
         // Create question balloon
         function createQuestionBalloon() {
-            const x = 450;
+            const x = 400;
             const y = 600;
             const size = 50;
             const multiplier = Math.floor(Math.random() * 10) + 1;
@@ -292,11 +293,11 @@
             }
 
             const balloons = [];
-            const positions = [200, 400, 600, 800];
+            const basePositions = [200, 400, 600, 800];
 
             for (let i = 0; i < 4; i++) {
                 const balloon = createBalloon(
-                    positions[i],
+                    basePositions[i],
                     650,
                     answers[i].toString(),
                     answers[i] === correctAnswer
@@ -315,6 +316,7 @@
             }
             balloons = [];
             keyboardInput = ''; // Reset keyboard input
+            roundActive = true; // Reset round active flag
 
             // Create question balloon
             questionBalloon = createQuestionBalloon();
@@ -357,6 +359,7 @@
 
             if (isCorrect) {
                 // Show success message
+                roundActive = false; // Prevent "too slow" trigger
                 correctAnswers++;
                 score += currentLevel * 10;
                 updateStats();
@@ -549,10 +552,22 @@
             }
             particles = particles.filter(p => !p.isDead());
 
-            // Keep balloons in bounds
-            for (const balloon of balloons) {
-                if (balloon.position.y < 50) {
-                    Body.setPosition(balloon, { x: balloon.position.x, y: 650 });
+            // Check if balloons escaped (too slow answer)
+            if (roundActive) {
+                let escapedCount = 0;
+                for (const balloon of answerBalloons) {
+                    if (!balloon.isPopped && balloon.position.y < 0) {
+                        escapedCount++;
+                    }
+                }
+
+                // If all answer balloons escaped, count as wrong and start new round
+                if (escapedCount === answerBalloons.length && answerBalloons.length > 0) {
+                    roundActive = false; // Prevent multiple triggers
+                    wrongAnswers++;
+                    updateStats();
+                    showMessage('⏰ Zu langsam!');
+                    setTimeout(initRound, 1500);
                 }
             }
         });
