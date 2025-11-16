@@ -180,7 +180,7 @@
     <div id="answerPanel">
         <div id="questionText"></div>
         <div id="keyboardInputDisplay">_</div>
-        <div id="inputHint">Tippe die Antwort oder klicke auf einen Button | Enter = Bestätigen | Backspace = Löschen</div>
+        <div id="inputHint">Tippe die Antwort (richtige werden auto-bestätigt) | Enter = Bestätigen | Backspace = Löschen</div>
         <div id="answerButtons"></div>
     </div>
 
@@ -750,6 +750,12 @@
                 if (keyboardInput.length < 3) {
                     keyboardInput += e.key;
                     updateKeyboardDisplay();
+
+                    // Auto-submit if correct answer is entered
+                    const enteredNumber = parseInt(keyboardInput, 10);
+                    if (enteredNumber === currentQuestion.answer) {
+                        checkAnswer(enteredNumber);
+                    }
                 }
                 e.preventDefault();
             }
@@ -759,7 +765,7 @@
                 updateKeyboardDisplay();
                 e.preventDefault();
             }
-            // Handle Enter to submit answer
+            // Handle Enter to submit answer (for wrong answers or manual submission)
             else if (e.key === 'Enter' && keyboardInput.length > 0) {
                 const answer = parseInt(keyboardInput, 10);
                 checkAnswer(answer);
