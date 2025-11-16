@@ -249,7 +249,7 @@
 
         // Create question balloon
         function createQuestionBalloon() {
-            const x = 400;
+            const x = Math.random() * 600 + 150; // Random position between 150 and 750
             const y = 600;
             const size = 50;
             const multiplier = Math.floor(Math.random() * 10) + 1;
@@ -293,12 +293,14 @@
             }
 
             const balloons = [];
+            // Base positions with random variation
             const basePositions = [200, 400, 600, 800];
+            const positions = basePositions.map(pos => pos + (Math.random() * 80 - 40)); // ±40 pixels variation
 
             for (let i = 0; i < 4; i++) {
                 const balloon = createBalloon(
-                    basePositions[i],
-                    650,
+                    positions[i],
+                    650 + (Math.random() * 40 - 20), // Also vary y position slightly
                     answers[i].toString(),
                     answers[i] === correctAnswer
                 );
