@@ -119,7 +119,7 @@
         // Matter.js setup
         const { Engine, Render, World, Bodies, Body, Events, Vector } = Matter;
         const engine = Engine.create();
-        engine.gravity.y = -0.05; // Negative gravity makes balloons float up (reduced for kids to have time to think)
+        engine.gravity.y = -0.1; // Negative gravity makes balloons float up (reduced for kids to have time to think)
 
         const canvas = document.createElement('canvas');
         canvas.width = 900;
@@ -221,7 +221,7 @@
             const balloon = Bodies.circle(x, y, size, {
                 density: 0.0008,
                 friction: 0.05,
-                frictionAir: 0.04, // Increased air friction to slow down balloons
+                frictionAir: 0.02, // Increased air friction to slow down balloons
                 restitution: 0.6,
                 render: { visible: false }
             });
@@ -248,7 +248,7 @@
             const balloon = Bodies.circle(x, y, size, {
                 density: 0.0006,
                 friction: 0.05,
-                frictionAir: 0.04, // Increased air friction to slow down balloons
+                frictionAir: 0.02, // Increased air friction to slow down balloons
                 restitution: 0.6,
                 render: { visible: false }
             });
