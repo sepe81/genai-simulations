@@ -48,7 +48,7 @@ Interactive shooting gallery with two game modes: precision target shooting and 
 
 ### Balloon Math (1×1 Learning)
 
-**[src/balloon-math/index.html](src/balloon-math/index.html)**
+**[src/math-games/balloon/index.html](src/math-games/balloon/index.html)**
 
 Educational multiplication game where students pop balloons with the correct answers to multiplication problems. Balloons float upward with adjustable speed, and students can answer by clicking or typing on the keyboard.
 
@@ -66,13 +66,13 @@ Educational multiplication game where students pop balloons with the correct ans
 
 **Target audience:** Elementary school students learning multiplication tables (1×1)
 
-**How to run:** Simply open `src/balloon-math/index.html` in your browser. No build process or dependencies needed!
+**How to run:** Simply open `src/math-games/balloon/index.html` in your browser. No build process or dependencies needed!
 
 ---
 
 ### Rocket Math (1×1 Learning)
 
-**[src/rocket-math/index.html](src/rocket-math/index.html)**
+**[src/math-games/rocket/index.html](src/math-games/rocket/index.html)**
 
 Space-themed multiplication practice where students shoot down rockets carrying multiplication problems. Answer by typing the solution or clicking answer buttons.
 
@@ -89,13 +89,13 @@ Space-themed multiplication practice where students shoot down rockets carrying 
 
 **Target audience:** Elementary school students learning multiplication tables (1×1)
 
-**How to run:** Simply open `src/rocket-math/index.html` in your browser. No build process or dependencies needed!
+**How to run:** Simply open `src/math-games/rocket/index.html` in your browser. No build process or dependencies needed!
 
 ---
 
 ### Monster Math (1×1 Learning)
 
-**[src/monster-math/index.html](src/monster-math/index.html)**
+**[src/math-games/monster/index.html](src/math-games/monster/index.html)**
 
 Physics-based multiplication game where students drag falling fruits to feed hungry monsters. Each monster represents a multiplication problem, and students must match the correct answer fruit.
 
@@ -113,7 +113,7 @@ Physics-based multiplication game where students drag falling fruits to feed hun
 
 **Target audience:** Elementary school students learning multiplication tables (1×1)
 
-**How to run:** Simply open `src/monster-math/index.html` in your browser. No build process or dependencies needed!
+**How to run:** Simply open `src/math-games/monster/index.html` in your browser. No build process or dependencies needed!
 
 ---
 
@@ -130,9 +130,9 @@ git clone https://github.com/sepe81/genai-simulations.git
 cd genai-simulations
 open src/balloon-pop/index.html
 open src/nerf-gun/index.html
-open src/balloon-math/index.html
-open src/rocket-math/index.html
-open src/monster-math/index.html
+open src/math-games/balloon/index.html
+open src/math-games/rocket/index.html
+open src/math-games/monster/index.html
 # or just double-click any file
 ```
 
