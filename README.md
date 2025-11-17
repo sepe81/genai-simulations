@@ -46,6 +46,77 @@ Interactive shooting gallery with two game modes: precision target shooting and 
 
 ---
 
+### Balloon Math (1×1 Learning)
+
+**[src/balloon-math/index.html](src/balloon-math/index.html)**
+
+Educational multiplication game where students pop balloons with the correct answers to multiplication problems. Balloons float upward with adjustable speed, and students can answer by clicking or typing on the keyboard.
+
+**Features:**
+
+- Progressive difficulty: Start with 1× table and advance to 10×
+- Invisible keyboard input with auto-submit for correct answers
+- Adjustable animation speed (+/- keys) for different learning paces
+- Timeout mechanic: Balloons escaping = too slow (wrong answer)
+- Randomized balloon positions for dynamic gameplay
+- Visual particle explosions and sound effects
+- Score tracking with correct/wrong answer statistics
+
+**Tech:** Matter.js, Web Audio API, Canvas 2D
+
+**Target audience:** Elementary school students learning multiplication tables (1×1)
+
+**How to run:** Simply open `src/balloon-math/index.html` in your browser. No build process or dependencies needed!
+
+---
+
+### Rocket Math (1×1 Learning)
+
+**[src/rocket-math/index.html](src/rocket-math/index.html)**
+
+Space-themed multiplication practice where students shoot down rockets carrying multiplication problems. Answer by typing the solution or clicking answer buttons.
+
+**Features:**
+
+- Multi-digit keyboard input with auto-submit for correct answers
+- Wrong answers can be corrected before submitting (Enter key)
+- Progressive difficulty through multiplication tables 1-10
+- Space theme with animated rockets flying across the screen
+- Visual feedback with particle effects and sound
+- Score tracking and level progression
+
+**Tech:** Matter.js, Web Audio API, Canvas 2D
+
+**Target audience:** Elementary school students learning multiplication tables (1×1)
+
+**How to run:** Simply open `src/rocket-math/index.html` in your browser. No build process or dependencies needed!
+
+---
+
+### Monster Math (1×1 Learning)
+
+**[src/monster-math/index.html](src/monster-math/index.html)**
+
+Physics-based multiplication game where students drag falling fruits to feed hungry monsters. Each monster represents a multiplication problem, and students must match the correct answer fruit.
+
+**Features:**
+
+- Drag-and-drop gameplay with realistic physics
+- Adjustable gravity (+/- keys) to control difficulty
+- Visual speed indicator showing current gravity setting
+- Progressive difficulty through multiplication tables 1-10
+- Colorful monster designs and fruit objects
+- Physics-based collision and scoring
+- Sound effects for correct and incorrect answers
+
+**Tech:** Matter.js, Web Audio API, Canvas 2D
+
+**Target audience:** Elementary school students learning multiplication tables (1×1)
+
+**How to run:** Simply open `src/monster-math/index.html` in your browser. No build process or dependencies needed!
+
+---
+
 ## 🚀 Getting Started
 
 All simulations are self-contained HTML files. To run:
@@ -59,7 +130,10 @@ git clone https://github.com/sepe81/genai-simulations.git
 cd genai-simulations
 open src/balloon-pop/index.html
 open src/nerf-gun/index.html
-# or just double-click the file
+open src/balloon-math/index.html
+open src/rocket-math/index.html
+open src/monster-math/index.html
+# or just double-click any file
 ```
 
 ## 🛠️ Technologies
