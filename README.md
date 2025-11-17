@@ -6,7 +6,7 @@ Interactive physics simulations and creative coding experiments built with Matte
 
 ### Balloon Pop
 
-**[balloon_pop.html](balloon_pop.html)**
+**[src/balloon-pop/index.html](src/balloon-pop/index.html)**
 
 Interactive balloon popping game with realistic physics and 3D-styled balloons. Control a syringe with your mouse to pop colorful floating balloons—each pop creates a shockwave that pushes nearby balloons.
 
@@ -20,13 +20,13 @@ Interactive balloon popping game with realistic physics and 3D-styled balloons. 
 
 **Tech:** Matter.js, Web Audio API, Canvas 2D
 
-**How to run:** Simply open `balloon_pop.html` in your browser. No build process or dependencies needed!
+**How to run:** Simply open `src/balloon-pop/index.html` in your browser. No build process or dependencies needed!
 
 ---
 
 ### Nerf Gun Shooting Gallery
 
-**[nerf_gun_demo.html](nerf_gun_demo.html)**
+**[src/nerf-gun/index.html](src/nerf-gun/index.html)**
 
 Interactive shooting gallery with two game modes: precision target shooting and physics-based tower destruction. Aim with your mouse (vertical movement controls angle) and fire foam darts at targets or knock down colorful block towers.
 
@@ -42,7 +42,7 @@ Interactive shooting gallery with two game modes: precision target shooting and 
 
 **Tech:** Matter.js, SVG Graphics, Web Audio API, Canvas 2D
 
-**How to run:** Simply open `nerf_gun_demo.html` in your browser. No build process or dependencies needed!
+**How to run:** Simply open `src/nerf-gun/index.html` in your browser. No build process or dependencies needed!
 
 ---
 
@@ -57,8 +57,8 @@ All simulations are self-contained HTML files. To run:
 ```bash
 git clone https://github.com/sepe81/genai-simulations.git
 cd genai-simulations
-open balloon_pop.html
-open nerf_gun_demo.html
+open src/balloon-pop/index.html
+open src/nerf-gun/index.html
 # or just double-click the file
 ```
 
