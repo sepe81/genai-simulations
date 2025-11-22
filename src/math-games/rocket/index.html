@@ -282,7 +282,7 @@
             }
 
             lighten(color, percent) {
-                const num = parseInt(color.replace("#",""), 16);
+                const num = Number.parseInt(color.replace("#",""), 16);
                 const amt = Math.round(2.55 * percent);
                 const R = Math.min(255, (num >> 16) + amt);
                 const G = Math.min(255, (num >> 8 & 0x00FF) + amt);
@@ -752,7 +752,7 @@
                     updateKeyboardDisplay();
 
                     // Auto-submit if correct answer is entered
-                    const enteredNumber = parseInt(keyboardInput, 10);
+                    const enteredNumber = Number.parseInt(keyboardInput, 10);
                     if (enteredNumber === currentQuestion.answer) {
                         checkAnswer(enteredNumber);
                     }
@@ -767,7 +767,7 @@
             }
             // Handle Enter to submit answer (for wrong answers or manual submission)
             else if (e.key === 'Enter' && keyboardInput.length > 0) {
-                const answer = parseInt(keyboardInput, 10);
+                const answer = Number.parseInt(keyboardInput, 10);
                 checkAnswer(answer);
                 e.preventDefault();
             }

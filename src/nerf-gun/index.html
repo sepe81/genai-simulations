@@ -798,9 +798,9 @@
                 world.gravity.y = 1;
 
                 // Then wake blocks
-                blocks.forEach(block => {
+                for (const block of blocks) {
                     Sleeping.set(block, false);
-                });
+                }
             }, 100);
 
             // Run renderer and engine
@@ -824,11 +824,11 @@
 
             // Count blocks that have fallen significantly
             let fallenBlocks = 0;
-            blocks.forEach(block => {
+            for (const block of blocks) {
                 if (block.position.y > 480 || Math.abs(block.position.x - 300) > 350) {
                     fallenBlocks++;
                 }
-            });
+            }
 
             document.getElementById('blockCount').textContent = fallenBlocks;
         }
@@ -1094,7 +1094,7 @@
 
         // Basic shoot sound for standard Nerf gun (Gun 1)
         function playBasicShootSound() {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
 
@@ -1113,7 +1113,7 @@
 
         // Advanced shoot sound for elite Nerf guns (Gun 2 & 3)
         function playAdvancedShootSound() {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
             const now = audioContext.currentTime;
 
             // Low frequency "thump" for spring mechanism

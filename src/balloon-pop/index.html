@@ -139,7 +139,7 @@
         let finalTime = 0;
 
         // Audio context for sound effects
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
 
         // Physics parameters for runtime adjustment
         let physicsParams = {
@@ -409,7 +409,7 @@
 
         // Helper functions for color manipulation
         function lightenColor(color, percent) {
-            const num = parseInt(color.replace("#",""), 16);
+            const num = Number.parseInt(color.replace("#",""), 16);
             const amt = Math.round(2.55 * percent);
             const R = Math.min(255, (num >> 16) + amt);
             const G = Math.min(255, (num >> 8 & 0x00FF) + amt);
@@ -418,7 +418,7 @@
         }
 
         function darkenColor(color, percent) {
-            const num = parseInt(color.replace("#",""), 16);
+            const num = Number.parseInt(color.replace("#",""), 16);
             const amt = Math.round(2.55 * percent);
             const R = Math.max(0, (num >> 16) - amt);
             const G = Math.max(0, (num >> 8 & 0x00FF) - amt);
@@ -665,13 +665,13 @@
 
         // Slider event listeners
         document.getElementById('frictionAirSlider').addEventListener('input', (e) => {
-            physicsParams.frictionAir = parseFloat(e.target.value);
+            physicsParams.frictionAir = Number.parseFloat(e.target.value);
             document.getElementById('frictionAirValue').textContent = physicsParams.frictionAir.toFixed(2);
             updateBalloonPhysics();
         });
 
         document.getElementById('frictionSlider').addEventListener('input', (e) => {
-            physicsParams.friction = parseFloat(e.target.value);
+            physicsParams.friction = Number.parseFloat(e.target.value);
             document.getElementById('frictionValue').textContent = physicsParams.friction.toFixed(2);
             updateBalloonPhysics();
         });

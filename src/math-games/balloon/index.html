@@ -530,7 +530,7 @@
 
         // Helper functions
         function lightenColor(color, percent) {
-            const num = parseInt(color.replace("#",""), 16);
+            const num = Number.parseInt(color.replace("#",""), 16);
             const amt = Math.round(2.55 * percent);
             const R = Math.min(255, (num >> 16) + amt);
             const G = Math.min(255, (num >> 8 & 0x00FF) + amt);
@@ -539,7 +539,7 @@
         }
 
         function darkenColor(color, percent) {
-            const num = parseInt(color.replace("#",""), 16);
+            const num = Number.parseInt(color.replace("#",""), 16);
             const amt = Math.round(2.55 * percent);
             const R = Math.max(0, (num >> 16) - amt);
             const G = Math.max(0, (num >> 8 & 0x00FF) - amt);
@@ -642,7 +642,7 @@
                     keyboardInput += e.key;
 
                     // Check if entered number matches the correct answer
-                    const enteredNumber = parseInt(keyboardInput, 10);
+                    const enteredNumber = Number.parseInt(keyboardInput, 10);
                     if (enteredNumber === correctAnswer) {
                         // Find and pop the correct balloon
                         for (const balloon of answerBalloons) {
