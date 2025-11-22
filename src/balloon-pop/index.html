@@ -50,6 +50,24 @@
         button:hover {
             background: #45a049;
         }
+        .slider-control {
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        .slider-control input[type="range"] {
+            width: 100%;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .slider-value {
+            font-weight: bold;
+            min-width: 40px;
+        }
     </style>
 </head>
 <body>
@@ -57,6 +75,22 @@
         <button onclick="resetSimulation()">Reset (R)</button>
         <div style="margin-top: 5px; font-size: 12px;">Move the mouse to control the needle.</div>
         <div style="font-size: 12px;">Click or press any key to enable sound.</div>
+
+        <div class="slider-control">
+            <div class="slider-label">
+                <label for="frictionAirSlider">Friction Air:</label>
+                <span class="slider-value" id="frictionAirValue">0.10</span>
+            </div>
+            <input type="range" id="frictionAirSlider" min="0" max="0.2" step="0.01" value="0.1" />
+        </div>
+
+        <div class="slider-control">
+            <div class="slider-label">
+                <label for="frictionSlider">Friction:</label>
+                <span class="slider-value" id="frictionValue">0.05</span>
+            </div>
+            <input type="range" id="frictionSlider" min="0" max="0.2" step="0.01" value="0.05" />
+        </div>
     </div>
     <div id="stats">
         Popped: <span id="poppedCount">0</span> / <span id="totalCount">20</span><br>
@@ -106,6 +140,12 @@
 
         // Audio context for sound effects
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        // Physics parameters for runtime adjustment
+        let physicsParams = {
+            frictionAir: 0.1,
+            friction: 0.05
+        };
 
         // Particle class for explosion effects
         class Particle {
@@ -225,14 +265,14 @@
         }
 
         // Create a balloon with string
-        function createBalloon(x, y) {
+        function createBalloon(x, y, id) {
             const size = Math.random() * 20 + 20; // 20-40px radius
             const color = colors[Math.floor(Math.random() * colors.length)];
 
             const balloon = Bodies.circle(x, y, size, {
                 density: 0.001,
-                friction: 0.05,
-                frictionAir: 0.01,
+                frictionAir: physicsParams.frictionAir,
+                friction: physicsParams.friction,
                 restitution: 0.6,
                 render: {
                     visible: false // Custom rendering below
@@ -260,6 +300,7 @@
             balloon.size = size; // Store size for sound frequency
             balloon.color = color; // Store color for custom rendering
             balloon.isPopped = false;
+            balloon.id = id; // Store balloon number
 
             return { balloon, string, anchor };
         }
@@ -347,6 +388,16 @@
                 ctx.fillStyle = darkenColor(color, 40);
                 ctx.fill();
 
+                // Draw balloon number in the middle
+                ctx.fillStyle = 'white';
+                ctx.font = `bold ${size * 0.8}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.lineWidth = 2;
+                ctx.strokeText(balloon.id, 0, size * 0.1);
+                ctx.fillText(balloon.id, 0, size * 0.1);
+
                 ctx.restore();
             }
 
@@ -375,15 +426,41 @@
             return `rgb(${R},${G},${B})`;
         }
 
+        // Check if a position overlaps with existing balloons
+        function isPositionValid(x, y, size) {
+            for (const balloon of balloons) {
+                const dx = balloon.position.x - x;
+                const dy = balloon.position.y - y;
+                const distance = Math.hypot(dx, dy);
+                const minDistance = balloon.size + size + 10; // 10px buffer
+                if (distance < minDistance) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         // Initialize balloons
         function initBalloons() {
             balloons = [];
             strings = [];
 
             for (let i = 0; i < totalBalloons; i++) {
-                const x = Math.random() * 700 + 50;
-                const y = Math.random() * 400 + 100;
-                const { balloon, string, anchor } = createBalloon(x, y);
+                let x, y, size;
+                let attempts = 0;
+                const maxAttempts = 50;
+
+                // Keep trying random positions until we find a non-overlapping one
+                do {
+                    x = Math.random() * 700 + 50;
+                    y = Math.random() * 400 + 100;
+                    size = Math.random() * 20 + 20;
+                    attempts++;
+                } while (!isPositionValid(x, y, size) && attempts < maxAttempts);
+
+                console.log(`Balloon ${i + 1}: ${attempts} attempt${attempts === 1 ? '' : 's'}`);
+
+                const { balloon, string, anchor } = createBalloon(x, y, i + 1);
 
                 balloons.push(balloon);
                 strings.push(string);
@@ -574,6 +651,29 @@
                     }
                 }, 500);
             }
+        });
+
+        // Update physics properties on all balloons
+        function updateBalloonPhysics() {
+            for (const balloon of balloons) {
+                if (!balloon.isPopped) {
+                    balloon.frictionAir = physicsParams.frictionAir;
+                    balloon.friction = physicsParams.friction;
+                }
+            }
+        }
+
+        // Slider event listeners
+        document.getElementById('frictionAirSlider').addEventListener('input', (e) => {
+            physicsParams.frictionAir = parseFloat(e.target.value);
+            document.getElementById('frictionAirValue').textContent = physicsParams.frictionAir.toFixed(2);
+            updateBalloonPhysics();
+        });
+
+        document.getElementById('frictionSlider').addEventListener('input', (e) => {
+            physicsParams.friction = parseFloat(e.target.value);
+            document.getElementById('frictionValue').textContent = physicsParams.friction.toFixed(2);
+            updateBalloonPhysics();
         });
 
         // Start simulation
