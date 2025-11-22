@@ -100,11 +100,15 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 - Reverse gravity for floating effect
 - Constraint-based strings
 - Shockwave force application on nearby objects
+- Runtime parameter adjustment for friction properties
+- Spawn overlap detection to prevent collision chaos
 
 **Rendering:** Custom Canvas 2D
 - Invisible physics bodies
 - Custom `afterRender` drawing
 - Radial gradients for 3D effects
+- Dynamic balloon numbering with contrast text rendering
+- Particle system for explosion effects
 
 **Audio:** Web Audio API
 - Oscillator-based pop sounds
@@ -115,6 +119,12 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 - Real-time mouse tracking
 - Smooth angle interpolation
 - Collision-based popping
+- Runtime physics control sliders with live feedback
+
+**Initialization:**
+- Distance-based spawn validation with 10px buffer
+- Retry logic (up to 50 attempts) for placement
+- Gradual physics settling (high damping → normal)
 
 ---
 
@@ -125,6 +135,9 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 3. **Event timing:** Flags prevent infinite loops in continuous event handlers
 4. **Visual polish:** Gradients, highlights, and proper shading dramatically improve perceived realism
 5. **Audio feedback:** Dynamic sound parameters create more engaging interactions
+6. **Spawn separation:** Checking for overlap before adding bodies prevents physics instability and visual chaos during initialization
+7. **Physics feel tuning:** High initial damping (frictionAir 0.20) then reduction (to 0.10) allows graceful settling without harsh bouncing
+8. **Runtime parameters:** Centralizing physics values allows interactive tweaking for debugging and gameplay balancing without code changes
 
 ---
 
@@ -181,6 +194,61 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 - Gives player time to prepare before engaging
 
 **Result:** Better user experience with deliberate gameplay from start and more fair timer conditions
+
+---
+
+## Enhancement #6: Prevent Balloon Overlap on Initialization
+**Problem:** Balloons spawning randomly could overlap, causing heavy bouncing and pushing down
+
+**Solution:**
+- **`isPositionValid(x, y, size)` function** - Checks if position overlaps with existing balloons
+- **Distance-based collision detection** - Uses `Math.hypot()` for efficient distance calculation
+- **10px buffer zone** - Maintains minimum distance of `balloon.size + new.size + 10px`
+- **Retry logic** - Attempts up to 50 random positions before placing balloon
+- **Console logging** - Reports attempt count per balloon for debugging
+- **Initial velocity** - Balloons spawn with upward velocity (-2 y) to minimize drop
+- **High initial friction** - FrictionAir starts at 0.20 for 0.5s, then reduces to 0.10
+
+**Result:** All balloons start fully visible and properly spaced, eliminating initial chaotic bouncing
+
+---
+
+## Enhancement #7: Balloon Numbering
+**Goal:** Identify individual balloons visually during gameplay
+
+**Implemented:**
+- **Balloon ID storage** - Each balloon assigned unique number (1-20) at creation
+- **Number rendering** - Displayed in center of each balloon
+- **Dynamic font sizing** - Text size is 80% of balloon radius for readability
+- **Contrast handling** - White text with black outline (rgba(0,0,0,0.3)) for visibility on any color
+- **Positioned above center** - Slight upward offset (size * 0.1) for better visibility with highlight
+
+**Result:** Easy balloon identification and tracking during gameplay
+
+---
+
+## Enhancement #8: Physics Runtime Controls
+**Goal:** Allow real-time adjustment of balloon physics properties during simulation
+
+**Implemented:**
+- **Physics parameter object** - Centralized `physicsParams` with `friction` and `frictionAir` values
+- **Runtime sliders** - Two range input sliders in left control panel:
+  - Friction Air slider (0-0.2, step 0.01)
+  - Friction slider (0-0.2, step 0.01)
+- **Value displays** - Live numeric feedback next to each slider
+- **Live updates** - `updateBalloonPhysics()` applies changes instantly to all active balloons
+- **Accessibility** - Labels properly associated with inputs using `for` attributes (Web:S6853 fix)
+- **Initialization behavior:**
+  - Initial frictionAir: 0.20 (high damping for settling)
+  - Reduces to 0.10 after 0.5 seconds (enables natural motion)
+
+**Features:**
+- Sliders update physics on all non-popped balloons immediately
+- Display values update with 2 decimal precision
+- Allows experimentation with physics feel during gameplay
+- No need to reset to adjust behavior
+
+**Result:** Interactive debugging and gameplay customization without reloading
 
 ---
 
