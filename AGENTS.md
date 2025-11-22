@@ -32,6 +32,8 @@ This architecture means:
 
 - Prefer `globalThis` over `window`.
 - Use `for…of` instead of `.forEach(…)`.
+- Prefer `Number.parseFloat` over `parseFloat`.
+- Prefer `Number.parseInt` over `parseInt`.
 - Prefer `Math.hypot(…)` over `Math.sqrt(…)`.
 - Remove unused variables.
 
