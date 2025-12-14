@@ -117,6 +117,25 @@ Physics-based multiplication game where students drag falling fruits to feed hun
 
 ---
 
+### Cosine Similarity Visualization
+
+**[src/cosine-similarity/index.html](src/cosine-similarity/index.html)**
+
+Interactive visualization of cosine similarity between two vectors. Adjust the angle between vectors to see how it affects the similarity score in real-time.
+
+**Features:**
+
+- Interactive vector manipulation
+- Real-time calculation of Dot Product and Cosine Similarity
+- Visual representation of similarity on a -1 to 1 scale
+- Angle visualization
+
+**Tech:** p5.js, Canvas 2D
+
+**How to run:** Simply open `src/cosine-similarity/index.html` in your browser.
+
+---
+
 ## 🚀 Getting Started
 
 All simulations are self-contained HTML files. To run:
@@ -133,6 +152,7 @@ open src/nerf-gun/index.html
 open src/math-games/balloon/index.html
 open src/math-games/rocket/index.html
 open src/math-games/monster/index.html
+open src/cosine-similarity/index.html
 # or just double-click any file
 ```
 
