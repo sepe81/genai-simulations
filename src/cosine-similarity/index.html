@@ -205,11 +205,11 @@
 
             // Stats Box
             let boxX = 20;
-            let boxY = height - 140;
+            let boxY = height - 200;
             
             fill(255, 240);
             stroke(220);
-            rect(boxX, boxY, 200, 120, 5);
+            rect(boxX, boxY, 240, 180, 5);
             
             fill(50);
             noStroke();
@@ -218,12 +218,16 @@
             let pad = 15;
             text(`Vector A: (${vectorA.x.toFixed(0)}, ${vectorA.y.toFixed(0)})`, boxX + pad, boxY + pad);
             text(`Vector B: (${vectorB.x.toFixed(0)}, ${vectorB.y.toFixed(0)})`, boxX + pad, boxY + pad + 20);
-            text(`Dot Product: ${dot.toFixed(0)}`, boxX + pad, boxY + pad + 50);
+            text(`Dot Product (A·B): ${dot.toFixed(0)}`, boxX + pad, boxY + pad + 50);
+            text(`||A||: ${magA.toFixed(1)}`, boxX + pad, boxY + pad + 70);
+            text(`||B||: ${magB.toFixed(1)}`, boxX + pad, boxY + pad + 90);
+            text(`||A|| · ||B||: ${(magA * magB).toFixed(0)}`, boxX + pad, boxY + pad + 110);
             
             // Formula
             fill(100);
-            textSize(12);
-            text("cos(θ) = (A · B) / (||A|| ||B||)", boxX + pad, boxY + pad + 80);
+            textSize(13);
+            text("cos(θ) = (A · B) / (||A|| ||B||)", boxX + pad, boxY + pad + 135);
+            text(`cos(θ) = ${dot.toFixed(0)} / ${(magA * magB).toFixed(0)} = ${similarity.toFixed(3)}`, boxX + pad, boxY + pad + 155);
 
             // Instructions
             textAlign(CENTER, BOTTOM);
