@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosine Similarity Visualization</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        canvas {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        let originX, originY;
+        let vectorA;
+        let vectorB;
+
+        function setup() {
+            createCanvas(800, 600);
+            originX = width / 2;
+            originY = height / 2;
+
+            // Initialize vectors
+            vectorA = createVector(150, 0);
+            vectorB = createVector(100, -100);
+
+            textFont('sans-serif');
+        }
+
+        function draw() {
+            background(255);
+
+            // Update Vector B to follow the mouse if pressed
+            if (mouseIsPressed) {
+                // Constrain mouse interaction to canvas
+                if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
+                    vectorB = createVector(mouseX - originX, mouseY - originY);
+                }
+            }
+
+            // Draw Grid and Axes
+            drawGrid();
+
+            // Calculate Cosine Similarity
+            // cos(theta) = (A . B) / (|A| * |B|)
+            let dotProduct = vectorA.dot(vectorB);
+            let magA = vectorA.mag();
+            let magB = vectorB.mag();
+
+            let similarity = 0;
+            if (magA > 0 && magB > 0) {
+                similarity = dotProduct / (magA * magB);
+            }
+
+            // Draw Vectors
+            drawVector(vectorA, 'A', color(220, 53, 69)); // Red
+            drawVector(vectorB, 'B', color(13, 110, 253)); // Blue
+
+            // Draw Angle Arc
+            drawAngleArc(vectorA, vectorB);
+
+            // Draw UI Overlay
+            drawUI(similarity, dotProduct, magA, magB);
+        }
+
+        function drawGrid() {
+            push();
+            stroke(240);
+            strokeWeight(1);
+            // Grid lines
+            for(let x = 0; x < width; x += 50) line(x, 0, x, height);
+            for(let y = 0; y < height; y += 50) line(0, y, width, y);
+
+            // Axes
+            stroke(200);
+            strokeWeight(2);
+            line(0, originY, width, originY);
+            line(originX, 0, originX, height);
+
+            // Origin dot
+            fill(100);
+            noStroke();
+            circle(originX, originY, 5);
+            pop();
+        }
+
+        function drawVector(v, label, c) {
+            push();
+            translate(originX, originY);
+            stroke(c);
+            strokeWeight(3);
+            line(0, 0, v.x, v.y);
+
+            // Arrowhead
+            push();
+            translate(v.x, v.y);
+            rotate(v.heading());
+            fill(c);
+            noStroke();
+            triangle(0, 0, -10, 5, -10, -5);
+            pop();
+
+            // Label
+            noStroke();
+            fill(c);
+            textSize(16);
+            textStyle(BOLD);
+            text(label, v.x + 15, v.y);
+            pop();
+        }
+
+        function drawAngleArc(v1, v2) {
+            // Only draw if vectors have magnitude
+            if (v1.mag() < 1 || v2.mag() < 1) return;
+
+            push();
+            translate(originX, originY);
+            noFill();
+            stroke(100, 100);
+            strokeWeight(1);
+
+            // Ensure we draw the smaller angle
+            // p5 arc draws clockwise from start to stop
+            stroke(0, 50);
+            beginShape();
+            vertex(0,0);
+            vertex(v1.copy().setMag(30).x, v1.copy().setMag(30).y);
+            vertex(v2.copy().setMag(30).x, v2.copy().setMag(30).y);
+            endShape(CLOSE);
+
+            pop();
+        }
+
+        function drawUI(similarity, dot, magA, magB) {
+            // Top Bar for Similarity
+            let barWidth = 400;
+            let barHeight = 30;
+            let barX = width / 2 - barWidth / 2;
+            let barY = 40;
+
+            // Bar Background
+            fill(240);
+            stroke(200);
+            strokeWeight(1);
+            rect(barX, barY, barWidth, barHeight, 15);
+
+            // Center marker
+            stroke(180);
+            line(width/2, barY, width/2, barY + barHeight);
+
+            // Indicator Circle
+            let indicatorX = map(similarity, -1, 1, barX, barX + barWidth);
+
+            // Color based on similarity
+            let c = lerpColor(color(220, 53, 69), color(25, 135, 84), (similarity + 1) / 2);
+
+            fill(c);
+            noStroke();
+            circle(indicatorX, barY + barHeight/2, 20);
+
+            // Value Text
+            fill(50);
+            noStroke();
+            textSize(24);
+            textAlign(CENTER, BOTTOM);
+            textStyle(BOLD);
+            text(`Cosine Similarity: ${similarity.toFixed(3)}`, width/2, barY - 10);
+
+            // Axis Labels
+            textSize(12);
+            textStyle(NORMAL);
+            fill(100);
+            text("-1 (Opposite)", barX, barY + barHeight + 15);
+            text("0 (Orthogonal)", width/2, barY + barHeight + 15);
+            text("1 (Identical)", barX + barWidth, barY + barHeight + 15);
+
+            // Stats Box
+            let boxX = 20;
+            let boxY = height - 200;
+
+            fill(255, 240);
+            stroke(220);
+            rect(boxX, boxY, 240, 180, 5);
+
+            fill(50);
+            noStroke();
+            textAlign(LEFT, TOP);
+            textSize(14);
+            let pad = 15;
+            text(`Vector A: (${vectorA.x.toFixed(0)}, ${vectorA.y.toFixed(0)})`, boxX + pad, boxY + pad);
+            text(`Vector B: (${vectorB.x.toFixed(0)}, ${vectorB.y.toFixed(0)})`, boxX + pad, boxY + pad + 20);
+            text(`Dot Product (A·B): ${dot.toFixed(0)}`, boxX + pad, boxY + pad + 50);
+            text(`||A||: ${magA.toFixed(1)}`, boxX + pad, boxY + pad + 70);
+            text(`||B||: ${magB.toFixed(1)}`, boxX + pad, boxY + pad + 90);
+            text(`||A|| · ||B||: ${(magA * magB).toFixed(0)}`, boxX + pad, boxY + pad + 110);
+
+            // Formula
+            fill(100);
+            textSize(13);
+            text("cos(θ) = (A · B) / (||A|| ||B||)", boxX + pad, boxY + pad + 135);
+            text(`cos(θ) = ${dot.toFixed(0)} / ${(magA * magB).toFixed(0)} = ${similarity.toFixed(3)}`, boxX + pad, boxY + pad + 155);
+
+            // Instructions
+            textAlign(CENTER, BOTTOM);
+            fill(100);
+            textSize(14);
+            text("Click and drag anywhere to move Vector B", width/2, height - 20);
+        }
+    </script>
+</body>
+</html>

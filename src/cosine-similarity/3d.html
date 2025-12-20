@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Cosine Similarity</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #1a1a1a;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #eee;
+        }
+        #ui-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            width: 280px;
+            backdrop-filter: blur(5px);
+            border: 1px solid #333;
+        }
+        h1 { margin: 0 0 15px 0; font-size: 1.2rem; color: #fff; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .control-group { margin-bottom: 15px; }
+        .control-header { display: flex; justify-content: space-between; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; }
+        .slider-row { display: flex; align-items: center; margin-bottom: 5px; }
+        .slider-label { width: 20px; font-family: monospace; color: #aaa; }
+        input[type=range] { flex-grow: 1; margin: 0 10px; cursor: pointer; }
+        .vec-a { color: #4da6ff; }
+        .vec-b { color: #ff4d4d; }
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            text-align: center;
+        }
+        .similarity-value { font-size: 1.5rem; font-weight: bold; font-family: monospace; }
+        .legend { font-size: 0.8rem; color: #888; margin-top: 5px; }
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: #666;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="ui-container">
+        <h1>3D Cosine Similarity</h1>
+
+        <div class="control-group">
+            <div class="control-header vec-a">Vector A (Blue)</div>
+            <div class="slider-row"><span class="slider-label">X</span><input type="range" id="ax" min="-1" max="1" step="0.01" value="1"></div>
+            <div class="slider-row"><span class="slider-label">Y</span><input type="range" id="ay" min="-1" max="1" step="0.01" value="0"></div>
+            <div class="slider-row"><span class="slider-label">Z</span><input type="range" id="az" min="-1" max="1" step="0.01" value="0"></div>
+        </div>
+
+        <div class="control-group">
+            <div class="control-header vec-b">Vector B (Red)</div>
+            <div class="slider-row"><span class="slider-label">X</span><input type="range" id="bx" min="-1" max="1" step="0.01" value="0"></div>
+            <div class="slider-row"><span class="slider-label">Y</span><input type="range" id="by" min="-1" max="1" step="0.01" value="1"></div>
+            <div class="slider-row"><span class="slider-label">Z</span><input type="range" id="bz" min="-1" max="1" step="0.01" value="0"></div>
+        </div>
+
+        <div class="result-box">
+            <div class="similarity-value" id="sim-val">0.000</div>
+            <div class="legend">Cosine Similarity</div>
+        </div>
+    </div>
+
+    <div id="instructions">Drag background to rotate view • Scroll to zoom</div>
+
+    <script>
+        let vecA, vecB;
+        let font;
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight, WEBGL);
+            // Initialize vectors
+            vecA = createVector(1, 0, 0);
+            vecB = createVector(0, 1, 0);
+
+            // Set initial slider values (just to sync UI if HTML changed)
+            updateVectorsFromSliders();
+        }
+
+        function draw() {
+            background(26);
+            orbitControl(); // Allow camera interaction
+
+            // Update vectors based on sliders
+            updateVectorsFromSliders();
+
+            // Calculate Similarity
+            // Normalize for calculation to match cosine definition
+            // (Sliders act as direction components)
+            let nA = p5.Vector.normalize(vecA);
+            let nB = p5.Vector.normalize(vecB);
+            let sim = nA.dot(nB);
+
+            // Update UI
+            document.getElementById('sim-val').innerText = sim.toFixed(3);
+            let colorVal = sim >= 0 ? `rgb(50, 200, 50)` : `rgb(200, 50, 50)`;
+            document.getElementById('sim-val').style.color = colorVal;
+
+            // --- Visualization ---
+
+            // Draw Coordinate System
+            drawAxes(200);
+
+            // Draw Unit Sphere (Wireframe)
+            noFill();
+            stroke(255, 255, 255, 30);
+            strokeWeight(1);
+            sphere(100); // Radius 100 represents 1 unit
+
+            // Draw Vector A
+            drawArrow(createVector(0,0,0), nA.copy().mult(100), color(77, 166, 255));
+
+            // Draw Vector B
+            drawArrow(createVector(0,0,0), nB.copy().mult(100), color(255, 77, 77));
+
+            // Draw Angle Arc (Approximation with lines)
+            drawAngleArc(nA, nB, 100);
+
+            // Draw Projection Line (B projected onto A)
+            // Proj = (A . B) * A (since A is unit)
+            let proj = p5.Vector.mult(nA, sim * 100);
+            stroke(255, 255, 255, 100);
+            strokeWeight(1);
+            // Draw dashed line manually
+            let steps = 10;
+            let tipB = nB.copy().mult(100);
+            for(let i=0; i<steps; i+=2) {
+                let p1 = p5.Vector.lerp(tipB, proj, i/steps);
+                let p2 = p5.Vector.lerp(tipB, proj, (i+1)/steps);
+                line(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z);
+            }
+        }
+
+        function updateVectorsFromSliders() {
+            let ax = parseFloat(document.getElementById('ax').value);
+            let ay = parseFloat(document.getElementById('ay').value);
+            let az = parseFloat(document.getElementById('az').value);
+
+            let bx = parseFloat(document.getElementById('bx').value);
+            let by = parseFloat(document.getElementById('by').value);
+            let bz = parseFloat(document.getElementById('bz').value);
+
+            // Prevent zero vectors
+            if (ax===0 && ay===0 && az===0) ax = 0.01;
+            if (bx===0 && by===0 && bz===0) bx = 0.01;
+
+            vecA.set(ax, ay, az);
+            vecB.set(bx, by, bz);
+        }
+
+        function drawAxes(len) {
+            strokeWeight(2);
+
+            // X - Red (Darker)
+            stroke(150, 50, 50);
+            line(-len, 0, 0, len, 0, 0);
+
+            // Y - Green
+            stroke(50, 150, 50);
+            line(0, -len, 0, 0, len, 0);
+
+            // Z - Blue (Darker)
+            stroke(50, 50, 150);
+            line(0, 0, -len, 0, 0, len);
+        }
+
+        function drawArrow(base, vec, myColor) {
+            push();
+            stroke(myColor);
+            strokeWeight(4);
+            fill(myColor);
+            translate(base.x, base.y, base.z);
+            line(0, 0, 0, vec.x, vec.y, vec.z);
+            translate(vec.x, vec.y, vec.z);
+
+            // Rotate to point along vector
+            // p5 WEBGL rotation is a bit tricky for arbitrary vectors.
+            // Using lookAt or quaternion is standard, but simple axis rotation works for visualization
+            // Alternatively, utilize the built-in geometry transformations
+
+            // Simple cone at tip
+            // We need to orient the cone
+            let angleY = atan2(vec.x, vec.z);
+            let angleX = -atan2(vec.y, sqrt(vec.x*vec.x + vec.z*vec.z));
+
+            rotateY(angleY);
+            rotateX(angleX + PI/2); // Cylinder/Cone default is Y-aligned usually, but here checking p5 docs...
+                                    // sphere/cone draw at origin.
+                                    // Actually, simplest is just to draw a small sphere at tip for this demo
+                                    // if rotation is too complex without a helper library.
+                                    // But let's try 'applyMatrix' or just the sphere.
+
+            // Sphere tip is cleaner for this abstract visualization
+            noStroke();
+            sphere(5);
+
+            pop();
+        }
+
+        function drawAngleArc(v1, v2, radius) {
+            // Draw a few points interpolating between v1 and v2 on the sphere surface
+            let steps = 20;
+            stroke(255, 255, 0, 150);
+            strokeWeight(2);
+            noFill();
+
+            beginShape();
+            for (let i = 0; i <= steps; i++) {
+                let t = i / steps;
+                // Slerp (Spherical Linear Interpolation) approximation
+                // We can just lerp and normalize
+                let interp = p5.Vector.lerp(v1, v2, t);
+                interp.normalize();
+                interp.mult(radius * 0.3); // Draw arc closer to center
+                vertex(interp.x, interp.y, interp.z);
+            }
+            endShape();
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+    </script>
+</body>
+</html>
