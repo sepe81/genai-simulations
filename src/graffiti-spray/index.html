@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Graffiti Spray</title>
+  <style>
+    :root {
+      --ui-bg: rgba(0, 0, 0, 0.55);
+      --ui-border: rgba(255, 255, 255, 0.15);
+      --ui-text: rgba(255, 255, 255, 0.92);
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: radial-gradient(1200px 700px at 60% 30%, #2b2f36 0%, #14161a 70%, #0b0c0e 100%);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--ui-text);
+      user-select: none;
+    }
+
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #palette {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      width: 64px;
+      padding: 10px;
+      border-radius: 14px;
+      background: var(--ui-bg);
+      border: 1px solid var(--ui-border);
+      backdrop-filter: blur(6px);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .swatch {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.25);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+      cursor: pointer;
+      position: relative;
+      outline: none;
+    }
+
+    .swatch[aria-selected="true"] {
+      border: 2px solid rgba(255,255,255,0.9);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.16), 0 10px 22px rgba(0,0,0,0.45);
+    }
+
+    .swatch .label {
+      position: absolute;
+      right: 6px;
+      bottom: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.92);
+      text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    }
+
+    #hud {
+      position: fixed;
+      bottom: 12px;
+      left: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: var(--ui-bg);
+      border: 1px solid var(--ui-border);
+      backdrop-filter: blur(6px);
+      font-size: 12px;
+      line-height: 1.35;
+      max-width: 360px;
+      z-index: 10;
+    }
+
+    #hud kbd {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+      font-weight: 700;
+    }
+
+    #opacity-control {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      width: 180px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: var(--ui-bg);
+      border: 1px solid var(--ui-border);
+      backdrop-filter: blur(6px);
+      font-size: 12px;
+      z-index: 10;
+    }
+
+    #opacitySlider {
+      width: 100%;
+      margin-top: 6px;
+      cursor: pointer;
+      accent-color: rgba(255,255,255,0.6);
+    }
+
+    #opacityValue {
+      font-weight: 700;
+      margin-top: 4px;
+      color: rgba(255,255,255,0.8);
+    }
+  </style>
+</head>
+<body>
+  <div id="palette" aria-label="Farben">
+    <!-- swatches injected by JS -->
+  </div>
+
+  <div id="opacity-control">
+    <label for="opacitySlider">Deckkraft</label>
+    <input type="range" id="opacitySlider" min="0.05" max="0.75" step="0.01" value="0.35" />
+    <div id="opacityValue">35 %</div>
+  </div>
+
+  <div id="hud">
+    <div><strong>Graffiti Spray</strong></div>
+    <div><kbd>Leertaste</kbd> halten: sprühen</div>
+    <div><kbd>1</kbd>–<kbd>9</kbd> oder Klick: Farbe wählen</div>
+    <div><kbd>C</kbd>: Wand reinigen</div>
+  </div>
+
+  <canvas id="c"></canvas>
+
+  <script>
+    'use strict';
+
+    const TAU = Math.PI * 2;
+
+    const COLORS = [
+      { key: '1', name: 'Schwarz', rgb: [15, 16, 18] },
+      { key: '2', name: 'Rot', rgb: [232, 57, 53] },
+      { key: '3', name: 'Orange', rgb: [255, 136, 0] },
+      { key: '4', name: 'Gelb', rgb: [255, 216, 38] },
+      { key: '5', name: 'Grün', rgb: [36, 201, 104] },
+      { key: '6', name: 'Cyan', rgb: [0, 214, 214] },
+      { key: '7', name: 'Blau', rgb: [45, 105, 255] },
+      { key: '8', name: 'Violett', rgb: [162, 72, 255] },
+      { key: '9', name: 'Pink', rgb: [255, 72, 180] }
+    ];
+
+    const paletteEl = document.getElementById('palette');
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
+
+    let dpr = Math.max(1, globalThis.devicePixelRatio || 1);
+
+    const mouse = { x: 0, y: 0 };
+    let sprayingKeyboard = false;
+    let sprayingMouse = false;
+    let selectedIndex = 1; // start with red
+    let lastAimAngle = -Math.PI / 2;
+    let opacityMultiplier = 0.35;
+
+    let wallRect = { x: 0, y: 0, w: 0, h: 0 };
+    let wallBaseCanvas = document.createElement('canvas');
+    let wallBaseCtx = wallBaseCanvas.getContext('2d');
+
+    let paintCanvas = document.createElement('canvas');
+    let paintCtx = paintCanvas.getContext('2d');
+
+    const particles = [];
+    let emitAccumulator = 0;
+
+    function clamp(v, a, b) {
+      return Math.max(a, Math.min(b, v));
+    }
+
+    function rgbToCss(rgb, a = 1) {
+      return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${a})`;
+    }
+
+    function rand(min, max) {
+      return min + Math.random() * (max - min);
+    }
+
+    function randN() {
+      // Box-Muller transform
+      let u = 0;
+      let v = 0;
+      while (u === 0) u = Math.random();
+      while (v === 0) v = Math.random();
+      return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(TAU * v);
+    }
+
+    function setSelectedIndex(idx) {
+      selectedIndex = clamp(idx, 0, COLORS.length - 1);
+      for (let i = 0; i < paletteEl.children.length; i++) {
+        const el = paletteEl.children[i];
+        el.setAttribute('aria-selected', i === selectedIndex ? 'true' : 'false');
+      }
+    }
+
+    function buildPalette() {
+      paletteEl.innerHTML = '';
+      for (let i = 0; i < COLORS.length; i++) {
+        const c = COLORS[i];
+        const btn = document.createElement('button');
+        btn.className = 'swatch';
+        btn.type = 'button';
+        btn.title = `${c.key} – ${c.name}`;
+        btn.style.background = `linear-gradient(135deg, ${rgbToCss(c.rgb, 1)} 0%, ${rgbToCss(c.rgb.map((v) => Math.max(0, v - 30)), 1)} 100%)`;
+        btn.setAttribute('aria-selected', 'false');
+
+        const label = document.createElement('div');
+        label.className = 'label';
+        label.textContent = c.key;
+        btn.appendChild(label);
+
+        btn.addEventListener('click', () => setSelectedIndex(i));
+        paletteEl.appendChild(btn);
+      }
+
+      setSelectedIndex(selectedIndex);
+    }
+
+    function resize() {
+      dpr = Math.max(1, globalThis.devicePixelRatio || 1);
+
+      const w = Math.floor(globalThis.innerWidth);
+      const h = Math.floor(globalThis.innerHeight);
+
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      // Wall layout: leave space for palette and margins
+      const uiPad = 12;
+      const paletteWidth = 64 + 20 + uiPad; // swatches + padding + outer
+      const margin = 18;
+
+      wallRect.x = paletteWidth + margin;
+      wallRect.y = margin;
+      wallRect.w = Math.max(200, w - wallRect.x - margin);
+      wallRect.h = Math.max(200, h - margin * 2);
+
+      wallBaseCanvas.width = Math.floor(w * dpr);
+      wallBaseCanvas.height = Math.floor(h * dpr);
+      wallBaseCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      paintCanvas.width = Math.floor(w * dpr);
+      paintCanvas.height = Math.floor(h * dpr);
+      paintCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      rebuildWallBase();
+      clearPaint();
+    }
+
+    function rebuildWallBase() {
+      const w = Math.floor(globalThis.innerWidth);
+      const h = Math.floor(globalThis.innerHeight);
+
+      wallBaseCtx.clearRect(0, 0, w, h);
+
+      // dark room background
+      wallBaseCtx.fillStyle = '#0d0f12';
+      wallBaseCtx.fillRect(0, 0, w, h);
+
+      // wall (light grey) with subtle gradient
+      const gx = wallRect.x;
+      const gy = wallRect.y;
+      const gw = wallRect.w;
+      const gh = wallRect.h;
+
+      const grad = wallBaseCtx.createLinearGradient(gx, gy, gx + gw, gy + gh);
+      grad.addColorStop(0, '#dedede');
+      grad.addColorStop(0.55, '#d3d3d3');
+      grad.addColorStop(1, '#cfcfcf');
+      wallBaseCtx.fillStyle = grad;
+      wallBaseCtx.fillRect(gx, gy, gw, gh);
+
+      // texture noise
+      wallBaseCtx.save();
+      wallBaseCtx.globalAlpha = 0.08;
+      for (let i = 0; i < 9000; i++) {
+        const x = gx + Math.random() * gw;
+        const y = gy + Math.random() * gh;
+        const s = Math.random() < 0.2 ? 2 : 1;
+        const a = Math.random() * 0.5;
+        wallBaseCtx.fillStyle = `rgba(0, 0, 0, ${a})`;
+        wallBaseCtx.fillRect(x, y, s, s);
+      }
+      wallBaseCtx.globalAlpha = 0.05;
+      for (let i = 0; i < 4500; i++) {
+        const x = gx + Math.random() * gw;
+        const y = gy + Math.random() * gh;
+        const s = 1;
+        const a = Math.random() * 0.6;
+        wallBaseCtx.fillStyle = `rgba(255, 255, 255, ${a})`;
+        wallBaseCtx.fillRect(x, y, s, s);
+      }
+      wallBaseCtx.restore();
+
+      // wall border / frame shadow
+      wallBaseCtx.save();
+      wallBaseCtx.shadowColor = 'rgba(0,0,0,0.55)';
+      wallBaseCtx.shadowBlur = 26;
+      wallBaseCtx.shadowOffsetY = 10;
+      wallBaseCtx.strokeStyle = 'rgba(255,255,255,0.12)';
+      wallBaseCtx.lineWidth = 1;
+      wallBaseCtx.strokeRect(gx + 0.5, gy + 0.5, gw - 1, gh - 1);
+      wallBaseCtx.restore();
+    }
+
+    function clearPaint() {
+      const w = Math.floor(globalThis.innerWidth);
+      const h = Math.floor(globalThis.innerHeight);
+      paintCtx.clearRect(0, 0, w, h);
+    }
+
+    function splatPaint(x, y, rgb) {
+      // Soft paint dot with a bit of satellite speckle
+      const baseR = rand(1.2, 5.2);
+      const alpha = rand(0.15, 0.40) * opacityMultiplier / 0.35;
+
+      paintCtx.save();
+      paintCtx.globalCompositeOperation = 'source-over';
+
+      const g = paintCtx.createRadialGradient(x, y, 0, x, y, baseR * 2.2);
+      g.addColorStop(0, rgbToCss(rgb, alpha));
+      g.addColorStop(0.55, rgbToCss(rgb, alpha * 0.35));
+      g.addColorStop(1, rgbToCss(rgb, 0));
+      paintCtx.fillStyle = g;
+      paintCtx.beginPath();
+      paintCtx.arc(x, y, baseR * 2.2, 0, TAU);
+      paintCtx.fill();
+
+      const satellites = Math.random() < 0.55 ? 2 : 1;
+      for (let i = 0; i < satellites; i++) {
+        const ang = Math.random() * TAU;
+        const dist = rand(baseR * 0.4, baseR * 2.6);
+        const sx = x + Math.cos(ang) * dist;
+        const sy = y + Math.sin(ang) * dist;
+        const sr = rand(0.6, 2.4);
+        const sa = alpha * rand(0.18, 0.5);
+        const sg = paintCtx.createRadialGradient(sx, sy, 0, sx, sy, sr * 2.0);
+        sg.addColorStop(0, rgbToCss(rgb, sa));
+        sg.addColorStop(1, rgbToCss(rgb, 0));
+        paintCtx.fillStyle = sg;
+        paintCtx.beginPath();
+        paintCtx.arc(sx, sy, sr * 2.0, 0, TAU);
+        paintCtx.fill();
+      }
+
+      paintCtx.restore();
+    }
+
+    function isInsideWall(x, y) {
+      return x >= wallRect.x && x <= wallRect.x + wallRect.w && y >= wallRect.y && y <= wallRect.y + wallRect.h;
+    }
+
+    function clampToWall(x, y) {
+      return {
+        x: clamp(x, wallRect.x + 4, wallRect.x + wallRect.w - 4),
+        y: clamp(y, wallRect.y + 4, wallRect.y + wallRect.h - 4)
+      };
+    }
+
+    function getCanPose() {
+      const w = Math.floor(globalThis.innerWidth);
+      const h = Math.floor(globalThis.innerHeight);
+
+      const canX = clamp(mouse.x || w * 0.5, 0, w);
+      const canY = clamp(mouse.y || h * 0.5, 0, h);
+
+      const target = clampToWall(mouse.x || canX, mouse.y || canY);
+
+      let dx = target.x - canX;
+      let dy = target.y - canY;
+      if (Math.hypot(dx, dy) < 1) {
+        const cx = wallRect.x + wallRect.w * 0.5;
+        const cy = wallRect.y + wallRect.h * 0.5;
+        dx = cx - canX;
+        dy = cy - canY;
+      }
+
+      const ang = Math.atan2(dy, dx);
+      if (!Number.isNaN(ang)) lastAimAngle = ang;
+
+      return { x: canX, y: canY, a: lastAimAngle };
+    }
+
+    function drawCan() {
+      const { x, y, a } = getCanPose();
+
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(a + Math.PI / 2);
+
+      // body
+      const w = 44;
+      const h = 120;
+      const r = 14;
+
+      const bodyGrad = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
+      bodyGrad.addColorStop(0, '#f2f2f2');
+      bodyGrad.addColorStop(0.45, '#cfcfcf');
+      bodyGrad.addColorStop(1, '#9a9a9a');
+
+      ctx.fillStyle = bodyGrad;
+      roundRect(ctx, -w / 2, -h / 2, w, h, r);
+      ctx.fill();
+
+      // label band (tinted by selected color)
+      const rgb = COLORS[selectedIndex].rgb;
+      ctx.fillStyle = rgbToCss(rgb, 0.92);
+      roundRect(ctx, -w / 2 + 4, -h / 2 + 32, w - 8, 40, 10);
+      ctx.fill();
+
+      // cap
+      ctx.fillStyle = '#2a2d34';
+      roundRect(ctx, -w / 2 + 6, -h / 2 - 18, w - 12, 28, 10);
+      ctx.fill();
+
+      // nozzle
+      ctx.fillStyle = '#e7e7e7';
+      roundRect(ctx, -10, -h / 2 - 30, 20, 14, 6);
+      ctx.fill();
+      ctx.fillStyle = '#111';
+      ctx.beginPath();
+      ctx.arc(0, -h / 2 - 23, 3.2, 0, TAU);
+      ctx.fill();
+
+      // shine
+      ctx.save();
+      ctx.globalAlpha = 0.25;
+      ctx.fillStyle = '#fff';
+      roundRect(ctx, -w / 2 + 8, -h / 2 + 8, 10, h - 16, 8);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.restore();
+
+      // crosshair
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(mouse.x, mouse.y, 10, 0, TAU);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(mouse.x - 16, mouse.y);
+      ctx.lineTo(mouse.x + 16, mouse.y);
+      ctx.moveTo(mouse.x, mouse.y - 16);
+      ctx.lineTo(mouse.x, mouse.y + 16);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function roundRect(c, x, y, w, h, r) {
+      const rr = Math.min(r, w / 2, h / 2);
+      c.beginPath();
+      c.moveTo(x + rr, y);
+      c.arcTo(x + w, y, x + w, y + h, rr);
+      c.arcTo(x + w, y + h, x, y + h, rr);
+      c.arcTo(x, y + h, x, y, rr);
+      c.arcTo(x, y, x + w, y, rr);
+      c.closePath();
+    }
+
+    function emit(dt) {
+      // Particles per second (tuned for realistic density)
+      const rate = 1100;
+      emitAccumulator += dt * rate;
+      const count = Math.floor(emitAccumulator);
+      emitAccumulator -= count;
+
+      if (count <= 0) return;
+
+      const rgb = COLORS[selectedIndex].rgb;
+      const { x: canX, y: canY, a } = getCanPose();
+
+      // nozzle point in world space (approx)
+      const nozzleDist = 88;
+      const nozzleX = canX + Math.cos(a) * nozzleDist;
+      const nozzleY = canY + Math.sin(a) * nozzleDist;
+
+      const aim = clampToWall(mouse.x, mouse.y);
+      const baseAngle = Math.atan2(aim.y - nozzleY, aim.x - nozzleX);
+
+      // cone width
+      const cone = (12 * Math.PI) / 180;
+
+      for (let i = 0; i < count; i++) {
+        const ang = baseAngle + randN() * (cone / 3);
+        const speed = clamp(820 + randN() * 190, 420, 1200);
+
+        const vx = Math.cos(ang) * speed;
+        const vy = Math.sin(ang) * speed;
+
+        particles.push({
+          x: nozzleX + randN() * 1.3,
+          y: nozzleY + randN() * 1.3,
+          vx,
+          vy,
+          life: rand(0.08, 0.18),
+          rgb
+        });
+      }
+    }
+
+    function step(dt) {
+      const w = Math.floor(globalThis.innerWidth);
+      const h = Math.floor(globalThis.innerHeight);
+
+      if (sprayingKeyboard || sprayingMouse) emit(dt);
+
+      // Update particles and splat on wall
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+
+        // air resistance
+        p.vx *= Math.pow(0.002, dt); // strong drag at small dt
+        p.vy *= Math.pow(0.002, dt);
+
+        // tiny gravity (downwards), adds realism
+        p.vy += 1200 * dt;
+
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.life -= dt;
+
+        if (isInsideWall(p.x, p.y)) {
+          splatPaint(p.x, p.y, p.rgb);
+          particles.splice(i, 1);
+          continue;
+        }
+
+        if (p.life <= 0 || p.x < -200 || p.x > w + 200 || p.y < -200 || p.y > h + 400) {
+          particles.splice(i, 1);
+        }
+      }
+    }
+
+    function render() {
+      const w = Math.floor(globalThis.innerWidth);
+      const h = Math.floor(globalThis.innerHeight);
+
+      ctx.clearRect(0, 0, w, h);
+      ctx.drawImage(wallBaseCanvas, 0, 0, w, h);
+      ctx.drawImage(paintCanvas, 0, 0, w, h);
+
+      // subtle vignette
+      ctx.save();
+      const vign = ctx.createRadialGradient(w * 0.55, h * 0.4, Math.min(w, h) * 0.2, w * 0.55, h * 0.4, Math.max(w, h) * 0.8);
+      vign.addColorStop(0, 'rgba(0,0,0,0)');
+      vign.addColorStop(1, 'rgba(0,0,0,0.35)');
+      ctx.fillStyle = vign;
+      ctx.fillRect(0, 0, w, h);
+      ctx.restore();
+
+      drawCan();
+    }
+
+    function onPointerMove(e) {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    }
+
+    function onPointerDown(e) {
+      if (e.button !== 0) return;
+      const ignore = e.target && e.target.closest && e.target.closest('#palette, #hud');
+      if (ignore) return;
+      sprayingMouse = true;
+    }
+
+    function onPointerUp(e) {
+      if (e.button !== 0) return;
+      sprayingMouse = false;
+    }
+
+    function onPointerCancel() {
+      sprayingMouse = false;
+    }
+
+    function onKeyDown(e) {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        sprayingKeyboard = true;
+        return;
+      }
+
+      if (e.code === 'KeyC') {
+        clearPaint();
+        return;
+      }
+
+      if (e.key >= '1' && e.key <= '9') {
+        const idx = Number.parseInt(e.key, 10) - 1;
+        setSelectedIndex(idx);
+      }
+    }
+
+    function onKeyUp(e) {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        sprayingKeyboard = false;
+      }
+    }
+
+    // Main loop
+    let last = performance.now();
+    function loop(now) {
+      const dt = clamp((now - last) / 1000, 0, 1 / 20);
+      last = now;
+
+      step(dt);
+      render();
+
+      requestAnimationFrame(loop);
+    }
+
+    buildPalette();
+    resize();
+
+    globalThis.addEventListener('resize', resize);
+    globalThis.addEventListener('pointermove', onPointerMove, { passive: true });
+    globalThis.addEventListener('pointerdown', onPointerDown, { passive: true });
+    globalThis.addEventListener('pointerup', onPointerUp, { passive: true });
+    globalThis.addEventListener('pointercancel', onPointerCancel, { passive: true });
+    globalThis.addEventListener('keydown', onKeyDown, { passive: false });
+    globalThis.addEventListener('keyup', onKeyUp, { passive: false });
+
+    const opacitySlider = document.getElementById('opacitySlider');
+    const opacityValue = document.getElementById('opacityValue');
+    opacitySlider.addEventListener('input', (e) => {
+      opacityMultiplier = Number.parseFloat(e.target.value);
+      opacityValue.textContent = Math.round(opacityMultiplier * 100) + ' %';
+    });
+
+    // initialize mouse to center of wall
+    mouse.x = wallRect.x + wallRect.w * 0.5;
+    mouse.y = wallRect.y + wallRect.h * 0.5;
+
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>

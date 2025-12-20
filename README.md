@@ -46,6 +46,20 @@ Interactive shooting gallery with two game modes: precision target shooting and 
 
 ---
 
+### Graffiti Spray
+
+**[src/graffiti-spray/index.html](src/graffiti-spray/index.html)**
+
+Kleine Graffiti-Simulation: Sprühdose, Farbauswahl links und realistisch verteilte Farbpartikel auf einer hellgrauen Wand.
+
+**Controls:**
+
+- Leertaste halten: sprühen
+- Tasten 1–9 oder Klick: Farbe wählen
+- C: Wand reinigen
+
+---
+
 ### Balloon Math (1×1 Learning)
 
 **[src/math-games/balloon/index.html](src/math-games/balloon/index.html)**
