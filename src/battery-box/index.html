@@ -354,7 +354,27 @@
         const leftWall = Bodies.rectangle(-30, globalThis.innerHeight / 2, 60, globalThis.innerHeight, wallOptions);
         const rightWall = Bodies.rectangle(globalThis.innerWidth + 30, globalThis.innerHeight / 2, 60, globalThis.innerHeight, wallOptions);
 
-        Composite.add(world, [battery, ground, leftWall, rightWall]);
+        // --- Staircase ---
+        const stairs = [];
+        const stepHeight = 80;
+        const stepWidths = [600, 400, 200];
+
+        stepWidths.forEach((w, i) => {
+            // Align left edge to x=0 (approx)
+            // Center x = w / 2
+            // y = ground top (innerHeight) - half height - (index * height)
+            // Ground center y is innerHeight + 50 (height 100). Top is innerHeight.
+
+            stairs.push(Bodies.rectangle(
+                w / 2,
+                globalThis.innerHeight - (stepHeight/2) - (i * stepHeight),
+                w,
+                stepHeight,
+                { ...wallOptions, label: 'stairs' }
+            ));
+        });
+
+        Composite.add(world, [battery, ground, leftWall, rightWall, ...stairs]);
 
         // --- Interaction ---
         const mouse = Mouse.create(render.canvas);
@@ -615,10 +635,15 @@
 
             Body.setPosition(ground, { x: globalThis.innerWidth / 2, y: globalThis.innerHeight + 50 });
             Body.setPosition(rightWall, { x: globalThis.innerWidth + 30, y: globalThis.innerHeight / 2 });
-            // Re-scale ground width if needed, but for now just center it
             Body.setVertices(ground, Bodies.rectangle(globalThis.innerWidth / 2, globalThis.innerHeight + 50, globalThis.innerWidth, 100).vertices);
-             // Note: setVertices is tricky with physics. Better to recreate or just move walls far out.
-             // For this simple demo, we just move them.
+
+            // Reposition stairs
+            stairs.forEach((step, i) => {
+                Body.setPosition(step, {
+                    x: step.position.x, // Keep x constant
+                    y: globalThis.innerHeight - (stepHeight/2) - (i * stepHeight)
+                });
+            });
         });
 
     </script>
