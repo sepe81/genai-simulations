@@ -33,18 +33,18 @@
             createCanvas(800, 600);
             originX = width / 2;
             originY = height / 2;
-            
+
             // Initialize vectors
             vectorA = createVector(150, 0);
             vectorB = createVector(100, -100);
-            
+
             textFont('sans-serif');
         }
 
         function draw() {
             background(255);
             
-            // Update Vector B to follow mouse if pressed
+            // Update Vector B to follow the mouse if pressed
             if (mouseIsPressed) {
                 // Constrain mouse interaction to canvas
                 if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
@@ -133,20 +133,8 @@
             stroke(100, 100);
             strokeWeight(1);
             
-            let a1 = v1.heading();
-            let a2 = v2.heading();
-            
             // Ensure we draw the smaller angle
             // p5 arc draws clockwise from start to stop
-            // We need to normalize angles to 0-TWO_PI for comparison or handle wrapping
-            
-            // Simple arc drawing
-            let r = 40;
-            // arc(0, 0, r*2, r*2, min(a1, a2), max(a1, a2)); 
-            // This is naive. Let's just draw a line connecting normalized vectors? 
-            // Or just skip the arc for now as it can be tricky with wrapping.
-            // Let's try a simple visual indicator of the angle.
-            
             stroke(0, 50);
             beginShape();
             vertex(0,0);
@@ -170,9 +158,6 @@
             strokeWeight(1);
             rect(barX, barY, barWidth, barHeight, 15);
 
-            // Gradient-like segments or just simple fill?
-            // Let's keep it simple.
-            
             // Center marker
             stroke(180);
             line(width/2, barY, width/2, barY + barHeight);
