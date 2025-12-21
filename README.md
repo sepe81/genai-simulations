@@ -154,12 +154,13 @@ Interactive visualization of cosine similarity between two vectors. Adjust the a
 
 **[src/battery-box/index.html](src/battery-box/index.html)**
 
-A high-voltage physics sandbox featuring a draggable battery that arcs electricity to nearby objects. Includes interactive elements like stackable Iron Golems and fireworks.
+A high-voltage physics sandbox featuring a draggable battery that arcs electricity to nearby objects. Includes interactive elements like stackable Iron Golems, Endermen, and fireworks.
 
 **Controls:**
 - **Drag & Drop:** Move the battery box
-- **S:** Spawn Iron Golem (Physics object)
+- **S:** Spawn Entity (Iron Golem or Enderman)
 - **F:** Launch Firework Rocket
+- **W:** Toggle Brick Wall Background
 - **O:** Toggle Electric Arcs On/Off
 - **R:** Reset Simulation
 
@@ -167,8 +168,8 @@ A high-voltage physics sandbox featuring a draggable battery that arcs electrici
 - Dynamic lightning generation using recursive displacement
 - Particle effects for sparks and fireworks
 - "Soft ceiling" mechanic to keep objects in bounds
-- Physics-based Iron Golems with high stability for stacking
-- Industrial dark mode aesthetic
+- Physics-based Iron Golems and Endermen with high stability for stacking
+- Industrial dark mode with optional brick wall aesthetic
 
 **Tech:** Matter.js, Canvas 2D
 
