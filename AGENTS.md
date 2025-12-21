@@ -36,6 +36,7 @@ This architecture means:
 - Prefer `Number.parseInt` over `parseInt`.
 - Prefer `Math.hypot(…)` over `Math.sqrt(…)`.
 - Remove unused variables.
+- Use natural language style for commit messages.
 
 ## Common Gotchas
 
