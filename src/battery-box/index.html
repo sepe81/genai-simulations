@@ -176,6 +176,78 @@
             }
         }
 
+        function spawnEnderman() {
+            const x = globalThis.innerWidth / 2 + (Math.random() - 0.5) * 200;
+            const y = -150;
+            const scale = 1.0;
+
+            const group = Body.nextGroup(true);
+            const bodyColor = '#161616';
+            const eyeColor = '#d060ff';
+
+            // Head
+            const head = Bodies.rectangle(x, y - 100 * scale, 32 * scale, 32 * scale, {
+                render: { fillStyle: bodyColor },
+                collisionFilter: { group: group }
+            });
+            // Eyes
+            const leftEye = Bodies.rectangle(x - 8 * scale, y - 104 * scale, 8 * scale, 4 * scale, {
+                render: { fillStyle: eyeColor },
+                collisionFilter: { group: group }
+            });
+            const rightEye = Bodies.rectangle(x + 8 * scale, y - 104 * scale, 8 * scale, 4 * scale, {
+                render: { fillStyle: eyeColor },
+                collisionFilter: { group: group }
+            });
+
+            // Torso
+            const torso = Bodies.rectangle(x, y - 40 * scale, 24 * scale, 80 * scale, {
+                render: { fillStyle: bodyColor },
+                collisionFilter: { group: group }
+            });
+
+            // Very long arms
+            const armW = 6 * scale;
+            const armH = 160 * scale;
+            const leftArm = Bodies.rectangle(x - 20 * scale, y - 10 * scale, armW, armH, {
+                render: { fillStyle: bodyColor },
+                collisionFilter: { group: group }
+            });
+            const rightArm = Bodies.rectangle(x + 20 * scale, y - 10 * scale, armW, armH, {
+                render: { fillStyle: bodyColor },
+                collisionFilter: { group: group }
+            });
+
+            // Very long legs
+            const legW = 6 * scale;
+            const legH = 160 * scale;
+            const leftLeg = Bodies.rectangle(x - 8 * scale, y + 100 * scale, legW, legH, {
+                render: { fillStyle: bodyColor },
+                collisionFilter: { group: group }
+            });
+            const rightLeg = Bodies.rectangle(x + 8 * scale, y + 100 * scale, legW, legH, {
+                render: { fillStyle: bodyColor },
+                collisionFilter: { group: group }
+            });
+
+            const enderman = Body.create({
+                parts: [head, leftEye, rightEye, torso, leftArm, rightArm, leftLeg, rightLeg],
+                restitution: 0.05,
+                friction: 0.6,
+                frictionAir: 0.02,
+                density: 0.02 // Lighter than golem
+            });
+
+            Body.setInertia(enderman, enderman.inertia * 5);
+            Composite.add(world, enderman);
+            golems.push(enderman);
+
+            if (golems.length > 5) {
+                 const old = golems.shift();
+                 Composite.remove(world, old);
+            }
+        }
+
         function resetSimulation() {
             // Remove all golems
             golems.forEach(golem => Composite.remove(world, golem));
@@ -194,7 +266,11 @@
 
         globalThis.addEventListener('keydown', (e) => {
             if (e.key.toLowerCase() === 's') {
-                spawnIronGolem();
+                if (Math.random() < 0.5) {
+                    spawnIronGolem();
+                } else {
+                    spawnEnderman();
+                }
             } else if (e.key.toLowerCase() === 'f') {
                 launchFirework();
             } else if (e.key.toLowerCase() === 'o') {
