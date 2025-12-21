@@ -138,7 +138,7 @@
   <div id="hud">
     <div><strong>Graffiti Spray</strong></div>
     <div><kbd>Leertaste</kbd> halten: sprühen</div>
-    <div><kbd>1</kbd>–<kbd>9</kbd> oder Klick: Farbe wählen</div>
+    <div><kbd>0</kbd>–<kbd>9</kbd> oder Klick: Farbe wählen</div>
     <div><kbd>C</kbd>: Wand reinigen</div>
     <div><kbd>W</kbd>: Wand-Modus</div>
   </div>
@@ -159,7 +159,8 @@
       { key: '6', name: 'Cyan', rgb: [0, 214, 214] },
       { key: '7', name: 'Blau', rgb: [45, 105, 255] },
       { key: '8', name: 'Violett', rgb: [162, 72, 255] },
-      { key: '9', name: 'Pink', rgb: [255, 72, 180] }
+      { key: '9', name: 'Pink', rgb: [255, 72, 180] },
+      { key: '0', name: 'Metalle & Glitzer', rgb: [255, 215, 0], special: true }
     ];
 
     const paletteEl = document.getElementById('palette');
@@ -223,7 +224,11 @@
         btn.className = 'swatch';
         btn.type = 'button';
         btn.title = `${c.key} – ${c.name}`;
-        btn.style.background = `linear-gradient(135deg, ${rgbToCss(c.rgb, 1)} 0%, ${rgbToCss(c.rgb.map((v) => Math.max(0, v - 30)), 1)} 100%)`;
+        if (c.key === '0') {
+           btn.style.background = 'linear-gradient(135deg, #ffd700 0%, #c0c0c0 50%, #cd7f32 100%)';
+        } else {
+           btn.style.background = `linear-gradient(135deg, ${rgbToCss(c.rgb, 1)} 0%, ${rgbToCss(c.rgb.map((v) => Math.max(0, v - 30)), 1)} 100%)`;
+        }
         btn.setAttribute('aria-selected', 'false');
 
         const label = document.createElement('div');
@@ -649,7 +654,7 @@
 
       if (count <= 0) return;
 
-      const rgb = COLORS[selectedIndex].rgb;
+      const baseColorObj = COLORS[selectedIndex];
       const { x: canX, y: canY, a } = getCanPose();
 
       // nozzle point in world space (approx)
@@ -664,6 +669,17 @@
       const cone = (12 * Math.PI) / 180;
 
       for (let i = 0; i < count; i++) {
+        let rgb = baseColorObj.rgb;
+
+        // Special handling for key '0' (Gold, Silver, Bronze, Glitter)
+        if (baseColorObj.key === '0') {
+          const r = Math.random();
+          if (r < 0.25) rgb = [255, 215, 0];       // Gold
+          else if (r < 0.50) rgb = [192, 192, 192]; // Silver
+          else if (r < 0.75) rgb = [205, 127, 50];  // Bronze
+          else rgb = [255, 255, 255];               // Glitter (White)
+        }
+
         const ang = baseAngle + randN() * (cone / 3);
         const speed = clamp(820 + randN() * 190, 420, 1200);
 
@@ -773,8 +789,10 @@
         return;
       }
 
-      if (e.key >= '1' && e.key <= '9') {
-        const idx = Number.parseInt(e.key, 10) - 1;
+      if (e.key >= '0' && e.key <= '9') {
+        const keyNum = Number.parseInt(e.key, 10);
+        // If '0' is pressed, it should select the last element (index 9)
+        const idx = keyNum === 0 ? COLORS.length - 1 : keyNum - 1;
         setSelectedIndex(idx);
       }
     }
