@@ -279,46 +279,49 @@
       const ox = gx + 30;
       const oy = gy + 30;
       const fw = 14; // frame width
+      const woodColor = '#3d2b1f';
 
       ctx.save();
-      
-      // 1. Dark background for the window area (depth)
-      ctx.fillStyle = '#0a0a0a';
-      ctx.fillRect(ox, oy, winW, winH);
 
-      // 2. Window Frame Wood Base
-      const woodColor = '#3d2b1f';
+      // 1. Draw the Wood Base for the frame only (not the whole area)
       ctx.fillStyle = woodColor;
-      ctx.fillRect(ox, oy, winW, winH);
+      // Top
+      ctx.fillRect(ox, oy, winW, fw);
+      // Bottom
+      ctx.fillRect(ox, oy + winH - fw, winW, fw);
+      // Left
+      ctx.fillRect(ox, oy + fw, fw, winH - fw * 2);
+      // Right
+      ctx.fillRect(ox + winW - fw, oy + fw, fw, winH - fw * 2);
+      // Muntins (Cross)
+      ctx.fillRect(ox + winW / 2 - 4, oy + fw, 8, winH - fw * 2);
+      ctx.fillRect(ox + fw, oy + winH / 2 - 4, winW - fw * 2, 8);
 
-      // 3. Glass Panes
+      // 2. Glass Panes (Translucent)
       const paneW = (winW - fw * 2 - 8) / 2;
       const paneH = (winH - fw * 2 - 8) / 2;
       for (let i = 0; i < 2; i++) {
         for (let j = 0; j < 2; j++) {
           const px = ox + fw + i * (paneW + 8);
           const py = oy + fw + j * (paneH + 8);
-          
-          // Glass color
-          const gGrad = ctx.createLinearGradient(px, py, px + paneW, py + paneH);
-          gGrad.addColorStop(0, '#1a1c1e');
-          gGrad.addColorStop(1, '#0f1112');
-          ctx.fillStyle = gGrad;
+
+          // Subtle Glass tint
+          ctx.fillStyle = 'rgba(100, 130, 170, 0.15)';
           ctx.fillRect(px, py, paneW, paneH);
-          
-          // Dirt/Reflection
-          ctx.fillStyle = 'rgba(255,255,255,0.03)';
+
+          // Reflections
+          ctx.fillStyle = 'rgba(255,255,255,0.08)';
           ctx.beginPath();
           ctx.moveTo(px, py);
-          ctx.lineTo(px + paneW, py);
-          ctx.lineTo(px, py + paneH);
+          ctx.lineTo(px + paneW * 0.7, py);
+          ctx.lineTo(px, py + paneH * 0.7);
           ctx.closePath();
           ctx.fill();
         }
       }
 
-      // 4. Peeling White Paint
-      function drawPeelingSection(rx, ry, rw, rh, density = 0.8) {
+      // 3. Peeling White Paint
+      function drawPeelingSection(rx, ry, rw, rh) {
         ctx.save();
         ctx.beginPath();
         ctx.rect(rx, ry, rw, rh);
@@ -327,7 +330,7 @@
         ctx.fillStyle = '#f0f0f0'; // Off-white paint
         ctx.fillRect(rx, ry, rw, rh);
 
-        // Create peeling effect by drawing wood color back on top in jagged shapes
+        // Peeling effect
         ctx.fillStyle = woodColor;
         const spots = Math.floor(rw * rh * 0.05);
         for (let k = 0; k < spots; k++) {
@@ -337,14 +340,9 @@
           ctx.beginPath();
           ctx.arc(sx, sy, sr, 0, Math.PI * 2);
           ctx.fill();
-          
-          // Add some jaggedness
-          if (Math.random() > 0.5) {
-             ctx.fillRect(sx - sr, sy - sr * 0.5, sr * 2, sr);
-          }
+          if (Math.random() > 0.5) ctx.fillRect(sx - sr, sy - sr * 0.5, sr * 2, sr);
         }
-        
-        // Add some "cracks"
+
         ctx.strokeStyle = 'rgba(0,0,0,0.2)';
         ctx.lineWidth = 0.5;
         for (let k = 0; k < 5; k++) {
@@ -353,21 +351,19 @@
            ctx.lineTo(rx + Math.random() * rw, ry + Math.random() * rh);
            ctx.stroke();
         }
-
         ctx.restore();
       }
 
-      // Draw the peeling frame parts
       drawPeelingSection(ox, oy, winW, fw); // Top
       drawPeelingSection(ox, oy + winH - fw, winW, fw); // Bottom
       drawPeelingSection(ox, oy + fw, fw, winH - fw * 2); // Left
       drawPeelingSection(ox + winW - fw, oy + fw, fw, winH - fw * 2); // Right
-      
-      // Muntins (Cross)
+
+      // Muntins peeling
       drawPeelingSection(ox + winW / 2 - 4, oy + fw, 8, winH - fw * 2);
       drawPeelingSection(ox + fw, oy + winH / 2 - 4, winW - fw * 2, 8);
 
-      // 5. Outer Shadow/Depth
+      // 4. Outer Shadow/Depth
       ctx.strokeStyle = 'rgba(0,0,0,0.4)';
       ctx.lineWidth = 1;
       ctx.strokeRect(ox + 0.5, oy + 0.5, winW - 1, winH - 1);
