@@ -50,13 +50,13 @@ Interactive shooting gallery with two game modes: precision target shooting and 
 
 **[src/graffiti-spray/index.html](src/graffiti-spray/index.html)**
 
-Kleine Graffiti-Simulation: Sprühdose, Farbauswahl links und realistisch verteilte Farbpartikel auf einer hellgrauen Wand.
+A small graffiti simulation: Spray can, color selection on the left, and realistically distributed paint particles on a light gray wall.
 
 **Controls:**
 
-- Leertaste halten: sprühen
-- Tasten 1–9 oder Klick: Farbe wählen
-- C: Wand reinigen
+- Hold Space: Spray
+- Keys 1–9 or Click: Select color
+- C: Clean wall
 
 ---
 
@@ -189,11 +189,13 @@ All simulations are self-contained HTML files. To run:
 git clone https://github.com/sepe81/genai-simulations.git
 cd genai-simulations
 open src/balloon-pop/index.html
-open src/nerf-gun/index.html
-open src/math-games/balloon/index.html
-open src/math-games/rocket/index.html
-open src/math-games/monster/index.html
+open src/battery-box/index.html
 open src/cosine-similarity/index.html
+open src/graffiti-spray/index.html
+open src/math-games/balloon/index.html
+open src/math-games/monster/index.html
+open src/math-games/rocket/index.html
+open src/nerf-gun/index.html
 # or just double-click any file
 ```
 
