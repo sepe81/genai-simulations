@@ -283,38 +283,61 @@
       wallBaseCtx.fillStyle = '#0d0f12';
       wallBaseCtx.fillRect(0, 0, w, h);
 
-      // wall (light grey) with subtle gradient
       const gx = wallRect.x;
       const gy = wallRect.y;
       const gw = wallRect.w;
       const gh = wallRect.h;
 
       if (wallMode) {
-        // Bricks
-        wallBaseCtx.fillStyle = '#743a36';
-        wallBaseCtx.fillRect(gx, gy, gw, gh);
-
+        // Bricks with variation
         wallBaseCtx.save();
         wallBaseCtx.beginPath();
         wallBaseCtx.rect(gx, gy, gw, gh);
         wallBaseCtx.clip();
 
-        wallBaseCtx.strokeStyle = 'rgba(0,0,0,0.2)';
-        wallBaseCtx.lineWidth = 2;
-        const bw = 58;
-        const bh = 29;
+        // Mortar
+        wallBaseCtx.fillStyle = '#444';
+        wallBaseCtx.fillRect(gx, gy, gw, gh);
+
+        const bw = 60;
+        const bh = 30;
+        const mortar = 2;
+
+        // Use a simple seeded-like random for consistent pattern if needed,
+        // but for rebuild on toggle, normal Math.random is fine.
         for (let y = gy; y < gy + gh + bh; y += bh) {
           const isOffset = (Math.floor((y - gy) / bh) % 2) === 1;
-          const offset = isOffset ? bw / 2 : 0;
-          wallBaseCtx.beginPath();
-          wallBaseCtx.moveTo(gx, y);
-          wallBaseCtx.lineTo(gx + gw, y);
-          wallBaseCtx.stroke();
-          for (let x = gx - offset; x < gx + gw + bw; x += bw) {
-            wallBaseCtx.beginPath();
-            wallBaseCtx.moveTo(x, y);
-            wallBaseCtx.lineTo(x, y + bh);
-            wallBaseCtx.stroke();
+          const rowOffset = isOffset ? bw / 2 : 0;
+
+          for (let x = gx - rowOffset; x < gx + gw + bw; x += bw) {
+            // Brick base color variation
+            const r = 110 + Math.random() * 30;
+            const g = 50 + Math.random() * 20;
+            const b = 45 + Math.random() * 15;
+            wallBaseCtx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+
+            // Draw brick slightly smaller for mortar
+            const bx = x + mortar;
+            const by = y + mortar;
+            const bww = bw - mortar * 2;
+            const bhh = bh - mortar * 2;
+
+            wallBaseCtx.fillRect(bx, by, bww, bhh);
+
+            // Subtle brick texture/noise
+            wallBaseCtx.save();
+            wallBaseCtx.globalAlpha = 0.1;
+            for (let n = 0; n < 8; n++) {
+              wallBaseCtx.fillStyle = Math.random() > 0.5 ? '#fff' : '#000';
+              wallBaseCtx.fillRect(bx + Math.random() * bww, by + Math.random() * bhh, 1 + Math.random() * 2, 1 + Math.random() * 2);
+            }
+            wallBaseCtx.restore();
+
+            // Bevel/Highlight
+            wallBaseCtx.strokeStyle = 'rgba(255,255,255,0.1)';
+            wallBaseCtx.strokeRect(bx + 0.5, by + 0.5, bww - 1, bhh - 1);
+            wallBaseCtx.strokeStyle = 'rgba(0,0,0,0.2)';
+            wallBaseCtx.strokeRect(bx + 1.5, by + 1.5, bww - 1, bhh - 1);
           }
         }
         wallBaseCtx.restore();
