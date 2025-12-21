@@ -140,6 +140,7 @@
     <div><kbd>Leertaste</kbd> halten: sprühen</div>
     <div><kbd>1</kbd>–<kbd>9</kbd> oder Klick: Farbe wählen</div>
     <div><kbd>C</kbd>: Wand reinigen</div>
+    <div><kbd>W</kbd>: Wand-Modus</div>
   </div>
 
   <canvas id="c"></canvas>
@@ -170,6 +171,7 @@
     const mouse = { x: 0, y: 0 };
     let sprayingKeyboard = false;
     let sprayingMouse = false;
+    let wallMode = false;
     let selectedIndex = 1; // start with red
     let lastAimAngle = -Math.PI / 2;
     let opacityMultiplier = 0.35;
@@ -287,12 +289,44 @@
       const gw = wallRect.w;
       const gh = wallRect.h;
 
-      const grad = wallBaseCtx.createLinearGradient(gx, gy, gx + gw, gy + gh);
-      grad.addColorStop(0, '#dedede');
-      grad.addColorStop(0.55, '#d3d3d3');
-      grad.addColorStop(1, '#cfcfcf');
-      wallBaseCtx.fillStyle = grad;
-      wallBaseCtx.fillRect(gx, gy, gw, gh);
+      if (wallMode) {
+        // Bricks
+        wallBaseCtx.fillStyle = '#743a36';
+        wallBaseCtx.fillRect(gx, gy, gw, gh);
+
+        wallBaseCtx.save();
+        wallBaseCtx.beginPath();
+        wallBaseCtx.rect(gx, gy, gw, gh);
+        wallBaseCtx.clip();
+
+        wallBaseCtx.strokeStyle = 'rgba(0,0,0,0.2)';
+        wallBaseCtx.lineWidth = 2;
+        const bw = 58;
+        const bh = 29;
+        for (let y = gy; y < gy + gh + bh; y += bh) {
+          const isOffset = (Math.floor((y - gy) / bh) % 2) === 1;
+          const offset = isOffset ? bw / 2 : 0;
+          wallBaseCtx.beginPath();
+          wallBaseCtx.moveTo(gx, y);
+          wallBaseCtx.lineTo(gx + gw, y);
+          wallBaseCtx.stroke();
+          for (let x = gx - offset; x < gx + gw + bw; x += bw) {
+            wallBaseCtx.beginPath();
+            wallBaseCtx.moveTo(x, y);
+            wallBaseCtx.lineTo(x, y + bh);
+            wallBaseCtx.stroke();
+          }
+        }
+        wallBaseCtx.restore();
+      } else {
+        // wall (light grey) with subtle gradient
+        const grad = wallBaseCtx.createLinearGradient(gx, gy, gx + gw, gy + gh);
+        grad.addColorStop(0, '#dedede');
+        grad.addColorStop(0.55, '#d3d3d3');
+        grad.addColorStop(1, '#cfcfcf');
+        wallBaseCtx.fillStyle = grad;
+        wallBaseCtx.fillRect(gx, gy, gw, gh);
+      }
 
       // texture noise
       wallBaseCtx.save();
@@ -607,6 +641,12 @@
 
       if (e.code === 'KeyC') {
         clearPaint();
+        return;
+      }
+
+      if (e.code === 'KeyW') {
+        wallMode = !wallMode;
+        rebuildWallBase();
         return;
       }
 
