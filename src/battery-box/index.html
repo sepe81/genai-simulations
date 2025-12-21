@@ -36,6 +36,17 @@
             color: #ccc;
             font-size: 0.9em;
         }
+        /* Brick Wall Mode */
+        body.brick-wall {
+            background-color: #743a36;
+            background-image:
+                linear-gradient(335deg, rgba(0,0,0,0.2) 23px, transparent 23px),
+                linear-gradient(155deg, rgba(0,0,0,0.2) 23px, transparent 23px),
+                linear-gradient(335deg, rgba(0,0,0,0.2) 23px, transparent 23px),
+                linear-gradient(155deg, rgba(0,0,0,0.2) 23px, transparent 23px);
+            background-size: 58px 58px;
+            background-position: 0px 2px, 4px 35px, 29px 31px, 34px 6px;
+        }
     </style>
 </head>
 <body>
@@ -43,7 +54,8 @@
         <h2>⚠ High Voltage Box</h2>
         <p>Drag the battery to generate arcs.</p>
         <p>Lightning seeks the mouse pointer and ground.</p>
-        <p style="margin-top: 5px; color: #aaa;">'S' - Spawn Golem | 'F' - Fireworks | 'O' - Toggle Arcs | 'R' - Reset</p>
+        <p style="margin-top: 5px; color: #aaa;">'S' - Spawn Entity | 'F' - Fireworks | 'O' - Toggle Arcs | 'R' - Reset</p>
+        <p style="margin-top: 5px; color: #aaa;">'W' - Toggle Wall</p>
     </div>
 
     <!-- Matter.js -->
@@ -51,6 +63,7 @@
 
     <script>
         let lightningEnabled = true;
+        let wallMode = false;
 
         const Engine = Matter.Engine,
               Render = Matter.Render,
@@ -188,6 +201,15 @@
                 lightningEnabled = !lightningEnabled;
             } else if (e.key.toLowerCase() === 'r') {
                 resetSimulation();
+            } else if (e.key.toLowerCase() === 'w') {
+                wallMode = !wallMode;
+                if (wallMode) {
+                    document.body.classList.add('brick-wall');
+                    render.options.background = 'transparent';
+                } else {
+                    document.body.classList.remove('brick-wall');
+                    render.options.background = '#050505';
+                }
             }
         });
 
