@@ -187,6 +187,63 @@
     const particles = [];
     let emitAccumulator = 0;
 
+    // Audio context and spray sound
+    let audioCtx = null;
+    let sprayNoiseNode = null;
+    let sprayGainNode = null;
+    let sprayFilterNode = null;
+
+    function initAudio() {
+      if (audioCtx) return;
+      audioCtx = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
+
+      // Create noise buffer for spray hiss
+      const bufferSize = audioCtx.sampleRate * 2;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+
+      // Noise source (looping white noise)
+      sprayNoiseNode = audioCtx.createBufferSource();
+      sprayNoiseNode.buffer = noiseBuffer;
+      sprayNoiseNode.loop = true;
+
+      // Bandpass filter for spray can hiss character
+      sprayFilterNode = audioCtx.createBiquadFilter();
+      sprayFilterNode.type = 'bandpass';
+      sprayFilterNode.frequency.value = 3500;
+      sprayFilterNode.Q.value = 0.8;
+
+      // Gain node to control volume
+      sprayGainNode = audioCtx.createGain();
+      sprayGainNode.gain.value = 0;
+
+      // Connect nodes
+      sprayNoiseNode.connect(sprayFilterNode);
+      sprayFilterNode.connect(sprayGainNode);
+      sprayGainNode.connect(audioCtx.destination);
+
+      sprayNoiseNode.start();
+    }
+
+    function startSpraySound() {
+      if (!audioCtx) initAudio();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      if (sprayGainNode) {
+        sprayGainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+        sprayGainNode.gain.setTargetAtTime(0.18, audioCtx.currentTime, 0.03);
+      }
+    }
+
+    function stopSpraySound() {
+      if (sprayGainNode && audioCtx) {
+        sprayGainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+        sprayGainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+      }
+    }
+
     function clamp(v, a, b) {
       return Math.max(a, Math.min(b, v));
     }
@@ -760,21 +817,27 @@
       const ignore = e.target && e.target.closest && e.target.closest('#palette, #hud');
       if (ignore) return;
       sprayingMouse = true;
+      startSpraySound();
     }
 
     function onPointerUp(e) {
       if (e.button !== 0) return;
       sprayingMouse = false;
+      if (!sprayingKeyboard) stopSpraySound();
     }
 
     function onPointerCancel() {
       sprayingMouse = false;
+      if (!sprayingKeyboard) stopSpraySound();
     }
 
     function onKeyDown(e) {
       if (e.code === 'Space') {
         e.preventDefault();
-        sprayingKeyboard = true;
+        if (!sprayingKeyboard) {
+          sprayingKeyboard = true;
+          startSpraySound();
+        }
         return;
       }
 
@@ -801,6 +864,7 @@
       if (e.code === 'Space') {
         e.preventDefault();
         sprayingKeyboard = false;
+        if (!sprayingMouse) stopSpraySound();
       }
     }
 
