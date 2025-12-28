@@ -128,8 +128,8 @@ class Tetromino {
 
     rotate(clockwise = true) {
         const size = this.shape.length;
-        const rotated = Array.from({ length: size }, () => Array(size).fill(0));
-        
+        const rotated = Array.from({ length: size }, () => new Array(size).fill(0));
+
         for (let y = 0; y < size; y++) {
             for (let x = 0; x < size; x++) {
                 if (clockwise) {
@@ -139,7 +139,7 @@ class Tetromino {
                 }
             }
         }
-        
+
         return rotated;
     }
 
@@ -166,7 +166,7 @@ class Board {
     }
 
     createEmptyGrid() {
-        return Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+        return Array.from({ length: ROWS }, () => new Array(COLS).fill(null));
     }
 
     reset() {
@@ -175,17 +175,17 @@ class Board {
 
     isValidPosition(tetromino, offsetX = 0, offsetY = 0, newShape = null) {
         const shape = newShape || tetromino.shape;
-        
+
         for (let y = 0; y < shape.length; y++) {
             for (let x = 0; x < shape[y].length; x++) {
                 if (shape[y][x]) {
                     const newX = tetromino.x + x + offsetX;
                     const newY = tetromino.y + y + offsetY;
-                    
+
                     if (newX < 0 || newX >= COLS || newY >= ROWS) {
                         return false;
                     }
-                    
+
                     if (newY >= 0 && this.grid[newY][newX]) {
                         return false;
                     }
@@ -205,18 +205,18 @@ class Board {
 
     clearLines() {
         const linesToClear = [];
-        
+
         for (let y = ROWS - 1; y >= 0; y--) {
             if (this.grid[y].every(cell => cell !== null)) {
                 linesToClear.push(y);
             }
         }
-        
+
         for (const lineY of linesToClear) {
             this.grid.splice(lineY, 1);
-            this.grid.unshift(Array(COLS).fill(null));
+            this.grid.unshift(new Array(COLS).fill(null));
         }
-        
+
         return linesToClear.length;
     }
 
@@ -297,17 +297,17 @@ class Renderer {
     constructor() {
         this.gameCanvas = document.getElementById('game-canvas');
         this.gameCtx = this.gameCanvas.getContext('2d');
-        
+
         this.nextCanvas = document.getElementById('next-canvas');
         this.nextCtx = this.nextCanvas.getContext('2d');
-        
+
         this.holdCanvas = document.getElementById('hold-canvas');
         this.holdCtx = this.holdCanvas.getContext('2d');
-        
+
         this.scoreElement = document.getElementById('score');
         this.levelElement = document.getElementById('level');
         this.linesElement = document.getElementById('lines');
-        
+
         this.overlay = document.getElementById('game-overlay');
         this.overlayTitle = document.getElementById('overlay-title');
         this.overlayMessage = document.getElementById('overlay-message');
@@ -321,7 +321,7 @@ class Renderer {
 
     drawBlock(ctx, x, y, color, size = BLOCK_SIZE, ghost = false) {
         const padding = 1;
-        
+
         if (ghost) {
             ctx.strokeStyle = color;
             ctx.lineWidth = 2;
@@ -340,7 +340,7 @@ class Renderer {
                 size - padding * 2,
                 size - padding * 2
             );
-            
+
             // Highlight
             ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
             ctx.fillRect(
@@ -349,7 +349,7 @@ class Renderer {
                 size - padding * 2,
                 4
             );
-            
+
             // Shadow
             ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
             ctx.fillRect(
@@ -411,16 +411,15 @@ class Renderer {
 
     drawPreview(ctx, tetromino, offsetY = 0) {
         if (!tetromino) return;
-        
+
         const shape = TETROMINOES[tetromino.type || tetromino].shape;
         const color = TETROMINOES[tetromino.type || tetromino].color;
-        
+
         const blockSize = PREVIEW_BLOCK_SIZE;
         const width = shape[0].length * blockSize;
-        const height = shape.length * blockSize;
         const startX = (ctx.canvas.width - width) / 2;
         const startY = offsetY + 10;
-        
+
         for (let y = 0; y < shape.length; y++) {
             for (let x = 0; x < shape[y].length; x++) {
                 if (shape[y][x]) {
@@ -435,7 +434,7 @@ class Renderer {
     drawNextQueue(queue) {
         this.nextCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
         this.nextCtx.fillRect(0, 0, this.nextCanvas.width, this.nextCanvas.height);
-        
+
         for (let i = 0; i < Math.min(queue.length, 4); i++) {
             this.drawPreview(this.nextCtx, queue[i], i * 80);
         }
@@ -444,7 +443,7 @@ class Renderer {
     drawHoldPiece(type, canHold) {
         this.holdCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
         this.holdCtx.fillRect(0, 0, this.holdCanvas.width, this.holdCanvas.height);
-        
+
         if (type) {
             if (!canHold) {
                 this.holdCtx.globalAlpha = 0.3;
@@ -474,18 +473,18 @@ class Renderer {
     render(game) {
         this.clear();
         this.drawBoard(game.board);
-        
+
         if (game.currentPiece) {
             // Draw ghost piece
             const ghostY = game.board.getGhostPosition(game.currentPiece);
             if (ghostY !== game.currentPiece.y) {
                 this.drawGhost(game.currentPiece, ghostY);
             }
-            
+
             // Draw current piece
             this.drawTetromino(game.currentPiece);
         }
-        
+
         this.drawNextQueue(game.nextQueue);
         this.drawHoldPiece(game.holdPieceType, game.canHold);
         this.updateStats(game.score, game.level, game.lines);
@@ -501,7 +500,7 @@ class Game {
         this.board = new Board();
         this.renderer = new Renderer();
         this.inputHandler = new InputHandler(this);
-        
+
         this.reset();
         this.setupRestartButton();
         this.start();
@@ -514,22 +513,22 @@ class Game {
         this.currentPiece = null;
         this.holdPieceType = null;
         this.canHold = true;
-        
+
         this.score = 0;
         this.level = 1;
         this.lines = 0;
-        
+
         this.dropInterval = BASE_DROP_INTERVAL;
         this.lastDropTime = 0;
-        
+
         this.isPaused = false;
         this.isGameOver = false;
-        
+
         // Fill next queue
         for (let i = 0; i < 4; i++) {
             this.nextQueue.push(this.getNextFromBag());
         }
-        
+
         this.spawnPiece();
         this.renderer.hideOverlay();
     }
@@ -556,10 +555,10 @@ class Game {
     spawnPiece() {
         const type = this.nextQueue.shift();
         this.nextQueue.push(this.getNextFromBag());
-        
+
         this.currentPiece = new Tetromino(type);
         this.canHold = true;
-        
+
         // Check if spawn position is valid
         if (!this.board.isValidPosition(this.currentPiece)) {
             this.gameOver();
@@ -568,7 +567,7 @@ class Game {
 
     movePiece(dx, dy) {
         if (!this.currentPiece || this.isPaused) return false;
-        
+
         if (this.board.isValidPosition(this.currentPiece, dx, dy)) {
             this.currentPiece.x += dx;
             this.currentPiece.y += dy;
@@ -580,20 +579,20 @@ class Game {
     rotatePiece(clockwise = true) {
         if (!this.currentPiece || this.isPaused) return;
         if (this.currentPiece.type === 'O') return; // O piece doesn't rotate
-        
+
         const oldRotation = this.currentPiece.rotation;
-        const newRotation = clockwise 
-            ? (oldRotation + 1) % 4 
+        const newRotation = clockwise
+            ? (oldRotation + 1) % 4
             : (oldRotation + 3) % 4;
-        
+
         const rotatedShape = this.currentPiece.rotate(clockwise);
-        
+
         // Get wall kick data
         const kickKey = `${oldRotation}->${newRotation}`;
-        const kickData = this.currentPiece.type === 'I' 
-            ? WALL_KICKS.I[kickKey] 
+        const kickData = this.currentPiece.type === 'I'
+            ? WALL_KICKS.I[kickKey]
             : WALL_KICKS.normal[kickKey];
-        
+
         // Try each wall kick offset
         for (const [dx, dy] of kickData) {
             if (this.board.isValidPosition(this.currentPiece, dx, dy, rotatedShape)) {
@@ -615,40 +614,40 @@ class Game {
 
     hardDrop() {
         if (!this.currentPiece || this.isPaused) return;
-        
+
         let dropDistance = 0;
         while (this.board.isValidPosition(this.currentPiece, 0, 1)) {
             this.currentPiece.y++;
             dropDistance++;
         }
-        
+
         this.score += dropDistance * POINTS.HARD_DROP;
         this.lockPiece();
     }
 
     holdPiece() {
         if (!this.currentPiece || !this.canHold || this.isPaused) return;
-        
+
         const currentType = this.currentPiece.type;
-        
+
         if (this.holdPieceType) {
             this.currentPiece = new Tetromino(this.holdPieceType);
         } else {
             this.spawnPiece();
         }
-        
+
         this.holdPieceType = currentType;
         this.canHold = false;
     }
 
     lockPiece() {
         this.board.lockTetromino(this.currentPiece);
-        
+
         const clearedLines = this.board.clearLines();
         if (clearedLines > 0) {
             this.addLineScore(clearedLines);
         }
-        
+
         this.spawnPiece();
     }
 
@@ -659,10 +658,10 @@ class Game {
             3: POINTS.TRIPLE,
             4: POINTS.TETRIS
         };
-        
+
         this.score += (linePoints[count] || 0) * this.level;
         this.lines += count;
-        
+
         // Level up
         const newLevel = Math.floor(this.lines / LINES_PER_LEVEL) + 1;
         if (newLevel > this.level) {
@@ -681,9 +680,9 @@ class Game {
 
     togglePause() {
         if (this.isGameOver) return;
-        
+
         this.isPaused = !this.isPaused;
-        
+
         if (this.isPaused) {
             this.renderer.showOverlay('PAUSED', 'Press P to resume');
         } else {
@@ -699,7 +698,7 @@ class Game {
 
     update(currentTime) {
         if (this.isPaused || this.isGameOver) return;
-        
+
         // Auto drop
         if (currentTime - this.lastDropTime >= this.dropInterval) {
             if (!this.movePiece(0, 1)) {
@@ -716,10 +715,10 @@ class Game {
 
     gameLoop() {
         const currentTime = performance.now();
-        
+
         this.update(currentTime);
         this.renderer.render(this);
-        
+
         requestAnimationFrame(() => this.gameLoop());
     }
 }
