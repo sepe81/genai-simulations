@@ -177,6 +177,36 @@ A high-voltage physics sandbox featuring a draggable battery that arcs electrici
 
 ---
 
+### Tetris
+
+**[src/tetris/index.html](src/tetris/index.html)**
+
+Classic Tetris game with modern features. Complete implementation with all 7 tetrominoes, SRS rotation system, ghost piece preview, hold piece, and level progression.
+
+**Controls:**
+- **← →:** Move piece
+- **↑:** Rotate
+- **↓:** Soft drop
+- **Space:** Hard drop
+- **C:** Hold piece
+- **P:** Pause
+
+**Features:**
+- Standard 10×20 grid with all 7 tetrominoes (I, O, T, L, J, S, Z)
+- Super Rotation System (SRS) with wall kicks
+- Ghost piece showing landing position
+- Hold piece functionality
+- Next queue (4 pieces preview)
+- Line clearing with scoring (single/double/triple/Tetris)
+- Level progression with increasing speed
+- 7-bag randomizer for fair piece distribution
+
+**Tech:** Vanilla JavaScript, Canvas 2D
+
+**How to run:** Open `src/tetris/index.html` in your browser.
+
+---
+
 ## 🚀 Getting Started
 
 All simulations are self-contained HTML files. To run:
@@ -196,6 +226,7 @@ open src/math-games/balloon/index.html
 open src/math-games/monster/index.html
 open src/math-games/rocket/index.html
 open src/nerf-gun/index.html
+open src/tetris/index.html
 # or just double-click any file
 ```
 

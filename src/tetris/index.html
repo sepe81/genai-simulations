@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="side-panel left">
+            <div class="panel-section">
+                <h3>Hold</h3>
+                <canvas id="hold-canvas" width="120" height="80"></canvas>
+            </div>
+            <div class="panel-section">
+                <h3>Controls</h3>
+                <ul class="controls-list">
+                    <li>← → Move</li>
+                    <li>↑ Rotate</li>
+                    <li>↓ Soft Drop</li>
+                    <li>Space Hard Drop</li>
+                    <li>C Hold</li>
+                    <li>P Pause</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="game-board-container">
+            <canvas id="game-canvas" width="300" height="600"></canvas>
+            <div id="game-overlay" class="overlay hidden">
+                <div class="overlay-content">
+                    <h2 id="overlay-title">PAUSED</h2>
+                    <p id="overlay-message">Press P to resume</p>
+                    <button id="restart-btn" class="hidden">Play Again</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="side-panel right">
+            <div class="panel-section">
+                <h3>Next</h3>
+                <canvas id="next-canvas" width="120" height="320"></canvas>
+            </div>
+            <div class="panel-section stats">
+                <div class="stat">
+                    <span class="stat-label">Score</span>
+                    <span id="score" class="stat-value">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Level</span>
+                    <span id="level" class="stat-value">1</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Lines</span>
+                    <span id="lines" class="stat-value">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
