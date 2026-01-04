@@ -147,13 +147,13 @@
         }
 
         function updateVectorsFromSliders() {
-            let ax = parseFloat(document.getElementById('ax').value);
-            let ay = parseFloat(document.getElementById('ay').value);
-            let az = parseFloat(document.getElementById('az').value);
+            let ax = Number.parseFloat(document.getElementById('ax').value);
+            let ay = Number.parseFloat(document.getElementById('ay').value);
+            let az = Number.parseFloat(document.getElementById('az').value);
 
-            let bx = parseFloat(document.getElementById('bx').value);
-            let by = parseFloat(document.getElementById('by').value);
-            let bz = parseFloat(document.getElementById('bz').value);
+            let bx = Number.parseFloat(document.getElementById('bx').value);
+            let by = Number.parseFloat(document.getElementById('by').value);
+            let bz = Number.parseFloat(document.getElementById('bz').value);
 
             // Prevent zero vectors
             if (ax===0 && ay===0 && az===0) ax = 0.01;
