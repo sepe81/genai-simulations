@@ -36,6 +36,8 @@ This architecture means:
 - Prefer `Number.parseInt` over `parseInt`.
 - Prefer `Math.hypot(…)` over `Math.sqrt(…)`.
 - Remove unused variables.
+- Write all code in English: identifiers, comments, commit messages and console output.
+- Only user-facing UI text keeps the language of the simulation, for example the German labels, headings and button captions in an existing German simulation.
 - Use natural language style for commit messages.
 
 ## Common Gotchas
