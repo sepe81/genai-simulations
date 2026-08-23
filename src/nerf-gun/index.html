@@ -1289,6 +1289,19 @@
             }, 800);
         }
 
+        // A single AudioContext for the whole page. Browsers cap how many
+        // contexts can be open at once, so creating one per shot makes the
+        // blaster fall silent after enough shots.
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+
         // Play appropriate sound based on current gun
         function playShootSound() {
             if (currentGun === 1) {
@@ -1300,7 +1313,7 @@
 
         // Basic shoot sound for standard Nerf gun (Gun 1)
         function playBasicShootSound() {
-            const audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
+            const audioContext = getAudioContext();
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
 
@@ -1319,7 +1332,7 @@
 
         // Advanced shoot sound for elite Nerf guns (Gun 2 & 3)
         function playAdvancedShootSound() {
-            const audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
+            const audioContext = getAudioContext();
             const now = audioContext.currentTime;
 
             // Low frequency "thump" for spring mechanism
