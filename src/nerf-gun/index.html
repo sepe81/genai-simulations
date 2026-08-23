@@ -307,172 +307,378 @@
         <div class="gun-display">
             <div class="gun-wrapper" id="gunWrapper">
                 <svg width="350" height="200" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Klassische Nerf Gun -->
+                    <defs>
+                        <!-- Kunststoff-Verläufe: Glanzlicht oben, Kernfarbe, Schattenkante unten -->
+                        <linearGradient id="gOrange" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#ffb98f"/>
+                            <stop offset="18%" stop-color="#ff8e53"/>
+                            <stop offset="55%" stop-color="#f2662c"/>
+                            <stop offset="100%" stop-color="#b8451a"/>
+                        </linearGradient>
+                        <linearGradient id="gOrangeDeep" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#ff9a63"/>
+                            <stop offset="60%" stop-color="#d95523"/>
+                            <stop offset="100%" stop-color="#8f3413"/>
+                        </linearGradient>
+                        <linearGradient id="gGrey" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#7c8fa0"/>
+                            <stop offset="25%" stop-color="#4a6070"/>
+                            <stop offset="70%" stop-color="#2c3e50"/>
+                            <stop offset="100%" stop-color="#161f28"/>
+                        </linearGradient>
+                        <linearGradient id="gBlue" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#9ed3ff"/>
+                            <stop offset="22%" stop-color="#42a5f5"/>
+                            <stop offset="65%" stop-color="#1976d2"/>
+                            <stop offset="100%" stop-color="#0d47a1"/>
+                        </linearGradient>
+                        <linearGradient id="gSlate" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#a8c0d8"/>
+                            <stop offset="22%" stop-color="#6b8db5"/>
+                            <stop offset="65%" stop-color="#4a6b8c"/>
+                            <stop offset="100%" stop-color="#2a3f56"/>
+                        </linearGradient>
+                        <linearGradient id="gGreen" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#a5e8a8"/>
+                            <stop offset="22%" stop-color="#66BB6A"/>
+                            <stop offset="65%" stop-color="#3d8b41"/>
+                            <stop offset="100%" stop-color="#1b5e20"/>
+                        </linearGradient>
+                        <linearGradient id="gBlack" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#5b6169"/>
+                            <stop offset="22%" stop-color="#31363d"/>
+                            <stop offset="70%" stop-color="#1a1d21"/>
+                            <stop offset="100%" stop-color="#080a0c"/>
+                        </linearGradient>
+                        <linearGradient id="gSheen" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+                            <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+                        </linearGradient>
+                        <linearGradient id="gBore" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#000000"/>
+                            <stop offset="60%" stop-color="#1c242c"/>
+                            <stop offset="100%" stop-color="#000000"/>
+                        </linearGradient>
+                        <radialGradient id="gLens" cx="35%" cy="30%" r="75%">
+                            <stop offset="0%" stop-color="#eaf7ff"/>
+                            <stop offset="45%" stop-color="#5dade2"/>
+                            <stop offset="100%" stop-color="#14477a"/>
+                        </radialGradient>
+
+                        <!-- Griffnoppen -->
+                        <pattern id="gripTex" width="7" height="7" patternUnits="userSpaceOnUse">
+                            <path d="M 0 7 L 7 0" stroke="#000000" stroke-width="1.4" opacity="0.28"/>
+                            <path d="M -1 1 L 1 -1" stroke="#000000" stroke-width="1.4" opacity="0.28"/>
+                        </pattern>
+
+                        <!-- Kreuzschlitzschraube -->
+                        <g id="screw">
+                            <circle r="3.4" fill="#5a6874"/>
+                            <circle r="3.4" fill="none" stroke="#0e151b" stroke-width="1"/>
+                            <circle r="2.2" fill="#39454f"/>
+                            <path d="M -1.9 0 L 1.9 0 M 0 -1.9 L 0 1.9" stroke="#0b1116" stroke-width="1.1"/>
+                        </g>
+                    </defs>
+
+                    <!-- Nerf Gun 1: Klassischer Elite-Blaster (orange) -->
                     <g id="nerfGun1" class="gun-model">
-                        <!-- Magazin -->
-                        <rect x="120" y="100" width="40" height="60" rx="5" fill="#2c3e50" stroke="#1a252f" stroke-width="2"/>
-                        <rect x="125" y="105" width="30" height="10" rx="2" fill="#3498db"/>
-                        <rect x="125" y="120" width="30" height="10" rx="2" fill="#3498db"/>
-                        <rect x="125" y="135" width="30" height="10" rx="2" fill="#3498db"/>
+                        <!-- Bodenschatten -->
+                        <ellipse cx="215" cy="186" rx="140" ry="7" fill="#000000" opacity="0.13"/>
 
-                        <!-- Griff -->
-                        <path d="M 120 110 Q 100 120 90 140 L 90 160 Q 90 170 100 170 L 115 170 Q 120 170 120 165 Z"
-                              fill="#ff6b35" stroke="#d45028" stroke-width="2"/>
-                        <ellipse cx="105" cy="140" rx="8" ry="12" fill="#ff8e53" opacity="0.6"/>
-
-                        <!-- Abzug -->
-                        <path d="M 115 125 Q 110 130 115 135" stroke="#3498db" stroke-width="3" fill="none" stroke-linecap="round"/>
+                        <!-- Schulterstütze -->
+                        <path d="M 46 84 L 112 79 L 112 129 L 46 124 Q 41 104 46 84 Z" fill="url(#gGrey)" stroke="#141c23" stroke-width="1.6" stroke-linejoin="round"/>
+                        <rect x="38" y="80" width="11" height="48" rx="5" fill="#10161b"/>
+                        <rect x="40" y="84" width="4" height="40" rx="2" fill="#ffffff" opacity="0.08"/>
+                        <path d="M 60 90 L 106 87 L 106 105 L 60 108 Z" fill="#0d1319" opacity="0.45"/>
+                        <path d="M 60 113 L 106 111 L 106 120 L 60 122 Z" fill="#0d1319" opacity="0.3"/>
+                        <path d="M 46 84 L 112 79 L 112 88 L 46 93 Z" fill="url(#gSheen)"/>
 
                         <!-- Hauptgehäuse -->
-                        <rect x="120" y="80" width="180" height="40" rx="8" fill="#ff6b35" stroke="#d45028" stroke-width="2"/>
-                        <rect x="130" y="88" width="160" height="8" rx="2" fill="#ff8e53"/>
-                        <rect x="130" y="104" width="160" height="8" rx="2" fill="#ff8e53"/>
+                        <path d="M 110 76 Q 110 68 120 68 L 258 68 L 292 86 L 292 114 L 258 130 L 152 130 Q 110 130 110 120 Z"
+                              fill="url(#gOrange)" stroke="#a83b16" stroke-width="2" stroke-linejoin="round"/>
+                        <!-- Gehäusenaht der beiden Schalenhälften -->
+                        <path d="M 116 99 L 288 99" stroke="#8f3413" stroke-width="1" opacity="0.55"/>
+                        <path d="M 116 101 L 288 101" stroke="#ffb98f" stroke-width="1" opacity="0.35"/>
+                        <!-- Glanzkante oben -->
+                        <path d="M 112 76 Q 112 70 120 70 L 256 70 L 268 76 L 116 78 Z" fill="url(#gSheen)"/>
+                        <!-- Schattenzone unten -->
+                        <path d="M 118 120 L 286 118 L 286 124 L 152 128 Q 130 128 118 124 Z" fill="#7d2f11" opacity="0.35"/>
+
+                        <!-- Spannschieber / Prime-Handle -->
+                        <rect x="196" y="72" width="58" height="14" rx="6" fill="url(#gGrey)" stroke="#141c23" stroke-width="1.5"/>
+                        <rect x="202" y="75" width="46" height="4" rx="2" fill="#ffffff" opacity="0.18"/>
+                        <path d="M 210 74 L 210 84 M 220 74 L 220 84 M 230 74 L 230 84 M 240 74 L 240 84" stroke="#0e151b" stroke-width="1.4" opacity="0.7"/>
+
+                        <!-- Taktische Schiene -->
+                        <rect x="128" y="60" width="72" height="10" rx="2" fill="url(#gGrey)" stroke="#141c23" stroke-width="1.4"/>
+                        <path d="M 134 60 L 134 70 M 142 60 L 142 70 M 150 60 L 150 70 M 158 60 L 158 70 M 166 60 L 166 70 M 174 60 L 174 70 M 182 60 L 182 70 M 190 60 L 190 70"
+                              stroke="#0e151b" stroke-width="1.6" opacity="0.75"/>
+
+                        <!-- Kimme -->
+                        <path d="M 132 52 L 148 52 L 148 60 L 144 60 L 142 56 L 138 56 L 136 60 L 132 60 Z" fill="#1a252f"/>
+
+                        <!-- Jam-Door / Auswurfklappe -->
+                        <path d="M 236 88 L 282 88 L 282 112 L 236 112 Z" fill="url(#gOrangeDeep)" opacity="0.85" stroke="#8f3413" stroke-width="1.2"/>
+                        <path d="M 240 92 L 278 92" stroke="#ffffff" stroke-width="1" opacity="0.2"/>
+                        <rect x="266" y="96" width="12" height="8" rx="2" fill="#1a252f"/>
 
                         <!-- Lauf -->
-                        <rect x="280" y="85" width="100" height="30" rx="15" fill="#2c3e50" stroke="#1a252f" stroke-width="2"/>
-                        <rect x="285" y="92" width="90" height="16" rx="8" fill="#34495e"/>
-
-                        <!-- Laufdetails (Rillen) -->
-                        <line x1="300" y1="90" x2="300" y2="110" stroke="#1a252f" stroke-width="2"/>
-                        <line x1="320" y1="90" x2="320" y2="110" stroke="#1a252f" stroke-width="2"/>
-                        <line x1="340" y1="90" x2="340" y2="110" stroke="#1a252f" stroke-width="2"/>
-                        <line x1="360" y1="90" x2="360" y2="110" stroke="#1a252f" stroke-width="2"/>
+                        <path d="M 288 86 L 366 86 Q 374 86 374 90 L 374 110 Q 374 114 366 114 L 288 114 Z"
+                              fill="url(#gGrey)" stroke="#141c23" stroke-width="1.8" stroke-linejoin="round"/>
+                        <rect x="292" y="88" width="80" height="6" rx="3" fill="#ffffff" opacity="0.16"/>
+                        <rect x="292" y="108" width="80" height="4" rx="2" fill="#000000" opacity="0.3"/>
+                        <!-- Laufrillen -->
+                        <path d="M 304 88 L 304 112 M 316 88 L 316 112 M 328 88 L 328 112 M 340 88 L 340 112 M 352 88 L 352 112"
+                              stroke="#0d1319" stroke-width="2" opacity="0.65"/>
+                        <!-- Korn -->
+                        <path d="M 306 78 L 312 78 L 312 86 L 306 86 Z" fill="#1a252f"/>
 
                         <!-- Mündung -->
-                        <circle cx="380" cy="100" r="8" fill="#1a252f"/>
-                        <circle cx="380" cy="100" r="5" fill="#2c3e50"/>
+                        <ellipse cx="376" cy="100" rx="10" ry="15" fill="#1a252f" stroke="#0b1116" stroke-width="1.5"/>
+                        <ellipse cx="378" cy="100" rx="7" ry="11" fill="url(#gBore)"/>
+                        <ellipse cx="380" cy="100" rx="4.5" ry="7.5" fill="#000000"/>
+                        <path d="M 372 92 Q 376 96 376 100" stroke="#ffffff" stroke-width="1.2" opacity="0.25" fill="none"/>
 
-                        <!-- Zielfernrohr/Scope -->
-                        <ellipse cx="200" cy="65" rx="35" ry="12" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
-                        <rect x="185" y="65" width="8" height="15" fill="#2c3e50"/>
-                        <rect x="207" y="65" width="8" height="15" fill="#2c3e50"/>
-                        <ellipse cx="200" cy="65" rx="20" ry="8" fill="#5dade2" opacity="0.6"/>
+                        <!-- Magazin -->
+                        <path d="M 196 124 L 240 124 L 236 180 L 200 180 Z" fill="url(#gGrey)" stroke="#141c23" stroke-width="1.6" stroke-linejoin="round"/>
+                        <path d="M 200 130 L 236 130 L 234 172 L 202 172 Z" fill="#0d1319" opacity="0.35"/>
+                        <rect x="204" y="134" width="28" height="7" rx="2" fill="#3498db" opacity="0.85"/>
+                        <rect x="204" y="145" width="28" height="7" rx="2" fill="#3498db" opacity="0.7"/>
+                        <rect x="205" y="156" width="27" height="7" rx="2" fill="#3498db" opacity="0.55"/>
+                        <path d="M 196 124 L 240 124 L 239 130 L 197 130 Z" fill="#ffffff" opacity="0.12"/>
+                        <rect x="198" y="176" width="40" height="7" rx="3" fill="#ff6b35" stroke="#a83b16" stroke-width="1.2"/>
 
-                        <!-- Seitendetails -->
-                        <rect x="140" y="95" width="30" height="5" rx="2" fill="#ffd93d"/>
-                        <circle cx="250" cy="95" r="8" fill="#2c3e50" stroke="#1a252f" stroke-width="1"/>
-                        <circle cx="250" cy="95" r="4" fill="#3498db"/>
-
-                        <!-- Schulterstütze -->
-                        <rect x="50" y="95" width="50" height="20" rx="5" fill="#2c3e50" stroke="#1a252f" stroke-width="2"/>
-                        <rect x="55" y="100" width="40" height="10" rx="2" fill="#34495e"/>
-                    </g>
-
-                    <!-- Futuristische Nerf Gun -->
-                    <g id="nerfGun2" class="gun-model" style="display: none;">
-                        <!-- Schulterstütze -->
-                        <rect x="30" y="88" width="60" height="24" rx="4" fill="#5a7c9f" stroke="#3d5a7a" stroke-width="2"/>
-                        <rect x="35" y="92" width="50" height="8" rx="2" fill="#6b8db5"/>
-                        <rect x="35" y="102" width="50" height="6" rx="1" fill="#ff6b35"/>
-
-                        <!-- Hauptkörper (blau-grau) -->
-                        <path d="M 90 75 L 280 75 L 280 125 L 90 125 Z" fill="#5a7c9f" stroke="#3d5a7a" stroke-width="2"/>
-                        <rect x="95" y="80" width="180" height="15" rx="3" fill="#6b8db5"/>
-                        <rect x="95" y="105" width="180" height="15" rx="3" fill="#6b8db5"/>
-
-                        <!-- Griff -->
-                        <path d="M 120 110 Q 105 120 100 140 L 100 165 Q 100 175 110 175 L 125 175 Q 130 175 130 170 L 130 125 Z"
-                              fill="#5a7c9f" stroke="#3d5a7a" stroke-width="2"/>
-                        <ellipse cx="115" cy="145" rx="8" ry="15" fill="#6b8db5" opacity="0.6"/>
+                        <!-- Abzugsbügel -->
+                        <path d="M 148 128 L 148 146 Q 148 158 162 158 L 180 158 Q 190 158 190 146 L 190 130"
+                              fill="none" stroke="#b8451a" stroke-width="7" stroke-linecap="round"/>
+                        <path d="M 148 128 L 148 146 Q 148 158 162 158 L 180 158 Q 190 158 190 146 L 190 130"
+                              fill="none" stroke="#ff8e53" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
 
                         <!-- Abzug -->
-                        <path d="M 125 128 Q 120 133 125 138" stroke="#ff6b35" stroke-width="3" fill="none" stroke-linecap="round"/>
+                        <path d="M 168 130 Q 162 138 164 148 Q 170 146 172 136 L 172 130 Z" fill="#2c3e50" stroke="#0e151b" stroke-width="1.2"/>
 
-                        <!-- Oberer Scope/Rail -->
-                        <rect x="140" y="60" width="100" height="12" rx="2" fill="#5a7c9f" stroke="#3d5a7a" stroke-width="1.5"/>
-                        <rect x="145" y="63" width="90" height="6" rx="1" fill="#ff6b35"/>
+                        <!-- Griff -->
+                        <path d="M 128 118 Q 118 128 116 148 L 118 172 Q 119 182 130 182 L 148 182 Q 156 182 155 173 L 150 130 Q 149 122 142 120 Z"
+                              fill="url(#gOrange)" stroke="#a83b16" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="M 128 118 Q 118 128 116 148 L 118 172 Q 119 182 130 182 L 148 182 Q 156 182 155 173 L 150 130 Q 149 122 142 120 Z"
+                              fill="url(#gripTex)"/>
+                        <path d="M 130 122 Q 122 132 121 148 L 122 166" fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.22"/>
+                        <path d="M 148 132 L 152 172" fill="none" stroke="#7d2f11" stroke-width="2" opacity="0.4"/>
 
-                        <!-- Magazin oben -->
-                        <rect x="160" y="45" width="35" height="20" rx="3" fill="#ff6b35" stroke="#d45028" stroke-width="2"/>
-                        <rect x="165" y="48" width="25" height="4" rx="1" fill="#ff8e53"/>
-                        <rect x="165" y="54" width="25" height="4" rx="1" fill="#ff8e53"/>
-                        <rect x="165" y="60" width="25" height="4" rx="1" fill="#ff8e53"/>
+                        <!-- Beschriftungsstreifen -->
+                        <rect x="122" y="88" width="34" height="9" rx="3" fill="#ffd93d" stroke="#c9a227" stroke-width="1"/>
+                        <path d="M 126 92 L 152 92" stroke="#8a6d12" stroke-width="1.4" opacity="0.7"/>
 
-                        <!-- Lauf (orange) -->
-                        <rect x="280" y="82" width="90" height="36" rx="18" fill="#ff6b35" stroke="#d45028" stroke-width="2"/>
-                        <rect x="285" y="88" width="80" height="24" rx="12" fill="#ff8e53"/>
-
-                        <!-- Laufdetails -->
-                        <line x1="300" y1="85" x2="300" y2="115" stroke="#d45028" stroke-width="2"/>
-                        <line x1="320" y1="85" x2="320" y2="115" stroke="#d45028" stroke-width="2"/>
-                        <line x1="340" y1="85" x2="340" y2="115" stroke="#d45028" stroke-width="2"/>
-                        <line x1="355" y1="85" x2="355" y2="115" stroke="#d45028" stroke-width="2"/>
-
-                        <!-- Mündung -->
-                        <circle cx="370" cy="100" r="10" fill="#d45028"/>
-                        <circle cx="370" cy="100" r="6" fill="#1a252f"/>
-
-                        <!-- Seitendetails -->
-                        <circle cx="150" cy="100" r="6" fill="#1a252f" stroke="#ff6b35" stroke-width="1"/>
-                        <circle cx="200" cy="100" r="6" fill="#1a252f" stroke="#ff6b35" stroke-width="1"/>
-                        <circle cx="250" cy="100" r="6" fill="#1a252f" stroke="#ff6b35" stroke-width="1"/>
-
-                        <!-- Ventilationsschlitze -->
-                        <rect x="180" y="90" width="3" height="20" rx="1" fill="#3d5a7a"/>
-                        <rect x="190" y="90" width="3" height="20" rx="1" fill="#3d5a7a"/>
-                        <rect x="220" y="90" width="3" height="20" rx="1" fill="#3d5a7a"/>
-                        <rect x="230" y="90" width="3" height="20" rx="1" fill="#3d5a7a"/>
+                        <!-- Schrauben -->
+                        <use href="#screw" x="126" y="112"/>
+                        <use href="#screw" x="176" y="112"/>
+                        <use href="#screw" x="262" y="76"/>
+                        <use href="#screw" x="128" y="172"/>
+                        <use href="#screw" x="300" y="100"/>
                     </g>
 
-                    <!-- Nerf Gun mit Trommelmagazin -->
+                    <!-- Nerf Gun 2: Futuristischer Slate-Blaster -->
+                    <g id="nerfGun2" class="gun-model" style="display: none;">
+                        <!-- Bodenschatten -->
+                        <ellipse cx="205" cy="186" rx="140" ry="7" fill="#000000" opacity="0.13"/>
+
+                        <!-- Schulterstütze mit Streben -->
+                        <path d="M 28 86 L 44 84 L 44 122 L 28 120 Q 24 103 28 86 Z" fill="url(#gSlate)" stroke="#2a3f56" stroke-width="1.6"/>
+                        <rect x="24" y="86" width="7" height="34" rx="3" fill="#ff6b35" stroke="#a83b16" stroke-width="1"/>
+                        <path d="M 44 88 L 96 84 L 96 94 L 44 96 Z" fill="url(#gSlate)" stroke="#2a3f56" stroke-width="1.4"/>
+                        <path d="M 44 110 L 96 110 L 96 120 L 44 118 Z" fill="url(#gSlate)" stroke="#2a3f56" stroke-width="1.4"/>
+                        <path d="M 44 88 L 96 84 L 96 89 L 44 92 Z" fill="url(#gSheen)"/>
+
+                        <!-- Hauptkörper mit Facetten -->
+                        <path d="M 92 78 L 140 66 L 250 66 L 280 80 L 280 118 L 246 130 L 130 130 Q 92 130 92 120 Z"
+                              fill="url(#gSlate)" stroke="#24384d" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="M 96 78 L 140 68 L 248 68 L 262 74 L 100 84 Z" fill="url(#gSheen)"/>
+                        <path d="M 98 118 L 276 116 L 276 122 L 246 128 L 130 128 Q 110 128 98 122 Z" fill="#1b2c3d" opacity="0.45"/>
+                        <path d="M 100 99 L 276 99" stroke="#24384d" stroke-width="1" opacity="0.6"/>
+                        <path d="M 100 101 L 276 101" stroke="#c5daf0" stroke-width="1" opacity="0.3"/>
+
+                        <!-- Energie-Akzentstreifen -->
+                        <path d="M 108 106 L 236 106 L 232 113 L 104 113 Z" fill="#ff6b35" opacity="0.9"/>
+                        <path d="M 108 106 L 236 106 L 235 108.5 L 107 108.5 Z" fill="#ffb98f" opacity="0.7"/>
+
+                        <!-- Kühlrippen -->
+                        <path d="M 176 84 L 179 84 L 179 100 L 176 100 Z M 186 84 L 189 84 L 189 100 L 186 100 Z M 196 84 L 199 84 L 199 100 L 196 100 Z M 206 84 L 209 84 L 209 100 L 206 100 Z"
+                              fill="#1b2c3d" opacity="0.8"/>
+                        <path d="M 176 84 L 179 84 L 179 86 L 176 86 Z M 186 84 L 189 84 L 189 86 L 186 86 Z M 196 84 L 199 84 L 199 86 L 196 86 Z M 206 84 L 209 84 L 209 86 L 206 86 Z"
+                              fill="#ffffff" opacity="0.25"/>
+
+                        <!-- Taktische Schiene -->
+                        <rect x="136" y="56" width="104" height="11" rx="2" fill="#2a3f56" stroke="#1b2c3d" stroke-width="1.4"/>
+                        <path d="M 142 56 L 142 67 M 150 56 L 150 67 M 158 56 L 158 67 M 166 56 L 166 67 M 174 56 L 174 67 M 182 56 L 182 67 M 190 56 L 190 67 M 198 56 L 198 67 M 206 56 L 206 67 M 214 56 L 214 67 M 222 56 L 222 67 M 230 56 L 230 67"
+                              stroke="#0e1a26" stroke-width="1.6" opacity="0.8"/>
+
+                        <!-- Zielfernrohr -->
+                        <rect x="150" y="34" width="76" height="22" rx="9" fill="url(#gBlack)" stroke="#050709" stroke-width="1.6"/>
+                        <rect x="156" y="38" width="64" height="5" rx="2.5" fill="#ffffff" opacity="0.18"/>
+                        <rect x="176" y="28" width="14" height="8" rx="2" fill="#2a3f56"/>
+                        <circle cx="150" cy="45" r="11" fill="#1a1d21" stroke="#050709" stroke-width="1.4"/>
+                        <circle cx="150" cy="45" r="7.5" fill="url(#gLens)"/>
+                        <path d="M 145 40 Q 148 41 149 44" stroke="#ffffff" stroke-width="1.4" opacity="0.6" fill="none"/>
+                        <circle cx="226" cy="45" r="9" fill="#1a1d21" stroke="#050709" stroke-width="1.4"/>
+                        <circle cx="226" cy="45" r="5.5" fill="#0d2136"/>
+                        <rect x="196" y="30" width="9" height="6" rx="2" fill="#ff6b35"/>
+
+                        <!-- Lauf -->
+                        <path d="M 276 82 L 356 82 Q 364 82 364 87 L 364 113 Q 364 118 356 118 L 276 118 Z"
+                              fill="url(#gOrange)" stroke="#a83b16" stroke-width="1.8" stroke-linejoin="round"/>
+                        <rect x="280" y="84" width="80" height="7" rx="3.5" fill="#ffffff" opacity="0.2"/>
+                        <rect x="280" y="110" width="80" height="5" rx="2.5" fill="#7d2f11" opacity="0.4"/>
+                        <path d="M 292 84 L 292 116 M 304 84 L 304 116 M 316 84 L 316 116 M 328 84 L 328 116 M 340 84 L 340 116"
+                              stroke="#8f3413" stroke-width="2" opacity="0.55"/>
+                        <!-- Kompensator-Schlitze -->
+                        <path d="M 300 78 L 312 78 L 312 82 L 300 82 Z M 320 78 L 332 78 L 332 82 L 320 82 Z" fill="#8f3413" opacity="0.8"/>
+
+                        <!-- Mündung -->
+                        <ellipse cx="366" cy="100" rx="10" ry="18" fill="#c94a1d" stroke="#8f3413" stroke-width="1.5"/>
+                        <ellipse cx="368" cy="100" rx="7" ry="13" fill="url(#gBore)"/>
+                        <ellipse cx="370" cy="100" rx="4.5" ry="9" fill="#000000"/>
+                        <path d="M 362 90 Q 366 95 366 100" stroke="#ffffff" stroke-width="1.2" opacity="0.25" fill="none"/>
+
+                        <!-- Griff -->
+                        <path d="M 122 118 Q 110 128 106 150 L 106 172 Q 106 182 118 182 L 138 182 Q 146 182 145 173 L 142 128 Q 141 120 134 118 Z"
+                              fill="url(#gSlate)" stroke="#24384d" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="M 122 118 Q 110 128 106 150 L 106 172 Q 106 182 118 182 L 138 182 Q 146 182 145 173 L 142 128 Q 141 120 134 118 Z"
+                              fill="url(#gripTex)"/>
+                        <path d="M 122 124 Q 113 134 111 150 L 111 168" fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.22"/>
+                        <rect x="112" y="140" width="26" height="5" rx="2" fill="#ff6b35" opacity="0.85"/>
+                        <rect x="112" y="150" width="26" height="5" rx="2" fill="#ff6b35" opacity="0.7"/>
+
+                        <!-- Abzugsbügel -->
+                        <path d="M 142 128 L 142 148 Q 142 158 156 158 L 172 158 Q 182 158 182 146 L 182 130"
+                              fill="none" stroke="#2a3f56" stroke-width="7" stroke-linecap="round"/>
+                        <path d="M 142 128 L 142 148 Q 142 158 156 158 L 172 158 Q 182 158 182 146 L 182 130"
+                              fill="none" stroke="#8fb0d0" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
+
+                        <!-- Abzug -->
+                        <path d="M 160 130 Q 154 138 156 149 Q 163 147 165 136 L 165 130 Z" fill="#ff6b35" stroke="#a83b16" stroke-width="1.2"/>
+
+                        <!-- Akku-Anzeige -->
+                        <rect x="200" y="112" width="40" height="10" rx="3" fill="#0e1a26" stroke="#1b2c3d" stroke-width="1"/>
+                        <rect x="203" y="115" width="8" height="4" rx="1" fill="#4CAF50"/>
+                        <rect x="213" y="115" width="8" height="4" rx="1" fill="#4CAF50"/>
+                        <rect x="223" y="115" width="8" height="4" rx="1" fill="#ffd93d"/>
+                        <rect x="233" y="115" width="4" height="4" rx="1" fill="#2a3f56"/>
+
+                        <!-- Schrauben -->
+                        <use href="#screw" x="112" y="112"/>
+                        <use href="#screw" x="256" y="88"/>
+                        <use href="#screw" x="256" y="112"/>
+                        <use href="#screw" x="118" y="174"/>
+                        <use href="#screw" x="150" y="112"/>
+                    </g>
+
+                    <!-- Nerf Gun 3: Blaster mit Trommelmagazin -->
                     <g id="nerfGun3" class="gun-model" style="display: none;">
+                        <!-- Bodenschatten -->
+                        <ellipse cx="205" cy="188" rx="145" ry="7" fill="#000000" opacity="0.13"/>
+
                         <!-- Schulterstütze -->
-                        <rect x="40" y="92" width="45" height="16" rx="3" fill="#2c5aa0" stroke="#1a3d7a" stroke-width="2"/>
-                        <rect x="45" y="96" width="35" height="8" rx="2" fill="#3d6bb5"/>
+                        <path d="M 36 88 L 92 84 L 92 122 L 36 118 Q 32 103 36 88 Z" fill="url(#gBlue)" stroke="#0d47a1" stroke-width="1.6" stroke-linejoin="round"/>
+                        <rect x="30" y="86" width="9" height="34" rx="4" fill="#12181e"/>
+                        <path d="M 36 88 L 92 84 L 92 93 L 36 96 Z" fill="url(#gSheen)"/>
+                        <path d="M 50 100 L 86 98 L 86 112 L 50 114 Z" fill="#0d47a1" opacity="0.4"/>
 
-                        <!-- Hauptkörper (blau) -->
-                        <rect x="85" y="78" width="200" height="44" rx="6" fill="#2c5aa0" stroke="#1a3d7a" stroke-width="2"/>
-                        <rect x="90" y="84" width="190" height="12" rx="2" fill="#3d6bb5"/>
-                        <rect x="90" y="104" width="190" height="12" rx="2" fill="#3d6bb5"/>
+                        <!-- Hauptkörper -->
+                        <path d="M 84 76 Q 84 68 94 68 L 250 68 L 282 84 L 282 116 L 250 130 L 124 130 Q 84 130 84 120 Z"
+                              fill="url(#gBlue)" stroke="#0d47a1" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="M 88 76 Q 88 70 96 70 L 248 70 L 258 76 L 92 80 Z" fill="url(#gSheen)"/>
+                        <path d="M 92 118 L 278 116 L 278 122 L 250 128 L 124 128 Q 104 128 92 122 Z" fill="#0a3474" opacity="0.45"/>
+                        <path d="M 92 99 L 278 99" stroke="#0a3474" stroke-width="1" opacity="0.6"/>
+                        <path d="M 92 101 L 278 101" stroke="#bfe0ff" stroke-width="1" opacity="0.35"/>
 
-                        <!-- Griff (schwarz) -->
-                        <path d="M 130 108 Q 120 118 115 135 L 115 160 Q 115 170 125 170 L 140 170 Q 145 170 145 165 L 145 122 Z"
-                              fill="#1a1a1a" stroke="#0a0a0a" stroke-width="2"/>
-                        <rect x="120" y="125" width="20" height="35" rx="2" fill="#2a2a2a"/>
+                        <!-- Seitenplatte -->
+                        <path d="M 214 80 L 272 80 L 272 118 L 214 118 Z" fill="#1565c0" opacity="0.55" stroke="#0a3474" stroke-width="1.2"/>
+                        <path d="M 220 86 L 266 86 M 220 92 L 266 92" stroke="#bfe0ff" stroke-width="1" opacity="0.25"/>
 
-                        <!-- Abzug (orange) -->
-                        <path d="M 140 125 Q 135 130 140 135" stroke="#ff6b35" stroke-width="3" fill="none" stroke-linecap="round"/>
+                        <!-- Taktische Schiene -->
+                        <rect x="168" y="58" width="86" height="11" rx="2" fill="url(#gBlack)" stroke="#050709" stroke-width="1.4"/>
+                        <path d="M 174 58 L 174 69 M 182 58 L 182 69 M 190 58 L 190 69 M 198 58 L 198 69 M 206 58 L 206 69 M 214 58 L 214 69 M 222 58 L 222 69 M 230 58 L 230 69 M 238 58 L 238 69 M 246 58 L 246 69"
+                              stroke="#000000" stroke-width="1.6" opacity="0.75"/>
+                        <rect x="172" y="60" width="78" height="2.5" rx="1" fill="#ffffff" opacity="0.14"/>
 
-                        <!-- Trommelmagazin (grün) -->
-                        <circle cx="180" cy="130" r="45" fill="#4CAF50" stroke="#2e7d32" stroke-width="3"/>
-                        <circle cx="180" cy="130" r="38" fill="#66BB6A"/>
+                        <!-- Kimme -->
+                        <path d="M 236 48 L 254 48 L 254 58 L 249 58 L 247 52 L 243 52 L 241 58 L 236 58 Z" fill="#1a1d21"/>
 
-                        <!-- Trommel Rillen -->
-                        <line x1="180" y1="85" x2="180" y2="95" stroke="#2e7d32" stroke-width="2"/>
-                        <line x1="212" y1="100" x2="220" y2="107" stroke="#2e7d32" stroke-width="2"/>
-                        <line x1="225" y1="130" x2="235" y2="130" stroke="#2e7d32" stroke-width="2"/>
-                        <line x1="212" y1="160" x2="220" y2="153" stroke="#2e7d32" stroke-width="2"/>
-                        <line x1="180" y1="175" x2="180" y2="165" stroke="#2e7d32" stroke-width="2"/>
-                        <line x1="148" y1="160" x2="140" y2="153" stroke="#2e7d32" stroke-width="2"/>
-                        <line x1="135" y1="130" x2="125" y2="130" stroke="#2e7d32" stroke-width="2"/>
-                        <line x1="148" y1="100" x2="140" y2="107" stroke="#2e7d32" stroke-width="2"/>
+                        <!-- Trommelmagazin -->
+                        <circle cx="180" cy="132" r="47" fill="#1b5e20" opacity="0.35"/>
+                        <circle cx="180" cy="132" r="45" fill="url(#gGreen)" stroke="#1b5e20" stroke-width="2.5"/>
+                        <circle cx="180" cy="132" r="45" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.18"/>
+                        <circle cx="180" cy="132" r="36" fill="none" stroke="#1b5e20" stroke-width="2" opacity="0.6"/>
+                        <!-- Dartkammern -->
+                        <circle cx="180" cy="99" r="6.5" fill="#12331a" opacity="0.85"/>
+                        <circle cx="203" cy="109" r="6.5" fill="#12331a" opacity="0.85"/>
+                        <circle cx="213" cy="132" r="6.5" fill="#12331a" opacity="0.85"/>
+                        <circle cx="203" cy="155" r="6.5" fill="#12331a" opacity="0.85"/>
+                        <circle cx="180" cy="165" r="6.5" fill="#12331a" opacity="0.85"/>
+                        <circle cx="157" cy="155" r="6.5" fill="#12331a" opacity="0.85"/>
+                        <circle cx="147" cy="132" r="6.5" fill="#12331a" opacity="0.85"/>
+                        <circle cx="157" cy="109" r="6.5" fill="#12331a" opacity="0.85"/>
+                        <circle cx="180" cy="99" r="3.5" fill="#ff6b35"/>
+                        <circle cx="203" cy="109" r="3.5" fill="#ff6b35"/>
+                        <circle cx="213" cy="132" r="3.5" fill="#ff6b35"/>
+                        <circle cx="203" cy="155" r="3.5" fill="#ff6b35"/>
+                        <circle cx="180" cy="165" r="3.5" fill="#ff6b35"/>
+                        <circle cx="157" cy="155" r="3.5" fill="#ff6b35"/>
+                        <circle cx="147" cy="132" r="3.5" fill="#ff6b35"/>
+                        <circle cx="157" cy="109" r="3.5" fill="#ff6b35"/>
+                        <!-- Trommelnabe -->
+                        <circle cx="180" cy="132" r="14" fill="#2e7d32" stroke="#12331a" stroke-width="1.8"/>
+                        <circle cx="180" cy="132" r="8" fill="#1b5e20"/>
+                        <circle cx="180" cy="132" r="3.5" fill="#0a2a0f"/>
+                        <path d="M 176 128 Q 178 129 179 131" stroke="#ffffff" stroke-width="1.4" opacity="0.35" fill="none"/>
+                        <!-- Rand-Glanzlicht -->
+                        <path d="M 152 100 A 45 45 0 0 1 208 100" fill="none" stroke="#ffffff" stroke-width="3" opacity="0.28"/>
 
-                        <!-- Trommel Zentrum -->
-                        <circle cx="180" cy="130" r="12" fill="#2e7d32"/>
-                        <circle cx="180" cy="130" r="6" fill="#1b5e20"/>
+                        <!-- Lauf -->
+                        <path d="M 274 86 L 342 86 Q 350 86 350 90 L 350 110 Q 350 114 342 114 L 274 114 Z"
+                              fill="url(#gBlack)" stroke="#050709" stroke-width="1.8" stroke-linejoin="round"/>
+                        <rect x="278" y="88" width="68" height="6" rx="3" fill="#ffffff" opacity="0.14"/>
+                        <path d="M 290 88 L 290 112 M 302 88 L 302 112 M 314 88 L 314 112 M 326 88 L 326 112"
+                              stroke="#000000" stroke-width="2" opacity="0.6"/>
+                        <!-- Korn -->
+                        <path d="M 292 78 L 298 78 L 298 86 L 292 86 Z" fill="#1a1d21"/>
 
-                        <!-- Lauf vorne (orange/schwarz) -->
-                        <rect x="275" y="88" width="80" height="24" rx="12" fill="#1a1a1a" stroke="#0a0a0a" stroke-width="2"/>
-                        <rect x="280" y="92" width="70" height="16" rx="8" fill="#2a2a2a"/>
+                        <!-- Mündung -->
+                        <ellipse cx="352" cy="100" rx="9" ry="15" fill="#ff6b35" stroke="#a83b16" stroke-width="1.5"/>
+                        <ellipse cx="354" cy="100" rx="6.5" ry="11" fill="url(#gBore)"/>
+                        <ellipse cx="355" cy="100" rx="4" ry="7.5" fill="#000000"/>
+                        <path d="M 348 92 Q 352 96 352 100" stroke="#ffffff" stroke-width="1.2" opacity="0.25" fill="none"/>
 
-                        <!-- Laufrillen -->
-                        <line x1="295" y1="90" x2="295" y2="110" stroke="#0a0a0a" stroke-width="1.5"/>
-                        <line x1="310" y1="90" x2="310" y2="110" stroke="#0a0a0a" stroke-width="1.5"/>
-                        <line x1="325" y1="90" x2="325" y2="110" stroke="#0a0a0a" stroke-width="1.5"/>
-                        <line x1="340" y1="90" x2="340" y2="110" stroke="#0a0a0a" stroke-width="1.5"/>
+                        <!-- Griff -->
+                        <path d="M 112 116 Q 100 126 96 148 L 96 172 Q 96 182 108 182 L 128 182 Q 136 182 135 173 L 132 126 Q 131 118 124 116 Z"
+                              fill="url(#gBlack)" stroke="#050709" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="M 112 116 Q 100 126 96 148 L 96 172 Q 96 182 108 182 L 128 182 Q 136 182 135 173 L 132 126 Q 131 118 124 116 Z"
+                              fill="url(#gripTex)"/>
+                        <path d="M 112 122 Q 103 132 101 148 L 101 168" fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.18"/>
+                        <rect x="102" y="138" width="26" height="5" rx="2" fill="#2a2e33"/>
+                        <rect x="102" y="148" width="26" height="5" rx="2" fill="#2a2e33"/>
+                        <rect x="102" y="158" width="26" height="5" rx="2" fill="#2a2e33"/>
 
-                        <!-- Mündung (orange) -->
-                        <circle cx="355" cy="100" r="10" fill="#ff6b35"/>
-                        <circle cx="355" cy="100" r="6" fill="#d45028"/>
+                        <!-- Abzugsbügel -->
+                        <path d="M 132 126 L 132 146 Q 132 156 146 156 L 160 156 Q 170 156 170 144 L 170 130"
+                              fill="none" stroke="#1a1d21" stroke-width="7" stroke-linecap="round"/>
+                        <path d="M 132 126 L 132 146 Q 132 156 146 156 L 160 156 Q 170 156 170 144 L 170 130"
+                              fill="none" stroke="#6b7480" stroke-width="2.5" stroke-linecap="round" opacity="0.45"/>
 
-                        <!-- Oberer Rail -->
-                        <rect x="180" y="68" width="80" height="8" rx="2" fill="#1a1a1a" stroke="#0a0a0a" stroke-width="1"/>
-                        <rect x="185" y="70" width="70" height="4" rx="1" fill="#ff6b35"/>
+                        <!-- Abzug -->
+                        <path d="M 150 128 Q 144 136 146 147 Q 153 145 155 134 L 155 128 Z" fill="#ff6b35" stroke="#a83b16" stroke-width="1.2"/>
 
-                        <!-- Seitendetails (orange) -->
-                        <rect x="240" y="95" width="8" height="10" rx="2" fill="#ff6b35"/>
-                        <rect x="255" y="95" width="8" height="10" rx="2" fill="#ff6b35"/>
-                        <circle cx="210" cy="100" r="5" fill="#ff6b35"/>
+                        <!-- Seitendetails -->
+                        <rect x="238" y="94" width="9" height="12" rx="2.5" fill="#ff6b35" stroke="#a83b16" stroke-width="1"/>
+                        <rect x="252" y="94" width="9" height="12" rx="2.5" fill="#ff6b35" stroke="#a83b16" stroke-width="1"/>
+                        <circle cx="118" cy="90" r="6" fill="#12181e" stroke="#ff6b35" stroke-width="1.4"/>
+                        <circle cx="118" cy="90" r="2.5" fill="#ff6b35"/>
+
+                        <!-- Schrauben -->
+                        <use href="#screw" x="100" y="112"/>
+                        <use href="#screw" x="262" y="76"/>
+                        <use href="#screw" x="266" y="122"/>
+                        <use href="#screw" x="108" y="174"/>
                     </g>
 
                     <!-- Mündungsfeuer für Gun 1 -->
