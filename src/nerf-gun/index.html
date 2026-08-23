@@ -171,7 +171,7 @@
             opacity: 0;
         }
 
-        /* Gun 1: Classic Orange mit blauer Spitze */
+        /* Gun 1: Classic orange with blue tip */
         /* noinspection CssUnusedSymbol */
         .dart-gun1 {
             background: linear-gradient(90deg, #ff6b35 0%, #ff7f4d 50%, #ff8e53 100%);
@@ -205,7 +205,7 @@
             pointer-events: none;
         }
 
-        /* Gun 2: Elite Blau mit orangener Spitze */
+        /* Gun 2: Elite blue with orange tip */
         /* noinspection CssUnusedSymbol */
         .dart-gun2 {
             background: linear-gradient(90deg, #2196F3 0%, #42a5f5 50%, #64b5f6 100%);
@@ -239,7 +239,7 @@
             pointer-events: none;
         }
 
-        /* Gun 3: Grün mit schwarzer Spitze (Zombie Strike) */
+        /* Gun 3: Green with black tip (Zombie Strike) */
         /* noinspection CssUnusedSymbol */
         .dart-gun3 {
             background: linear-gradient(90deg, #4CAF50 0%, #66BB6A 50%, #81C784 100%);
@@ -308,7 +308,7 @@
             <div class="gun-wrapper" id="gunWrapper">
                 <svg width="350" height="200" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <!-- Kunststoff-Verläufe: Glanzlicht oben, Kernfarbe, Schattenkante unten -->
+                        <!-- Plastic gradients: highlight on top, core colour, shadowed bottom edge -->
                         <linearGradient id="gOrange" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="0%" stop-color="#ffb98f"/>
                             <stop offset="18%" stop-color="#ff8e53"/>
@@ -365,13 +365,13 @@
                             <stop offset="100%" stop-color="#14477a"/>
                         </radialGradient>
 
-                        <!-- Griffnoppen -->
+                        <!-- Grip stippling -->
                         <pattern id="gripTex" width="7" height="7" patternUnits="userSpaceOnUse">
                             <path d="M 0 7 L 7 0" stroke="#000000" stroke-width="1.4" opacity="0.28"/>
                             <path d="M -1 1 L 1 -1" stroke="#000000" stroke-width="1.4" opacity="0.28"/>
                         </pattern>
 
-                        <!-- Kreuzschlitzschraube -->
+                        <!-- Phillips head screw -->
                         <g id="screw">
                             <circle r="3.4" fill="#5a6874"/>
                             <circle r="3.4" fill="none" stroke="#0e151b" stroke-width="1"/>
@@ -380,12 +380,12 @@
                         </g>
                     </defs>
 
-                    <!-- Nerf Gun 1: Klassischer Elite-Blaster (orange) -->
+                    <!-- Nerf gun 1: classic Elite blaster (orange) -->
                     <g id="nerfGun1" class="gun-model">
-                        <!-- Bodenschatten -->
+                        <!-- Ground shadow -->
                         <ellipse cx="215" cy="186" rx="140" ry="7" fill="#000000" opacity="0.13"/>
 
-                        <!-- Schulterstütze -->
+                        <!-- Stock -->
                         <path d="M 46 84 L 112 79 L 112 129 L 46 124 Q 41 104 46 84 Z" fill="url(#gGrey)" stroke="#141c23" stroke-width="1.6" stroke-linejoin="round"/>
                         <rect x="38" y="80" width="11" height="48" rx="5" fill="#10161b"/>
                         <rect x="40" y="84" width="4" height="40" rx="2" fill="#ffffff" opacity="0.08"/>
@@ -393,53 +393,53 @@
                         <path d="M 60 113 L 106 111 L 106 120 L 60 122 Z" fill="#0d1319" opacity="0.3"/>
                         <path d="M 46 84 L 112 79 L 112 88 L 46 93 Z" fill="url(#gSheen)"/>
 
-                        <!-- Hauptgehäuse -->
+                        <!-- Main shell -->
                         <path d="M 110 76 Q 110 68 120 68 L 258 68 L 292 86 L 292 114 L 258 130 L 152 130 Q 110 130 110 120 Z"
                               fill="url(#gOrange)" stroke="#a83b16" stroke-width="2" stroke-linejoin="round"/>
-                        <!-- Gehäusenaht der beiden Schalenhälften -->
+                        <!-- Seam between the two shell halves -->
                         <path d="M 116 99 L 288 99" stroke="#8f3413" stroke-width="1" opacity="0.55"/>
                         <path d="M 116 101 L 288 101" stroke="#ffb98f" stroke-width="1" opacity="0.35"/>
-                        <!-- Glanzkante oben -->
+                        <!-- Highlight along the top edge -->
                         <path d="M 112 76 Q 112 70 120 70 L 256 70 L 268 76 L 116 78 Z" fill="url(#gSheen)"/>
-                        <!-- Schattenzone unten -->
+                        <!-- Shadow along the bottom -->
                         <path d="M 118 120 L 286 118 L 286 124 L 152 128 Q 130 128 118 124 Z" fill="#7d2f11" opacity="0.35"/>
 
-                        <!-- Spannschieber / Prime-Handle -->
+                        <!-- Prime handle -->
                         <rect x="196" y="72" width="58" height="14" rx="6" fill="url(#gGrey)" stroke="#141c23" stroke-width="1.5"/>
                         <rect x="202" y="75" width="46" height="4" rx="2" fill="#ffffff" opacity="0.18"/>
                         <path d="M 210 74 L 210 84 M 220 74 L 220 84 M 230 74 L 230 84 M 240 74 L 240 84" stroke="#0e151b" stroke-width="1.4" opacity="0.7"/>
 
-                        <!-- Taktische Schiene -->
+                        <!-- Tactical rail -->
                         <rect x="128" y="60" width="72" height="10" rx="2" fill="url(#gGrey)" stroke="#141c23" stroke-width="1.4"/>
                         <path d="M 134 60 L 134 70 M 142 60 L 142 70 M 150 60 L 150 70 M 158 60 L 158 70 M 166 60 L 166 70 M 174 60 L 174 70 M 182 60 L 182 70 M 190 60 L 190 70"
                               stroke="#0e151b" stroke-width="1.6" opacity="0.75"/>
 
-                        <!-- Kimme -->
+                        <!-- Rear sight -->
                         <path d="M 132 52 L 148 52 L 148 60 L 144 60 L 142 56 L 138 56 L 136 60 L 132 60 Z" fill="#1a252f"/>
 
-                        <!-- Jam-Door / Auswurfklappe -->
+                        <!-- Jam door -->
                         <path d="M 236 88 L 282 88 L 282 112 L 236 112 Z" fill="url(#gOrangeDeep)" opacity="0.85" stroke="#8f3413" stroke-width="1.2"/>
                         <path d="M 240 92 L 278 92" stroke="#ffffff" stroke-width="1" opacity="0.2"/>
                         <rect x="266" y="96" width="12" height="8" rx="2" fill="#1a252f"/>
 
-                        <!-- Lauf -->
+                        <!-- Barrel -->
                         <path d="M 288 86 L 366 86 Q 374 86 374 90 L 374 110 Q 374 114 366 114 L 288 114 Z"
                               fill="url(#gGrey)" stroke="#141c23" stroke-width="1.8" stroke-linejoin="round"/>
                         <rect x="292" y="88" width="80" height="6" rx="3" fill="#ffffff" opacity="0.16"/>
                         <rect x="292" y="108" width="80" height="4" rx="2" fill="#000000" opacity="0.3"/>
-                        <!-- Laufrillen -->
+                        <!-- Barrel grooves -->
                         <path d="M 304 88 L 304 112 M 316 88 L 316 112 M 328 88 L 328 112 M 340 88 L 340 112 M 352 88 L 352 112"
                               stroke="#0d1319" stroke-width="2" opacity="0.65"/>
-                        <!-- Korn -->
+                        <!-- Front sight -->
                         <path d="M 306 78 L 312 78 L 312 86 L 306 86 Z" fill="#1a252f"/>
 
-                        <!-- Mündung -->
+                        <!-- Muzzle -->
                         <ellipse cx="376" cy="100" rx="10" ry="15" fill="#1a252f" stroke="#0b1116" stroke-width="1.5"/>
                         <ellipse cx="378" cy="100" rx="7" ry="11" fill="url(#gBore)"/>
                         <ellipse cx="380" cy="100" rx="4.5" ry="7.5" fill="#000000"/>
                         <path d="M 372 92 Q 376 96 376 100" stroke="#ffffff" stroke-width="1.2" opacity="0.25" fill="none"/>
 
-                        <!-- Magazin -->
+                        <!-- Magazine -->
                         <path d="M 196 124 L 240 124 L 236 180 L 200 180 Z" fill="url(#gGrey)" stroke="#141c23" stroke-width="1.6" stroke-linejoin="round"/>
                         <path d="M 200 130 L 236 130 L 234 172 L 202 172 Z" fill="#0d1319" opacity="0.35"/>
                         <rect x="204" y="134" width="28" height="7" rx="2" fill="#3498db" opacity="0.85"/>
@@ -448,16 +448,16 @@
                         <path d="M 196 124 L 240 124 L 239 130 L 197 130 Z" fill="#ffffff" opacity="0.12"/>
                         <rect x="198" y="176" width="40" height="7" rx="3" fill="#ff6b35" stroke="#a83b16" stroke-width="1.2"/>
 
-                        <!-- Abzugsbügel -->
+                        <!-- Trigger guard -->
                         <path d="M 148 128 L 148 146 Q 148 158 162 158 L 180 158 Q 190 158 190 146 L 190 130"
                               fill="none" stroke="#b8451a" stroke-width="7" stroke-linecap="round"/>
                         <path d="M 148 128 L 148 146 Q 148 158 162 158 L 180 158 Q 190 158 190 146 L 190 130"
                               fill="none" stroke="#ff8e53" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
 
-                        <!-- Abzug -->
+                        <!-- Trigger -->
                         <path d="M 168 130 Q 162 138 164 148 Q 170 146 172 136 L 172 130 Z" fill="#2c3e50" stroke="#0e151b" stroke-width="1.2"/>
 
-                        <!-- Griff -->
+                        <!-- Grip -->
                         <path d="M 128 118 Q 118 128 116 148 L 118 172 Q 119 182 130 182 L 148 182 Q 156 182 155 173 L 150 130 Q 149 122 142 120 Z"
                               fill="url(#gOrange)" stroke="#a83b16" stroke-width="2" stroke-linejoin="round"/>
                         <path d="M 128 118 Q 118 128 116 148 L 118 172 Q 119 182 130 182 L 148 182 Q 156 182 155 173 L 150 130 Q 149 122 142 120 Z"
@@ -465,11 +465,11 @@
                         <path d="M 130 122 Q 122 132 121 148 L 122 166" fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.22"/>
                         <path d="M 148 132 L 152 172" fill="none" stroke="#7d2f11" stroke-width="2" opacity="0.4"/>
 
-                        <!-- Beschriftungsstreifen -->
+                        <!-- Label strip -->
                         <rect x="122" y="88" width="34" height="9" rx="3" fill="#ffd93d" stroke="#c9a227" stroke-width="1"/>
                         <path d="M 126 92 L 152 92" stroke="#8a6d12" stroke-width="1.4" opacity="0.7"/>
 
-                        <!-- Schrauben -->
+                        <!-- Screws -->
                         <use href="#screw" x="126" y="112"/>
                         <use href="#screw" x="176" y="112"/>
                         <use href="#screw" x="262" y="76"/>
@@ -477,19 +477,19 @@
                         <use href="#screw" x="300" y="100"/>
                     </g>
 
-                    <!-- Nerf Gun 2: Futuristischer Slate-Blaster -->
+                    <!-- Nerf gun 2: futuristic slate blaster -->
                     <g id="nerfGun2" class="gun-model" style="display: none;">
-                        <!-- Bodenschatten -->
+                        <!-- Ground shadow -->
                         <ellipse cx="205" cy="186" rx="140" ry="7" fill="#000000" opacity="0.13"/>
 
-                        <!-- Schulterstütze mit Streben -->
+                        <!-- Skeletal stock with struts -->
                         <path d="M 28 86 L 44 84 L 44 122 L 28 120 Q 24 103 28 86 Z" fill="url(#gSlate)" stroke="#2a3f56" stroke-width="1.6"/>
                         <rect x="24" y="86" width="7" height="34" rx="3" fill="#ff6b35" stroke="#a83b16" stroke-width="1"/>
                         <path d="M 44 88 L 96 84 L 96 94 L 44 96 Z" fill="url(#gSlate)" stroke="#2a3f56" stroke-width="1.4"/>
                         <path d="M 44 110 L 96 110 L 96 120 L 44 118 Z" fill="url(#gSlate)" stroke="#2a3f56" stroke-width="1.4"/>
                         <path d="M 44 88 L 96 84 L 96 89 L 44 92 Z" fill="url(#gSheen)"/>
 
-                        <!-- Hauptkörper mit Facetten -->
+                        <!-- Faceted main body -->
                         <path d="M 92 78 L 140 66 L 250 66 L 280 80 L 280 118 L 246 130 L 130 130 Q 92 130 92 120 Z"
                               fill="url(#gSlate)" stroke="#24384d" stroke-width="2" stroke-linejoin="round"/>
                         <path d="M 96 78 L 140 68 L 248 68 L 262 74 L 100 84 Z" fill="url(#gSheen)"/>
@@ -497,22 +497,22 @@
                         <path d="M 100 99 L 276 99" stroke="#24384d" stroke-width="1" opacity="0.6"/>
                         <path d="M 100 101 L 276 101" stroke="#c5daf0" stroke-width="1" opacity="0.3"/>
 
-                        <!-- Energie-Akzentstreifen -->
+                        <!-- Energy accent stripe -->
                         <path d="M 108 106 L 236 106 L 232 113 L 104 113 Z" fill="#ff6b35" opacity="0.9"/>
                         <path d="M 108 106 L 236 106 L 235 108.5 L 107 108.5 Z" fill="#ffb98f" opacity="0.7"/>
 
-                        <!-- Kühlrippen -->
+                        <!-- Cooling ribs -->
                         <path d="M 176 84 L 179 84 L 179 100 L 176 100 Z M 186 84 L 189 84 L 189 100 L 186 100 Z M 196 84 L 199 84 L 199 100 L 196 100 Z M 206 84 L 209 84 L 209 100 L 206 100 Z"
                               fill="#1b2c3d" opacity="0.8"/>
                         <path d="M 176 84 L 179 84 L 179 86 L 176 86 Z M 186 84 L 189 84 L 189 86 L 186 86 Z M 196 84 L 199 84 L 199 86 L 196 86 Z M 206 84 L 209 84 L 209 86 L 206 86 Z"
                               fill="#ffffff" opacity="0.25"/>
 
-                        <!-- Taktische Schiene -->
+                        <!-- Tactical rail -->
                         <rect x="136" y="56" width="104" height="11" rx="2" fill="#2a3f56" stroke="#1b2c3d" stroke-width="1.4"/>
                         <path d="M 142 56 L 142 67 M 150 56 L 150 67 M 158 56 L 158 67 M 166 56 L 166 67 M 174 56 L 174 67 M 182 56 L 182 67 M 190 56 L 190 67 M 198 56 L 198 67 M 206 56 L 206 67 M 214 56 L 214 67 M 222 56 L 222 67 M 230 56 L 230 67"
                               stroke="#0e1a26" stroke-width="1.6" opacity="0.8"/>
 
-                        <!-- Zielfernrohr -->
+                        <!-- Telescopic scope -->
                         <rect x="150" y="34" width="76" height="22" rx="9" fill="url(#gBlack)" stroke="#050709" stroke-width="1.6"/>
                         <rect x="156" y="38" width="64" height="5" rx="2.5" fill="#ffffff" opacity="0.18"/>
                         <rect x="176" y="28" width="14" height="8" rx="2" fill="#2a3f56"/>
@@ -523,23 +523,23 @@
                         <circle cx="226" cy="45" r="5.5" fill="#0d2136"/>
                         <rect x="196" y="30" width="9" height="6" rx="2" fill="#ff6b35"/>
 
-                        <!-- Lauf -->
+                        <!-- Barrel -->
                         <path d="M 276 82 L 356 82 Q 364 82 364 87 L 364 113 Q 364 118 356 118 L 276 118 Z"
                               fill="url(#gOrange)" stroke="#a83b16" stroke-width="1.8" stroke-linejoin="round"/>
                         <rect x="280" y="84" width="80" height="7" rx="3.5" fill="#ffffff" opacity="0.2"/>
                         <rect x="280" y="110" width="80" height="5" rx="2.5" fill="#7d2f11" opacity="0.4"/>
                         <path d="M 292 84 L 292 116 M 304 84 L 304 116 M 316 84 L 316 116 M 328 84 L 328 116 M 340 84 L 340 116"
                               stroke="#8f3413" stroke-width="2" opacity="0.55"/>
-                        <!-- Kompensator-Schlitze -->
+                        <!-- Compensator slots -->
                         <path d="M 300 78 L 312 78 L 312 82 L 300 82 Z M 320 78 L 332 78 L 332 82 L 320 82 Z" fill="#8f3413" opacity="0.8"/>
 
-                        <!-- Mündung -->
+                        <!-- Muzzle -->
                         <ellipse cx="366" cy="100" rx="10" ry="18" fill="#c94a1d" stroke="#8f3413" stroke-width="1.5"/>
                         <ellipse cx="368" cy="100" rx="7" ry="13" fill="url(#gBore)"/>
                         <ellipse cx="370" cy="100" rx="4.5" ry="9" fill="#000000"/>
                         <path d="M 362 90 Q 366 95 366 100" stroke="#ffffff" stroke-width="1.2" opacity="0.25" fill="none"/>
 
-                        <!-- Griff -->
+                        <!-- Grip -->
                         <path d="M 122 118 Q 110 128 106 150 L 106 172 Q 106 182 118 182 L 138 182 Q 146 182 145 173 L 142 128 Q 141 120 134 118 Z"
                               fill="url(#gSlate)" stroke="#24384d" stroke-width="2" stroke-linejoin="round"/>
                         <path d="M 122 118 Q 110 128 106 150 L 106 172 Q 106 182 118 182 L 138 182 Q 146 182 145 173 L 142 128 Q 141 120 134 118 Z"
@@ -548,23 +548,23 @@
                         <rect x="112" y="140" width="26" height="5" rx="2" fill="#ff6b35" opacity="0.85"/>
                         <rect x="112" y="150" width="26" height="5" rx="2" fill="#ff6b35" opacity="0.7"/>
 
-                        <!-- Abzugsbügel -->
+                        <!-- Trigger guard -->
                         <path d="M 142 128 L 142 148 Q 142 158 156 158 L 172 158 Q 182 158 182 146 L 182 130"
                               fill="none" stroke="#2a3f56" stroke-width="7" stroke-linecap="round"/>
                         <path d="M 142 128 L 142 148 Q 142 158 156 158 L 172 158 Q 182 158 182 146 L 182 130"
                               fill="none" stroke="#8fb0d0" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
 
-                        <!-- Abzug -->
+                        <!-- Trigger -->
                         <path d="M 160 130 Q 154 138 156 149 Q 163 147 165 136 L 165 130 Z" fill="#ff6b35" stroke="#a83b16" stroke-width="1.2"/>
 
-                        <!-- Akku-Anzeige -->
+                        <!-- Battery level indicator -->
                         <rect x="200" y="112" width="40" height="10" rx="3" fill="#0e1a26" stroke="#1b2c3d" stroke-width="1"/>
                         <rect x="203" y="115" width="8" height="4" rx="1" fill="#4CAF50"/>
                         <rect x="213" y="115" width="8" height="4" rx="1" fill="#4CAF50"/>
                         <rect x="223" y="115" width="8" height="4" rx="1" fill="#ffd93d"/>
                         <rect x="233" y="115" width="4" height="4" rx="1" fill="#2a3f56"/>
 
-                        <!-- Schrauben -->
+                        <!-- Screws -->
                         <use href="#screw" x="112" y="112"/>
                         <use href="#screw" x="256" y="88"/>
                         <use href="#screw" x="256" y="112"/>
@@ -572,18 +572,18 @@
                         <use href="#screw" x="150" y="112"/>
                     </g>
 
-                    <!-- Nerf Gun 3: Blaster mit Trommelmagazin -->
+                    <!-- Nerf gun 3: blaster with drum magazine -->
                     <g id="nerfGun3" class="gun-model" style="display: none;">
-                        <!-- Bodenschatten -->
+                        <!-- Ground shadow -->
                         <ellipse cx="205" cy="188" rx="145" ry="7" fill="#000000" opacity="0.13"/>
 
-                        <!-- Schulterstütze -->
+                        <!-- Stock -->
                         <path d="M 36 88 L 92 84 L 92 122 L 36 118 Q 32 103 36 88 Z" fill="url(#gBlue)" stroke="#0d47a1" stroke-width="1.6" stroke-linejoin="round"/>
                         <rect x="30" y="86" width="9" height="34" rx="4" fill="#12181e"/>
                         <path d="M 36 88 L 92 84 L 92 93 L 36 96 Z" fill="url(#gSheen)"/>
                         <path d="M 50 100 L 86 98 L 86 112 L 50 114 Z" fill="#0d47a1" opacity="0.4"/>
 
-                        <!-- Hauptkörper -->
+                        <!-- Main body -->
                         <path d="M 84 76 Q 84 68 94 68 L 250 68 L 282 84 L 282 116 L 250 130 L 124 130 Q 84 130 84 120 Z"
                               fill="url(#gBlue)" stroke="#0d47a1" stroke-width="2" stroke-linejoin="round"/>
                         <path d="M 88 76 Q 88 70 96 70 L 248 70 L 258 76 L 92 80 Z" fill="url(#gSheen)"/>
@@ -591,25 +591,25 @@
                         <path d="M 92 99 L 278 99" stroke="#0a3474" stroke-width="1" opacity="0.6"/>
                         <path d="M 92 101 L 278 101" stroke="#bfe0ff" stroke-width="1" opacity="0.35"/>
 
-                        <!-- Seitenplatte -->
+                        <!-- Side plate -->
                         <path d="M 214 80 L 272 80 L 272 118 L 214 118 Z" fill="#1565c0" opacity="0.55" stroke="#0a3474" stroke-width="1.2"/>
                         <path d="M 220 86 L 266 86 M 220 92 L 266 92" stroke="#bfe0ff" stroke-width="1" opacity="0.25"/>
 
-                        <!-- Taktische Schiene -->
+                        <!-- Tactical rail -->
                         <rect x="168" y="58" width="86" height="11" rx="2" fill="url(#gBlack)" stroke="#050709" stroke-width="1.4"/>
                         <path d="M 174 58 L 174 69 M 182 58 L 182 69 M 190 58 L 190 69 M 198 58 L 198 69 M 206 58 L 206 69 M 214 58 L 214 69 M 222 58 L 222 69 M 230 58 L 230 69 M 238 58 L 238 69 M 246 58 L 246 69"
                               stroke="#000000" stroke-width="1.6" opacity="0.75"/>
                         <rect x="172" y="60" width="78" height="2.5" rx="1" fill="#ffffff" opacity="0.14"/>
 
-                        <!-- Kimme -->
+                        <!-- Rear sight -->
                         <path d="M 236 48 L 254 48 L 254 58 L 249 58 L 247 52 L 243 52 L 241 58 L 236 58 Z" fill="#1a1d21"/>
 
-                        <!-- Trommelmagazin -->
+                        <!-- Drum magazine -->
                         <circle cx="180" cy="132" r="47" fill="#1b5e20" opacity="0.35"/>
                         <circle cx="180" cy="132" r="45" fill="url(#gGreen)" stroke="#1b5e20" stroke-width="2.5"/>
                         <circle cx="180" cy="132" r="45" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.18"/>
                         <circle cx="180" cy="132" r="36" fill="none" stroke="#1b5e20" stroke-width="2" opacity="0.6"/>
-                        <!-- Dartkammern -->
+                        <!-- Dart chambers -->
                         <circle cx="180" cy="99" r="6.5" fill="#12331a" opacity="0.85"/>
                         <circle cx="203" cy="109" r="6.5" fill="#12331a" opacity="0.85"/>
                         <circle cx="213" cy="132" r="6.5" fill="#12331a" opacity="0.85"/>
@@ -626,30 +626,30 @@
                         <circle cx="157" cy="155" r="3.5" fill="#ff6b35"/>
                         <circle cx="147" cy="132" r="3.5" fill="#ff6b35"/>
                         <circle cx="157" cy="109" r="3.5" fill="#ff6b35"/>
-                        <!-- Trommelnabe -->
+                        <!-- Drum hub -->
                         <circle cx="180" cy="132" r="14" fill="#2e7d32" stroke="#12331a" stroke-width="1.8"/>
                         <circle cx="180" cy="132" r="8" fill="#1b5e20"/>
                         <circle cx="180" cy="132" r="3.5" fill="#0a2a0f"/>
                         <path d="M 176 128 Q 178 129 179 131" stroke="#ffffff" stroke-width="1.4" opacity="0.35" fill="none"/>
-                        <!-- Rand-Glanzlicht -->
+                        <!-- Rim highlight -->
                         <path d="M 152 100 A 45 45 0 0 1 208 100" fill="none" stroke="#ffffff" stroke-width="3" opacity="0.28"/>
 
-                        <!-- Lauf -->
+                        <!-- Barrel -->
                         <path d="M 274 86 L 342 86 Q 350 86 350 90 L 350 110 Q 350 114 342 114 L 274 114 Z"
                               fill="url(#gBlack)" stroke="#050709" stroke-width="1.8" stroke-linejoin="round"/>
                         <rect x="278" y="88" width="68" height="6" rx="3" fill="#ffffff" opacity="0.14"/>
                         <path d="M 290 88 L 290 112 M 302 88 L 302 112 M 314 88 L 314 112 M 326 88 L 326 112"
                               stroke="#000000" stroke-width="2" opacity="0.6"/>
-                        <!-- Korn -->
+                        <!-- Front sight -->
                         <path d="M 292 78 L 298 78 L 298 86 L 292 86 Z" fill="#1a1d21"/>
 
-                        <!-- Mündung -->
+                        <!-- Muzzle -->
                         <ellipse cx="352" cy="100" rx="9" ry="15" fill="#ff6b35" stroke="#a83b16" stroke-width="1.5"/>
                         <ellipse cx="354" cy="100" rx="6.5" ry="11" fill="url(#gBore)"/>
                         <ellipse cx="355" cy="100" rx="4" ry="7.5" fill="#000000"/>
                         <path d="M 348 92 Q 352 96 352 100" stroke="#ffffff" stroke-width="1.2" opacity="0.25" fill="none"/>
 
-                        <!-- Griff -->
+                        <!-- Grip -->
                         <path d="M 112 116 Q 100 126 96 148 L 96 172 Q 96 182 108 182 L 128 182 Q 136 182 135 173 L 132 126 Q 131 118 124 116 Z"
                               fill="url(#gBlack)" stroke="#050709" stroke-width="2" stroke-linejoin="round"/>
                         <path d="M 112 116 Q 100 126 96 148 L 96 172 Q 96 182 108 182 L 128 182 Q 136 182 135 173 L 132 126 Q 131 118 124 116 Z"
@@ -659,29 +659,29 @@
                         <rect x="102" y="148" width="26" height="5" rx="2" fill="#2a2e33"/>
                         <rect x="102" y="158" width="26" height="5" rx="2" fill="#2a2e33"/>
 
-                        <!-- Abzugsbügel -->
+                        <!-- Trigger guard -->
                         <path d="M 132 126 L 132 146 Q 132 156 146 156 L 160 156 Q 170 156 170 144 L 170 130"
                               fill="none" stroke="#1a1d21" stroke-width="7" stroke-linecap="round"/>
                         <path d="M 132 126 L 132 146 Q 132 156 146 156 L 160 156 Q 170 156 170 144 L 170 130"
                               fill="none" stroke="#6b7480" stroke-width="2.5" stroke-linecap="round" opacity="0.45"/>
 
-                        <!-- Abzug -->
+                        <!-- Trigger -->
                         <path d="M 150 128 Q 144 136 146 147 Q 153 145 155 134 L 155 128 Z" fill="#ff6b35" stroke="#a83b16" stroke-width="1.2"/>
 
-                        <!-- Seitendetails -->
+                        <!-- Side details -->
                         <rect x="238" y="94" width="9" height="12" rx="2.5" fill="#ff6b35" stroke="#a83b16" stroke-width="1"/>
                         <rect x="252" y="94" width="9" height="12" rx="2.5" fill="#ff6b35" stroke="#a83b16" stroke-width="1"/>
                         <circle cx="118" cy="90" r="6" fill="#12181e" stroke="#ff6b35" stroke-width="1.4"/>
                         <circle cx="118" cy="90" r="2.5" fill="#ff6b35"/>
 
-                        <!-- Schrauben -->
+                        <!-- Screws -->
                         <use href="#screw" x="100" y="112"/>
                         <use href="#screw" x="262" y="76"/>
                         <use href="#screw" x="266" y="122"/>
                         <use href="#screw" x="108" y="174"/>
                     </g>
 
-                    <!-- Mündungsfeuer für Gun 1 -->
+                    <!-- Muzzle flash for gun 1 -->
                     <g id="muzzleFlash1" class="muzzle-flash" opacity="0">
                         <circle cx="380" cy="100" r="15" fill="#ffeb3b" opacity="0.8"/>
                         <circle cx="380" cy="100" r="10" fill="#ffd93d" opacity="0.9"/>
@@ -689,7 +689,7 @@
                         <polygon points="385,100 398,92 395,100 398,108" fill="#ffeb3b" opacity="0.6"/>
                     </g>
 
-                    <!-- Mündungsfeuer für Gun 2 -->
+                    <!-- Muzzle flash for gun 2 -->
                     <g id="muzzleFlash2" class="muzzle-flash" opacity="0" style="display: none;">
                         <circle cx="370" cy="100" r="15" fill="#ffeb3b" opacity="0.8"/>
                         <circle cx="370" cy="100" r="10" fill="#ffd93d" opacity="0.9"/>
@@ -697,7 +697,7 @@
                         <polygon points="375,100 388,92 385,100 388,108" fill="#ffeb3b" opacity="0.6"/>
                     </g>
 
-                    <!-- Mündungsfeuer für Gun 3 -->
+                    <!-- Muzzle flash for gun 3 -->
                     <g id="muzzleFlash3" class="muzzle-flash" opacity="0" style="display: none;">
                         <circle cx="355" cy="100" r="15" fill="#ffeb3b" opacity="0.8"/>
                         <circle cx="355" cy="100" r="10" fill="#ffd93d" opacity="0.9"/>
@@ -710,42 +710,42 @@
             <div class="target-wrapper" id="targetWrapper">
                 <div class="score-display">Punkte: <span id="scoreValue">0</span></div>
                 <svg width="250" height="250" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Klassische Zielscheibe wie Bogenschießen -->
+                    <!-- Classic archery style target -->
 
-                    <!-- Ring 1 - Äußerster weißer Ring -->
+                    <!-- Ring 1 - outermost white ring -->
                     <circle cx="125" cy="125" r="120" fill="white" stroke="#333" stroke-width="2"/>
 
-                    <!-- Ring 2 - Schwarz -->
+                    <!-- Ring 2 - black -->
                     <circle cx="125" cy="125" r="100" fill="#1a1a1a"/>
 
-                    <!-- Ring 3 - Schwarz (dünnerer Ring) -->
+                    <!-- Ring 3 - black (thinner ring) -->
                     <circle cx="125" cy="125" r="90" fill="#1a1a1a"/>
 
-                    <!-- Ring 4 - Weiß -->
+                    <!-- Ring 4 - white -->
                     <circle cx="125" cy="125" r="80" fill="white"/>
 
-                    <!-- Ring 5 - Weiß (dünnerer Ring) -->
+                    <!-- Ring 5 - white (thinner ring) -->
                     <circle cx="125" cy="125" r="70" fill="white"/>
 
-                    <!-- Ring 6 - Cyan/Türkis -->
+                    <!-- Ring 6 - cyan/turquoise -->
                     <circle cx="125" cy="125" r="60" fill="#00bcd4"/>
 
-                    <!-- Ring 7 - Cyan (dünnerer Ring) -->
+                    <!-- Ring 7 - cyan (thinner ring) -->
                     <circle cx="125" cy="125" r="50" fill="#00bcd4"/>
 
-                    <!-- Ring 8 - Rot -->
+                    <!-- Ring 8 - red -->
                     <circle cx="125" cy="125" r="40" fill="#e53935"/>
 
-                    <!-- Ring 9 - Rot (dünnerer Ring) -->
+                    <!-- Ring 9 - red (thinner ring) -->
                     <circle cx="125" cy="125" r="30" fill="#e53935"/>
 
-                    <!-- Ring 10 - Gelb/Gold (Bullseye) -->
+                    <!-- Ring 10 - yellow/gold (bullseye) -->
                     <circle cx="125" cy="125" r="20" fill="#ffd600"/>
 
-                    <!-- Ring 11 - Gelb (innerer Ring) -->
+                    <!-- Ring 11 - yellow (inner ring) -->
                     <circle cx="125" cy="125" r="10" fill="#ffd600"/>
 
-                    <!-- Trennlinien zwischen den Ringen -->
+                    <!-- Dividing lines between the rings -->
                     <circle cx="125" cy="125" r="100" fill="none" stroke="#333" stroke-width="1"/>
                     <circle cx="125" cy="125" r="90" fill="none" stroke="#333" stroke-width="1"/>
                     <circle cx="125" cy="125" r="80" fill="none" stroke="#333" stroke-width="1"/>
@@ -757,29 +757,29 @@
                     <circle cx="125" cy="125" r="20" fill="none" stroke="#333" stroke-width="1"/>
                     <circle cx="125" cy="125" r="10" fill="none" stroke="#333" stroke-width="1"/>
 
-                    <!-- Punktzahlen (alle oben in der Mitte, auf verschiedenen Ringen) -->
-                    <!-- 1 - äußerster weißer Ring (r=110, y=125-110=15) -->
+                    <!-- Scores (all at top centre, on different rings) -->
+                    <!-- 1 - outermost white ring (r=110, y=125-110=15) -->
                     <text x="125" y="15" text-anchor="middle" dominant-baseline="middle" fill="#333" font-size="8" font-weight="bold">1</text>
-                    <!-- 2 - schwarzer Ring außen (r=95, y=125-95=30) -->
+                    <!-- 2 - outer black ring (r=95, y=125-95=30) -->
                     <text x="125" y="30" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="8" font-weight="bold">2</text>
-                    <!-- 3 - schwarzer Ring innen (r=85, y=125-85=40) -->
+                    <!-- 3 - inner black ring (r=85, y=125-85=40) -->
                     <text x="125" y="40" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="8" font-weight="bold">3</text>
-                    <!-- 4 - weißer Ring außen (r=75, y=125-75=50) -->
+                    <!-- 4 - outer white ring (r=75, y=125-75=50) -->
                     <text x="125" y="50" text-anchor="middle" dominant-baseline="middle" fill="#333" font-size="8" font-weight="bold">4</text>
-                    <!-- 5 - weißer Ring innen (r=65, y=125-65=60) -->
+                    <!-- 5 - inner white ring (r=65, y=125-65=60) -->
                     <text x="125" y="60" text-anchor="middle" dominant-baseline="middle" fill="#333" font-size="8" font-weight="bold">5</text>
-                    <!-- 6 - cyan Ring außen (r=55, y=125-55=70) -->
+                    <!-- 6 - outer cyan ring (r=55, y=125-55=70) -->
                     <text x="125" y="70" text-anchor="middle" dominant-baseline="middle" fill="#333" font-size="8" font-weight="bold">6</text>
-                    <!-- 7 - cyan Ring innen (r=45, y=125-45=80) -->
+                    <!-- 7 - inner cyan ring (r=45, y=125-45=80) -->
                     <text x="125" y="80" text-anchor="middle" dominant-baseline="middle" fill="#333" font-size="8" font-weight="bold">7</text>
-                    <!-- 8 - roter Ring außen (r=35, y=125-35=90) -->
+                    <!-- 8 - outer red ring (r=35, y=125-35=90) -->
                     <text x="125" y="90" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="8" font-weight="bold">8</text>
-                    <!-- 9 - roter Ring innen (r=25, y=125-25=100) -->
+                    <!-- 9 - inner red ring (r=25, y=125-25=100) -->
                     <text x="125" y="100" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="8" font-weight="bold">9</text>
-                    <!-- 10 - gelber Ring (r=15, y=125-15=110) -->
+                    <!-- 10 - yellow ring (r=15, y=125-15=110) -->
                     <text x="125" y="110" text-anchor="middle" dominant-baseline="middle" fill="#333" font-size="8" font-weight="bold">10</text>
 
-                    <!-- Kreuzlinien für Orientierung -->
+                    <!-- Cross hairs for orientation -->
                     <line x1="125" y1="0" x2="125" y2="10" stroke="#333" stroke-width="1.5"/>
                     <line x1="125" y1="240" x2="125" y2="250" stroke="#333" stroke-width="1.5"/>
                     <line x1="0" y1="125" x2="10" y2="125" stroke="#333" stroke-width="1.5"/>
