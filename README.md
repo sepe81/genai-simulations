@@ -207,6 +207,32 @@ Classic Tetris game with modern features. Complete implementation with all 7 tet
 
 ---
 
+### Fish Quiz
+
+**[src/fish-quiz/index.html](src/fish-quiz/index.html)**
+
+Learning quiz on native freshwater fish, built on the teaching board "Kennst du unsere heimischen Fische?" of Anglerverband Leipzig e. V.
+The scan of the board sits next to the page as a single JPEG, attribution and all, and every species crops its own oval out of it via CSS, so a new species needs no new image file.
+The quiz interface and the species descriptions are in German, since the German species names are what the quiz trains.
+
+**Features:**
+
+- Two quiz modes: picture to name and name to picture
+- Look-alikes are preferred as wrong answers (Plötze/Rotfeder, Blei/Güster, Barsch/Zander)
+- Adaptive question picking: poorly known species come up more often
+- Hit rate per species is kept in localStorage
+- Gallery mode with picture, alternative names and identifying feature
+- Round length of 5, 10, 20 questions or endless; keyboard control (1-4, Enter)
+
+**Adding a species:** Append an entry to the `FISH` array at the top of the script, either with `sprite` plus `crop: cell(row, column)` for the existing board, or with `image: "..."` for a picture of its own.
+Additional boards can be registered in `SPRITES`.
+
+**Tech:** Vanilla JavaScript, CSS sprite cropping, Web Audio API, localStorage
+
+**How to run:** Open `src/fish-quiz/index.html` in your browser.
+
+---
+
 ## 🚀 Getting Started
 
 All simulations are self-contained HTML files. To run:
@@ -221,6 +247,7 @@ cd genai-simulations
 open src/balloon-pop/index.html
 open src/battery-box/index.html
 open src/cosine-similarity/index.html
+open src/fish-quiz/index.html
 open src/graffiti-spray/index.html
 open src/math-games/balloon/index.html
 open src/math-games/monster/index.html

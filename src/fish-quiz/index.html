@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fischerei-Quiz – Kennst du unsere heimischen Fische?</title>
+<style>
+  :root {
+    --water-deep: #0b3d5c;
+    --water: #14608c;
+    --water-light: #2b8cbe;
+    --sand: #f4efe2;
+    --card: #ffffff;
+    --ink: #123040;
+    --ink-soft: #4b6b7b;
+    --good: #1f9d55;
+    --bad: #d64545;
+    --accent: #f2a33c;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #7fc9ea 0%, transparent 60%),
+      linear-gradient(180deg, var(--water-light) 0%, var(--water) 45%, var(--water-deep) 100%);
+    min-height: 100vh;
+    padding: 18px 14px 40px;
+  }
+  .wrap { max-width: 940px; margin: 0 auto; }
+  header { text-align: center; color: #fff; margin-bottom: 18px; }
+  header h1 { margin: 0 0 4px; font-size: clamp(1.4rem, 4vw, 2.1rem); letter-spacing: .2px; }
+  header p { margin: 0; opacity: .85; font-size: .95rem; }
+
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+    margin: 16px 0 14px;
+  }
+  .tabs { display: flex; gap: 6px; background: rgba(255,255,255,.16); padding: 5px; border-radius: 999px; }
+  .tab {
+    border: 0; background: transparent; color: #fff; font: inherit; font-size: .9rem;
+    padding: 8px 14px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+  }
+  .tab[aria-selected="true"] { background: #fff; color: var(--water-deep); font-weight: 600; }
+  .tab:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  .roundpick { display: flex; align-items: center; gap: 8px; color: #fff; font-size: .9rem; }
+  .roundpick select {
+    font: inherit; padding: 7px 10px; border-radius: 10px; border: 0;
+    background: rgba(255,255,255,.9); color: var(--ink);
+  }
+
+  .card {
+    background: var(--card); border-radius: var(--radius);
+    box-shadow: 0 18px 40px rgba(0, 20, 40, .28);
+    padding: 18px; overflow: hidden;
+  }
+
+  .stats {
+    display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center;
+    justify-content: space-between; margin-bottom: 14px;
+    font-size: .9rem; color: var(--ink-soft);
+  }
+  .stats b { color: var(--ink); font-size: 1.05rem; }
+  .bar { height: 8px; border-radius: 99px; background: #e6eef2; overflow: hidden; margin-bottom: 16px; }
+  .bar > div { height: 100%; width: 0; background: linear-gradient(90deg, var(--water-light), var(--good)); transition: width .3s ease; }
+
+  .prompt { text-align: center; font-size: 1.05rem; color: var(--ink-soft); margin: 0 0 12px; }
+  .prompt strong { color: var(--ink); font-size: 1.5rem; display: block; margin-top: 4px; }
+
+  /* Fish picture: a crop of the board, positioned resolution-independently */
+  .fish {
+    position: relative; width: 100%; overflow: hidden;
+    border-radius: 12px; background: #cfe6f3;
+  }
+  .fish > img { position: absolute; top: 0; left: 0; max-width: none; image-rendering: auto; }
+
+  .stage .fish { max-width: 520px; margin: 0 auto 16px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); }
+
+  .options { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (max-width: 520px) { .options { grid-template-columns: 1fr; } }
+  .opt {
+    font: inherit; font-size: 1rem; padding: 14px 12px; cursor: pointer;
+    border: 2px solid #d8e6ee; border-radius: 12px; background: #f7fbfd; color: var(--ink);
+    transition: transform .08s ease, border-color .15s ease, background .15s ease;
+    text-align: center;
+  }
+  .opt:hover:not(:disabled) { border-color: var(--water-light); background: #eef8fd; }
+  .opt:active:not(:disabled) { transform: scale(.985); }
+  .opt:disabled { cursor: default; }
+  .opt.correct { border-color: var(--good); background: #e8f8ee; font-weight: 600; }
+  .opt.wrong { border-color: var(--bad); background: #fdecec; }
+
+  .options.pics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .options.pics .opt { padding: 6px; }
+  .options.pics .fish { border-radius: 8px; }
+
+  .feedback { min-height: 92px; margin-top: 16px; }
+  .verdict { font-weight: 700; font-size: 1.05rem; margin: 0 0 6px; }
+  .verdict.good { color: var(--good); }
+  .verdict.bad { color: var(--bad); }
+  .fact { margin: 0; color: var(--ink-soft); font-size: .95rem; line-height: 1.5; }
+  .fact .alias { font-style: italic; }
+
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .btn {
+    font: inherit; padding: 11px 18px; border-radius: 999px; border: 0; cursor: pointer;
+    background: var(--water); color: #fff; font-weight: 600;
+  }
+  .btn:hover { background: var(--water-deep); }
+  .btn.ghost { background: #eaf3f8; color: var(--water-deep); }
+  .btn.ghost:hover { background: #dcecf4; }
+
+  .summary { text-align: center; padding: 10px 0 4px; }
+  .summary h2 { margin: 0 0 6px; }
+  .summary .score { font-size: 2.4rem; font-weight: 700; color: var(--water); }
+
+  .gallery { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+  .gitem { border: 1px solid #e2edf3; border-radius: 12px; overflow: hidden; background: #fbfdfe; }
+  .gitem h3 { margin: 10px 12px 2px; font-size: 1.05rem; }
+  .gitem .alias { margin: 0 12px; color: var(--ink-soft); font-size: .82rem; font-style: italic; }
+  .gitem p { margin: 6px 12px 12px; font-size: .85rem; color: var(--ink-soft); line-height: 1.45; }
+  .gitem .rate { margin: 0 12px 10px; font-size: .78rem; color: var(--water); font-weight: 600; }
+
+  footer { color: rgba(255,255,255,.8); text-align: center; font-size: .8rem; margin-top: 18px; line-height: 1.6; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Kennst du unsere heimischen Fische?</h1>
+    <p>Fischerei-Quiz nach der Lehrtafel des Anglerverbandes Leipzig e.&nbsp;V.</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="tabs" role="tablist" aria-label="Quizmodus">
+      <button class="tab" role="tab" data-mode="pic2name" aria-selected="true">Bild&nbsp;→&nbsp;Name</button>
+      <button class="tab" role="tab" data-mode="name2pic" aria-selected="false">Name&nbsp;→&nbsp;Bild</button>
+      <button class="tab" role="tab" data-mode="overview" aria-selected="false">Übersicht</button>
+    </div>
+    <label class="roundpick">Runde:
+      <select id="roundLength">
+        <option value="5">5 Fragen</option>
+        <option value="10" selected>10 Fragen</option>
+        <option value="20">20 Fragen</option>
+        <option value="0">endlos</option>
+      </select>
+    </label>
+  </div>
+
+  <main class="card">
+    <section id="quiz">
+      <div class="stats">
+        <span>Frage <b id="qIndex">1</b><span id="qTotal"></span></span>
+        <span>Richtig: <b id="scoreRight">0</b> / <b id="scoreAsked">0</b></span>
+        <span>Serie: <b id="streak">0</b> 🎣</span>
+      </div>
+      <div class="bar"><div id="progress"></div></div>
+
+      <div class="stage">
+        <p class="prompt" id="prompt"></p>
+        <div id="stageFish"></div>
+      </div>
+
+      <div class="options" id="options"></div>
+
+      <div class="feedback" id="feedback"></div>
+      <div class="actions">
+        <button class="btn hidden" id="nextBtn">Weiter</button>
+        <button class="btn ghost" id="restartBtn">Neue Runde</button>
+      </div>
+    </section>
+
+    <section id="result" class="summary hidden"></section>
+
+    <section id="overview" class="hidden">
+      <div class="gallery" id="gallery"></div>
+    </section>
+  </main>
+
+  <footer>
+    Bildquelle: Lehrtafel „Kennst du unsere heimischen Fische?“ – Anglerverband Leipzig e.&nbsp;V.
+  </footer>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+ * Image sources
+ * ------------------------------------------------------------------
+ * SPRITES holds any number of teaching boards or photos. A fish points at
+ * one of them via `sprite` and cuts out its own oval via `crop` (pixels of
+ * the original board). A fish may also bring its own picture instead, then
+ * `image: "path/or/data-uri"` is enough and no crop is needed.
+ * ------------------------------------------------------------------ */
+const SPRITES = {
+  leipzigBoard: { src: 'board-leipzig.jpg', width: 1340, height: 1926 },
+};
+
+/* Grid helper for the Leipzig board (5 rows x 3 columns), in scan pixels. */
+const COL = { 1: { x: 0, w: 438 }, 2: { x: 448, w: 430 }, 3: { x: 876, w: 444 } };
+const ROW = { 1: { y: 405, h: 213 }, 2: { y: 698, h: 210 }, 3: { y: 995, h: 227 }, 4: { y: 1298, h: 214 }, 5: { y: 1585, h: 215 } };
+const cell = (row, col) => ({ ...COL[col], ...ROW[row] });
+
+/* ------------------------------------------------------------------
+ * Species – append new ones here. German names on purpose: they are the
+ * answers the quiz trains.
+ *   name     required, the answer to guess
+ *   aliases  other common names (shown as extra information)
+ *   fact     short identifying feature, revealed after the answer
+ *   similar  names of look-alikes, preferred as wrong answers
+ *   sprite + crop  OR  image
+ * ------------------------------------------------------------------ */
+const FISH = [
+  { name: 'Plötze', aliases: ['Rotauge'], sprite: 'leipzigBoard', crop: cell(1, 1),
+    similar: ['Rotfeder', 'Döbel', 'Güster'],
+    fact: 'Häufigster Weißfisch: rote Augen, rötliche Bauchflossen, die Rückenflosse beginnt über den Bauchflossen.' },
+  { name: 'Bachforelle', aliases: [], sprite: 'leipzigBoard', crop: cell(1, 2),
+    similar: ['Äsche'],
+    fact: 'Lachsartiger Fisch mit dunklen und roten Punkten (rote Punkte hell umringt); braucht kühle, sauerstoffreiche Bäche.' },
+  { name: 'Rotfeder', aliases: [], sprite: 'leipzigBoard', crop: cell(1, 3),
+    similar: ['Plötze', 'Güster'],
+    fact: 'Der Plötze ähnlich, aber mit gelben Augen, oberständigem Maul und weiter hinten sitzender Rückenflosse.' },
+  { name: 'Blei', aliases: ['Brachse', 'Brachsen'], sprite: 'leipzigBoard', crop: cell(2, 1),
+    similar: ['Güster'],
+    fact: 'Hochrückig und seitlich stark abgeflacht, mit sehr langer Afterflosse; sucht am Grund nach Würmern und Larven.' },
+  { name: 'Barsch', aliases: ['Flussbarsch'], sprite: 'leipzigBoard', crop: cell(2, 2),
+    similar: ['Zander'],
+    fact: 'Dunkle Querstreifen, zweigeteilte Rückenflosse mit Stacheln, leuchtend rote Bauch- und Afterflossen.' },
+  { name: 'Hecht', aliases: [], sprite: 'leipzigBoard', crop: cell(2, 3),
+    similar: ['Zander', 'Wels'],
+    fact: 'Langgestreckter Lauerräuber mit entenschnabelartigem Maul; Rückenflosse sitzt weit hinten am Körper.' },
+  { name: 'Karpfen', aliases: ['Spiegelkarpfen'], sprite: 'leipzigBoard', crop: cell(3, 1),
+    similar: ['Schleie', 'Barbe'],
+    fact: 'Kräftiger Körper mit zwei Bartelpaaren am Oberkiefer; hier ein Spiegelkarpfen mit einzelnen großen Schuppen.' },
+  { name: 'Schleie', aliases: [], sprite: 'leipzigBoard', crop: cell(3, 2),
+    similar: ['Karpfen'],
+    fact: 'Dunkelgrün-goldener Fisch mit winzigen Schuppen, schleimiger Haut und abgerundeten Flossen.' },
+  { name: 'Zander', aliases: [], sprite: 'leipzigBoard', crop: cell(3, 3),
+    similar: ['Barsch', 'Hecht'],
+    fact: 'Barschverwandter Raubfisch mit Fangzähnen, stachliger vorderer Rückenflosse und glasig schimmernden Augen.' },
+  { name: 'Wels', aliases: ['Waller'], sprite: 'leipzigBoard', crop: cell(4, 1),
+    similar: ['Aal'],
+    fact: 'Größter heimischer Süßwasserfisch: schuppenlos, breites Maul mit langen Barteln, sehr lange Afterflosse.' },
+  { name: 'Aal', aliases: [], sprite: 'leipzigBoard', crop: cell(4, 2),
+    similar: ['Wels'],
+    fact: 'Schlangenförmiger Wanderfisch – zum Ablaichen zieht er bis in die Sargassosee.' },
+  { name: 'Döbel', aliases: ['Aitel'], sprite: 'leipzigBoard', crop: cell(4, 3),
+    similar: ['Plötze', 'Barbe'],
+    fact: 'Kräftiger Weißfisch mit dickem Kopf, großen Schuppen und rötlichen Bauchflossen; steht gern in der Strömung.' },
+  { name: 'Äsche', aliases: [], sprite: 'leipzigBoard', crop: cell(5, 1),
+    similar: ['Bachforelle'],
+    fact: 'Unverwechselbar durch die große, fahnenartige Rückenflosse; lebt in klaren, schnell fließenden Gewässern.' },
+  { name: 'Barbe', aliases: [], sprite: 'leipzigBoard', crop: cell(5, 2),
+    similar: ['Döbel', 'Karpfen'],
+    fact: 'Spindelförmiger Grundfisch der Fließgewässer, unterständiges Maul mit vier Barteln.' },
+  { name: 'Güster', aliases: ['Blicke'], sprite: 'leipzigBoard', crop: cell(5, 3),
+    similar: ['Blei', 'Plötze'],
+    fact: 'Dem Blei ähnlich, aber mit deutlich größeren Augen, größeren Schuppen und rötlicher Basis der Brustflossen.' },
+];
+
+const CONFIG = { optionCount: 4, storageKey: 'fishquiz.stats.v1' };
+
+/* ------------------------- State & stats ------------------------- */
+const state = { mode: 'pic2name', roundLength: 10, asked: 0, right: 0, streak: 0, best: 0, current: null, locked: false };
+
+const loadStats = () => {
+  try {
+    return JSON.parse(globalThis.localStorage?.getItem(CONFIG.storageKey) ?? '{}') ?? {};
+  } catch {
+    return {};
+  }
+};
+let stats = loadStats();
+
+const saveStats = () => {
+  try {
+    globalThis.localStorage?.setItem(CONFIG.storageKey, JSON.stringify(stats));
+  } catch {
+    /* private browsing and friends: stats then live in memory only */
+  }
+};
+
+const statFor = (name) => {
+  if (!stats[name]) stats[name] = { seen: 0, right: 0 };
+  return stats[name];
+};
+
+/* ---------------------------- Helpers ---------------------------- */
+const $ = (id) => document.getElementById(id);
+const byName = new Map(FISH.map((f) => [f.name, f]));
+const shuffle = (list) => {
+  const out = [...list];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+};
+
+/* Species that are still shaky come up more often. */
+const pickFish = () => {
+  const pool = [];
+  for (const fish of FISH) {
+    if (state.current && fish.name === state.current.fish.name && FISH.length > 1) continue;
+    const s = statFor(fish.name);
+    const wrong = s.seen - s.right;
+    const weight = 1 + 3 * wrong + (s.seen === 0 ? 2 : 0);
+    for (let i = 0; i < weight; i++) pool.push(fish);
+  }
+  return pool[Math.floor(Math.random() * pool.length)];
+};
+
+const pickDistractors = (target, count) => {
+  const chosen = [];
+  const taken = new Set([target.name]);
+  for (const name of shuffle(target.similar ?? [])) {
+    if (chosen.length >= count) break;
+    const fish = byName.get(name);
+    if (fish && !taken.has(name)) { chosen.push(fish); taken.add(name); }
+  }
+  for (const fish of shuffle(FISH)) {
+    if (chosen.length >= count) break;
+    if (!taken.has(fish.name)) { chosen.push(fish); taken.add(fish.name); }
+  }
+  return chosen;
+};
+
+/* Builds the picture, for both sprite crops and standalone images. */
+const fishImage = (fish, { maxWidth = '' } = {}) => {
+  const box = document.createElement('div');
+  box.className = 'fish';
+  const img = document.createElement('img');
+  img.alt = '';
+  img.decoding = 'async';
+  if (maxWidth) box.style.maxWidth = maxWidth;
+
+  if (fish.crop && fish.sprite) {
+    const sprite = SPRITES[fish.sprite];
+    const { x, y, w, h } = fish.crop;
+    box.style.aspectRatio = `${w} / ${h}`;
+    img.src = sprite.src;
+    img.style.width = `${(sprite.width / w) * 100}%`;
+    img.style.left = `${(-x / w) * 100}%`;
+    img.style.top = `${(-y / h) * 100}%`;
+  } else {
+    box.style.aspectRatio = fish.aspectRatio ?? '2 / 1';
+    img.src = fish.image;
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = 'cover';
+  }
+  box.append(img);
+  return box;
+};
+
+const aliasText = (fish) => (fish.aliases?.length ? ` (auch ${fish.aliases.join(', ')})` : '');
+
+/* ----------------------------- Quiz ------------------------------ */
+const renderStats = () => {
+  $('qIndex').textContent = String(Math.min(state.asked + 1, state.roundLength || state.asked + 1));
+  $('qTotal').textContent = state.roundLength ? ` / ${state.roundLength}` : '';
+  $('scoreRight').textContent = String(state.right);
+  $('scoreAsked').textContent = String(state.asked);
+  $('streak').textContent = String(state.streak);
+  const pct = state.roundLength ? (state.asked / state.roundLength) * 100 : 0;
+  $('progress').style.width = `${pct}%`;
+};
+
+const beep = (ok) => {
+  try {
+    const Ctx = globalThis.AudioContext ?? globalThis.webkitAudioContext;
+    if (!Ctx) return;
+    state.audio ??= new Ctx();
+    const ctx = state.audio;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = ok ? 'sine' : 'triangle';
+    osc.frequency.setValueAtTime(ok ? 660 : 220, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(ok ? 990 : 150, ctx.currentTime + 0.16);
+    gain.gain.setValueAtTime(0.14, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.25);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.26);
+  } catch {
+    /* sound is optional */
+  }
+};
+
+const nextQuestion = () => {
+  if (state.roundLength && state.asked >= state.roundLength) return showResult();
+
+  const fish = pickFish();
+  const optionCount = Math.min(CONFIG.optionCount, FISH.length);
+  const options = shuffle([fish, ...pickDistractors(fish, optionCount - 1)]);
+  state.current = { fish, options };
+  state.locked = false;
+
+  const stage = $('stageFish');
+  const optionsEl = $('options');
+  stage.replaceChildren();
+  optionsEl.replaceChildren();
+  $('feedback').replaceChildren();
+  $('nextBtn').classList.add('hidden');
+
+  if (state.mode === 'pic2name') {
+    $('prompt').textContent = 'Welcher Fisch ist das?';
+    stage.append(fishImage(fish));
+    optionsEl.className = 'options';
+    for (const option of options) {
+      const btn = document.createElement('button');
+      btn.className = 'opt';
+      btn.type = 'button';
+      btn.textContent = option.name;
+      btn.addEventListener('click', () => answer(option, btn));
+      optionsEl.append(btn);
+    }
+  } else {
+    $('prompt').innerHTML = 'Welches Bild zeigt den <strong></strong>?';
+    $('prompt').querySelector('strong').textContent = fish.name;
+    optionsEl.className = 'options pics';
+    for (const option of options) {
+      const btn = document.createElement('button');
+      btn.className = 'opt';
+      btn.type = 'button';
+      btn.setAttribute('aria-label', `Bild ${options.indexOf(option) + 1}`);
+      btn.append(fishImage(option));
+      btn.addEventListener('click', () => answer(option, btn));
+      optionsEl.append(btn);
+    }
+  }
+  renderStats();
+};
+
+const answer = (choice, button) => {
+  if (state.locked) return;
+  state.locked = true;
+
+  const { fish, options } = state.current;
+  const ok = choice.name === fish.name;
+  const s = statFor(fish.name);
+  s.seen += 1;
+  if (ok) s.right += 1;
+  saveStats();
+
+  state.asked += 1;
+  if (ok) {
+    state.right += 1;
+    state.streak += 1;
+    state.best = Math.max(state.best, state.streak);
+  } else {
+    state.streak = 0;
+  }
+  beep(ok);
+
+  const buttons = [...$('options').children];
+  for (const [i, btn] of buttons.entries()) {
+    btn.disabled = true;
+    if (options[i].name === fish.name) btn.classList.add('correct');
+  }
+  if (!ok) button.classList.add('wrong');
+
+  const feedback = $('feedback');
+  feedback.replaceChildren();
+  const verdict = document.createElement('p');
+  verdict.className = `verdict ${ok ? 'good' : 'bad'}`;
+  verdict.textContent = ok ? 'Richtig!' : `Leider nicht – das ist der ${fish.name}.`;
+  const fact = document.createElement('p');
+  fact.className = 'fact';
+  const alias = document.createElement('span');
+  alias.className = 'alias';
+  alias.textContent = aliasText(fish);
+  fact.append(document.createTextNode(`${fish.name}`), alias, document.createTextNode(`: ${fish.fact ?? ''}`));
+  feedback.append(verdict, fact);
+
+  if (state.mode === 'name2pic' && !ok) {
+    const wrongFish = choice;
+    const extra = document.createElement('p');
+    extra.className = 'fact';
+    extra.textContent = `Dein Bild zeigt den ${wrongFish.name}: ${wrongFish.fact ?? ''}`;
+    feedback.append(extra);
+  }
+
+  $('nextBtn').classList.remove('hidden');
+  $('nextBtn').focus();
+  renderStats();
+};
+
+const showResult = () => {
+  $('quiz').classList.add('hidden');
+  const result = $('result');
+  result.classList.remove('hidden');
+  const pct = state.asked ? Math.round((state.right / state.asked) * 100) : 0;
+  const praise = pct === 100 ? 'Petri Heil – alles richtig!' : pct >= 80 ? 'Stark, fast alles sitzt.' : pct >= 50 ? 'Guter Anfang, weiter üben!' : 'Da geht noch was – schau in die Übersicht.';
+  result.replaceChildren();
+  const h2 = document.createElement('h2');
+  h2.textContent = 'Runde beendet';
+  const score = document.createElement('div');
+  score.className = 'score';
+  score.textContent = `${state.right} / ${state.asked}`;
+  const p = document.createElement('p');
+  p.className = 'fact';
+  p.textContent = `${pct} % richtig · längste Serie: ${state.best} · ${praise}`;
+  const again = document.createElement('button');
+  again.className = 'btn';
+  again.type = 'button';
+  again.textContent = 'Nochmal';
+  again.addEventListener('click', startRound);
+  result.append(h2, score, p, again);
+  again.focus();
+};
+
+const startRound = () => {
+  state.roundLength = Number.parseInt($('roundLength').value, 10);
+  state.asked = 0;
+  state.right = 0;
+  state.streak = 0;
+  state.best = 0;
+  state.current = null;
+  $('result').classList.add('hidden');
+  $('quiz').classList.remove('hidden');
+  nextQuestion();
+};
+
+/* ---------------------------- Gallery ---------------------------- */
+const renderGallery = () => {
+  const gallery = $('gallery');
+  gallery.replaceChildren();
+  for (const fish of FISH) {
+    const item = document.createElement('div');
+    item.className = 'gitem';
+    item.append(fishImage(fish));
+    const h3 = document.createElement('h3');
+    h3.textContent = fish.name;
+    item.append(h3);
+    if (fish.aliases?.length) {
+      const alias = document.createElement('p');
+      alias.className = 'alias';
+      alias.textContent = `auch: ${fish.aliases.join(', ')}`;
+      item.append(alias);
+    }
+    const p = document.createElement('p');
+    p.textContent = fish.fact ?? '';
+    item.append(p);
+    const s = statFor(fish.name);
+    if (s.seen > 0) {
+      const rate = document.createElement('p');
+      rate.className = 'rate';
+      rate.textContent = `Trefferquote: ${Math.round((s.right / s.seen) * 100)} % (${s.right}/${s.seen})`;
+      item.append(rate);
+    }
+    gallery.append(item);
+  }
+};
+
+/* ----------------------------- Modes ----------------------------- */
+const setMode = (mode) => {
+  state.mode = mode;
+  for (const tab of document.querySelectorAll('.tab')) {
+    tab.setAttribute('aria-selected', String(tab.dataset.mode === mode));
+  }
+  const overview = mode === 'overview';
+  $('overview').classList.toggle('hidden', !overview);
+  $('quiz').classList.toggle('hidden', overview);
+  $('result').classList.add('hidden');
+  if (overview) renderGallery();
+  else startRound();
+};
+
+for (const tab of document.querySelectorAll('.tab')) {
+  tab.addEventListener('click', () => setMode(tab.dataset.mode));
+}
+$('nextBtn').addEventListener('click', nextQuestion);
+$('restartBtn').addEventListener('click', startRound);
+$('roundLength').addEventListener('change', startRound);
+globalThis.addEventListener('keydown', (event) => {
+  if (state.mode === 'overview') return;
+  if (event.key === 'Enter' && !$('nextBtn').classList.contains('hidden')) {
+    nextQuestion();
+    return;
+  }
+  const index = Number.parseInt(event.key, 10) - 1;
+  if (Number.isInteger(index) && index >= 0) {
+    const btn = $('options').children[index];
+    if (btn && !btn.disabled) btn.click();
+  }
+});
+
+setMode('pic2name');
+</script>
+</body>
+</html>
