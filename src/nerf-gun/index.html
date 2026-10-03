@@ -920,7 +920,7 @@
         }
 
         function initTower() {
-            const { Engine, Render, World, Bodies, Runner, Sleeping } = Matter;
+            const { Engine, Render, World, Bodies, Runner, Sleeping, Events } = Matter;
 
             // Stop and clear existing instances
             if (runner) {
@@ -1008,6 +1008,19 @@
                     Sleeping.set(block, false);
                 }
             }, 100);
+
+            // Knocking sounds as blocks hit each other or the ground
+            Events.on(engine, 'collisionStart', (event) => {
+                let hardest = 0;
+                for (const pair of event.pairs) {
+                    const relativeSpeed = Math.hypot(
+                        pair.bodyA.velocity.x - pair.bodyB.velocity.x,
+                        pair.bodyA.velocity.y - pair.bodyB.velocity.y
+                    );
+                    if (relativeSpeed > hardest) hardest = relativeSpeed;
+                }
+                if (hardest > 1.5) playBlockHitSound(hardest);
+            });
 
             // Run renderer and engine
             Render.run(render);
@@ -1137,7 +1150,7 @@
             muzzleFlash.setAttribute('opacity', '1');
             setTimeout(() => muzzleFlash.setAttribute('opacity', '0'), 100);
 
-            // Sound effect (simple beep)
+            // Shot sound for the current blaster
             playShootSound();
 
             // Different behavior based on mode
@@ -1277,6 +1290,7 @@
 
                 const points = calculateScore(tipX, tipY);
                 if (points > 0) {
+                    playImpactSound(points);
                     updateScore(points);
                 }
             }, 600); // Score when dart reaches target
@@ -1293,85 +1307,225 @@
         // contexts can be open at once, so creating one per shot makes the
         // blaster fall silent after enough shots.
         let audioCtx = null;
+        let noiseBuffer = null;
+        let dryBus = null;
 
         function getAudioContext() {
             if (!audioCtx) {
                 audioCtx = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
+                buildAudioGraph();
             }
             if (audioCtx.state === 'suspended') audioCtx.resume();
             return audioCtx;
         }
 
-        // Play appropriate sound based on current gun
-        function playShootSound() {
-            if (currentGun === 1) {
-                playBasicShootSound(); // Simple sound for basic gun
-            } else {
-                playAdvancedShootSound(); // Advanced sound for elite guns
+        // Shared signal chain, built once with the context
+        function buildAudioGraph() {
+            // Limiter so rapid fire does not clip
+            const limiter = audioCtx.createDynamicsCompressor();
+            limiter.threshold.value = -12;
+            limiter.knee.value = 6;
+            limiter.ratio.value = 12;
+            limiter.attack.value = 0.002;
+            limiter.release.value = 0.12;
+
+            const master = audioCtx.createGain();
+            master.gain.value = 0.85;
+            limiter.connect(master);
+            master.connect(audioCtx.destination);
+
+            dryBus = audioCtx.createGain();
+            dryBus.connect(limiter);
+
+            // Short room reverb from a synthesised impulse response: decaying noise
+            const convolver = audioCtx.createConvolver();
+            const irLength = Math.floor(audioCtx.sampleRate * 0.26);
+            const impulse = audioCtx.createBuffer(2, irLength, audioCtx.sampleRate);
+            for (let channel = 0; channel < 2; channel++) {
+                const data = impulse.getChannelData(channel);
+                for (let i = 0; i < irLength; i++) {
+                    data[i] = (Math.random() * 2 - 1) * (1 - i / irLength) ** 3.2;
+                }
+            }
+            convolver.buffer = impulse;
+
+            const reverbSend = audioCtx.createGain();
+            reverbSend.gain.value = 0.16;
+            dryBus.connect(reverbSend);
+            reverbSend.connect(convolver);
+            convolver.connect(limiter);
+
+            // White noise, the basis for every air and mechanical sound below
+            const noiseLength = Math.floor(audioCtx.sampleRate * 2);
+            noiseBuffer = audioCtx.createBuffer(1, noiseLength, audioCtx.sampleRate);
+            const noiseData = noiseBuffer.getChannelData(0);
+            for (let i = 0; i < noiseLength; i++) {
+                noiseData[i] = Math.random() * 2 - 1;
             }
         }
 
-        // Basic shoot sound for standard Nerf gun (Gun 1)
-        function playBasicShootSound() {
-            const audioContext = getAudioContext();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
+        // Filtered noise: the backbone of air bursts, clicks and impacts
+        function noiseBurst(ctx, { at, duration, type = 'bandpass', freq, freqEnd, q = 1, gain = 0.3 }) {
+            const source = ctx.createBufferSource();
+            source.buffer = noiseBuffer;
+            source.playbackRate.value = 0.8 + Math.random() * 0.4;
 
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
+            const filter = ctx.createBiquadFilter();
+            filter.type = type;
+            filter.frequency.setValueAtTime(freq, at);
+            if (freqEnd) filter.frequency.exponentialRampToValueAtTime(freqEnd, at + duration);
+            filter.Q.value = q;
 
-            oscillator.frequency.value = 300;
-            oscillator.type = 'square';
+            const amp = ctx.createGain();
+            amp.gain.setValueAtTime(0.0001, at);
+            amp.gain.exponentialRampToValueAtTime(gain, at + Math.min(0.004, duration * 0.2));
+            amp.gain.exponentialRampToValueAtTime(0.0001, at + duration);
 
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.1);
+            source.connect(filter);
+            filter.connect(amp);
+            amp.connect(dryBus);
+            source.start(at, Math.random() * 1.4);
+            source.stop(at + duration + 0.02);
         }
 
-        // Advanced shoot sound for elite Nerf guns (Gun 2 & 3)
-        function playAdvancedShootSound() {
-            const audioContext = getAudioContext();
-            const now = audioContext.currentTime;
+        // Pitched voice: shell resonance, motors, the whistle of a departing dart
+        function tone(ctx, { at, duration, type = 'sine', freq, freqEnd, gain = 0.3, detune = 0 }) {
+            const oscillator = ctx.createOscillator();
+            oscillator.type = type;
+            oscillator.detune.value = detune;
+            oscillator.frequency.setValueAtTime(freq, at);
+            if (freqEnd) oscillator.frequency.exponentialRampToValueAtTime(freqEnd, at + duration);
 
-            // Low frequency "thump" for spring mechanism
-            const bassOsc = audioContext.createOscillator();
-            const bassGain = audioContext.createGain();
-            bassOsc.connect(bassGain);
-            bassGain.connect(audioContext.destination);
-            bassOsc.type = 'sine';
-            bassOsc.frequency.setValueAtTime(120, now);
-            bassOsc.frequency.exponentialRampToValueAtTime(60, now + 0.1);
-            bassGain.gain.setValueAtTime(0.5, now);
-            bassGain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-            bassOsc.start(now);
-            bassOsc.stop(now + 0.15);
+            const amp = ctx.createGain();
+            amp.gain.setValueAtTime(0.0001, at);
+            amp.gain.exponentialRampToValueAtTime(gain, at + Math.min(0.005, duration * 0.2));
+            amp.gain.exponentialRampToValueAtTime(0.0001, at + duration);
 
-            // Mid frequency for air release
-            const midOsc = audioContext.createOscillator();
-            const midGain = audioContext.createGain();
-            midOsc.connect(midGain);
-            midGain.connect(audioContext.destination);
-            midOsc.type = 'square';
-            midOsc.frequency.setValueAtTime(200, now);
-            midOsc.frequency.exponentialRampToValueAtTime(100, now + 0.08);
-            midGain.gain.setValueAtTime(0.2, now);
-            midGain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
-            midOsc.start(now);
-            midOsc.stop(now + 0.08);
+            oscillator.connect(amp);
+            amp.connect(dryBus);
+            oscillator.start(at);
+            oscillator.stop(at + duration + 0.02);
+        }
 
-            // High frequency click for mechanical action
-            const clickOsc = audioContext.createOscillator();
-            const clickGain = audioContext.createGain();
-            clickOsc.connect(clickGain);
-            clickGain.connect(audioContext.destination);
-            clickOsc.type = 'triangle';
-            clickOsc.frequency.value = 800;
-            clickGain.gain.setValueAtTime(0.15, now);
-            clickGain.gain.exponentialRampToValueAtTime(0.01, now + 0.03);
-            clickOsc.start(now);
-            clickOsc.stop(now + 0.03);
+        // Play the shot sound matching the current blaster
+        function playShootSound() {
+            const ctx = getAudioContext();
+            const now = ctx.currentTime;
+            // Slight variation so shots in a burst do not sound identical
+            const vary = 0.94 + Math.random() * 0.12;
+
+            if (currentGun === 1) {
+                playSpringBlasterSound(ctx, now, vary);
+            } else if (currentGun === 2) {
+                playEliteBlasterSound(ctx, now);
+            } else {
+                playDrumBlasterSound(ctx, now, vary);
+            }
+        }
+
+        // Gun 1: classic spring blaster - trigger click, plunger slam, air burst
+        function playSpringBlasterSound(ctx, now, vary) {
+            // Sear releases
+            noiseBurst(ctx, { at: now, duration: 0.012, type: 'highpass', freq: 3200, q: 0.7, gain: 0.22 });
+
+            // Plunger shoots forward and forces air down the tube
+            noiseBurst(ctx, { at: now + 0.012, duration: 0.09, type: 'lowpass', freq: 1100 * vary, freqEnd: 380, q: 1, gain: 0.5 });
+            tone(ctx, { at: now + 0.012, duration: 0.1, type: 'sine', freq: 195 * vary, freqEnd: 72, gain: 0.42 });
+
+            // Air burst pushing the dart out of the barrel
+            noiseBurst(ctx, { at: now + 0.02, duration: 0.075, type: 'bandpass', freq: 1300 * vary, freqEnd: 3200, q: 1.2, gain: 0.32 });
+
+            // Plunger bottoms out against the front of the cylinder: dry plastic clack
+            noiseBurst(ctx, { at: now + 0.034, duration: 0.045, type: 'lowpass', freq: 520, q: 0.8, gain: 0.34 });
+            tone(ctx, { at: now + 0.034, duration: 0.06, type: 'triangle', freq: 150 * vary, freqEnd: 90, gain: 0.22 });
+
+            // Dart leaves the barrel
+            noiseBurst(ctx, { at: now + 0.055, duration: 0.13, type: 'bandpass', freq: 2600, freqEnd: 750, q: 2.5, gain: 0.13 });
+        }
+
+        // Gun 2: the original elite blaster sound - spring thump, air release, click
+        function playEliteBlasterSound(ctx, now) {
+            const voices = [
+                // Low frequency "thump" for spring mechanism
+                { type: 'sine', freq: 120, freqEnd: 60, gain: 0.5, duration: 0.15 },
+                // Mid frequency for air release
+                { type: 'square', freq: 200, freqEnd: 100, gain: 0.2, duration: 0.08 },
+                // High frequency click for mechanical action
+                { type: 'triangle', freq: 800, gain: 0.15, duration: 0.03 }
+            ];
+
+            for (const voice of voices) {
+                const oscillator = ctx.createOscillator();
+                const amp = ctx.createGain();
+                oscillator.type = voice.type;
+                oscillator.frequency.setValueAtTime(voice.freq, now);
+                if (voice.freqEnd) {
+                    oscillator.frequency.exponentialRampToValueAtTime(voice.freqEnd, now + voice.duration);
+                }
+                amp.gain.setValueAtTime(voice.gain, now);
+                amp.gain.exponentialRampToValueAtTime(0.01, now + voice.duration);
+                oscillator.connect(amp);
+                amp.connect(dryBus);
+                oscillator.start(now);
+                oscillator.stop(now + voice.duration);
+            }
+        }
+
+        // Gun 3: heavy drum blaster - stronger spring plus the drum indexing round
+        function playDrumBlasterSound(ctx, now, vary) {
+            noiseBurst(ctx, { at: now, duration: 0.014, type: 'highpass', freq: 2800, q: 0.7, gain: 0.2 });
+
+            // Bigger plunger, so a lower shell resonance
+            noiseBurst(ctx, { at: now + 0.014, duration: 0.12, type: 'lowpass', freq: 900 * vary, freqEnd: 260, q: 1.1, gain: 0.55 });
+            tone(ctx, { at: now + 0.014, duration: 0.16, type: 'sine', freq: 155 * vary, freqEnd: 52, gain: 0.5 });
+
+            // Air burst
+            noiseBurst(ctx, { at: now + 0.022, duration: 0.09, type: 'bandpass', freq: 1000 * vary, freqEnd: 2600, q: 1.1, gain: 0.34 });
+
+            // Plunger bottoming out
+            noiseBurst(ctx, { at: now + 0.04, duration: 0.06, type: 'lowpass', freq: 420, q: 0.8, gain: 0.36 });
+
+            // Drum rotates on: ratchet clicks at uneven spacing
+            let clickTime = now + 0.13;
+            for (let i = 0; i < 4; i++) {
+                noiseBurst(ctx, { at: clickTime, duration: 0.02, type: 'highpass', freq: 2600, q: 1.2, gain: 0.16 - i * 0.03 });
+                tone(ctx, { at: clickTime, duration: 0.025, type: 'square', freq: 900 - i * 60, freqEnd: 400, gain: 0.05 });
+                clickTime += 0.035 + Math.random() * 0.015;
+            }
+        }
+
+        // Dart hitting the target
+        function playImpactSound(points) {
+            const ctx = getAudioContext();
+            const now = ctx.currentTime;
+
+            // Dull thud of the foam dart
+            noiseBurst(ctx, { at: now, duration: 0.05, type: 'lowpass', freq: 800, q: 0.9, gain: 0.28 });
+            tone(ctx, { at: now, duration: 0.07, type: 'sine', freq: 230, freqEnd: 85, gain: 0.22 });
+
+            // Suction cup grabbing the target face
+            noiseBurst(ctx, { at: now + 0.02, duration: 0.06, type: 'bandpass', freq: 1400, freqEnd: 3600, q: 3, gain: 0.1 });
+
+            // A near bullseye earns a small chime on top
+            if (points >= 9) {
+                tone(ctx, { at: now + 0.05, duration: 0.16, type: 'sine', freq: 1180, gain: 0.12 });
+                tone(ctx, { at: now + 0.11, duration: 0.2, type: 'sine', freq: 1760, gain: 0.1 });
+            }
+        }
+
+        // Hits in tower mode: dry knock, loudness scaled by impact speed
+        let lastBlockSoundTime = 0;
+        function playBlockHitSound(strength) {
+            const ctx = getAudioContext();
+            const now = ctx.currentTime;
+            // A collapsing tower otherwise fires hundreds of collisions at once
+            if (now - lastBlockSoundTime < 0.035) return;
+            lastBlockSoundTime = now;
+
+            const gain = Math.min(0.3, 0.05 + strength * 0.03);
+            const pitch = 260 + Math.random() * 140;
+            tone(ctx, { at: now, duration: 0.05, type: 'triangle', freq: pitch, freqEnd: pitch * 0.45, gain: gain });
+            noiseBurst(ctx, { at: now, duration: 0.035, type: 'bandpass', freq: 1600 + Math.random() * 900, q: 1.6, gain: gain * 0.6 });
         }
 
         // Mouse aiming - track mouse position
