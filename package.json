@@ -1,0 +1,18 @@
+{
+  "name": "genai-simulations",
+  "private": true,
+  "description": "Dev tooling only: the simulations themselves need no build step.",
+  "type": "module",
+  "scripts": {
+    "lint": "npm run lint:js && npm run lint:md",
+    "lint:js": "eslint .",
+    "lint:md": "markdownlint \"**/*.md\" --ignore node_modules"
+  },
+  "devDependencies": {
+    "eslint": "^10.12.0",
+    "eslint-plugin-html": "^8.2.1",
+    "eslint-plugin-unicorn": "^77.0.0",
+    "globals": "^17.13.0",
+    "markdownlint-cli": "^0.49.1"
+  }
+}

@@ -79,8 +79,8 @@
     <div id="instructions">Drag background to rotate view • Scroll to zoom</div>
 
     <script>
+        /* exported setup, draw, windowResized -- p5.js callbacks */
         let vecA, vecB;
-        let font;
 
         function setup() {
             createCanvas(windowWidth, windowHeight, WEBGL);

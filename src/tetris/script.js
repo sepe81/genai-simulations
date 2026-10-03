@@ -727,4 +727,4 @@ class Game {
 // INITIALIZE GAME
 // ============================================================================
 
-const game = new Game();
+new Game();

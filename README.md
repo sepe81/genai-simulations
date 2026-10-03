@@ -157,6 +157,7 @@ Interactive visualization of cosine similarity between two vectors. Adjust the a
 A high-voltage physics sandbox featuring a draggable battery that arcs electricity to nearby objects. Includes interactive elements like stackable Iron Golems, Endermen, and fireworks.
 
 **Controls:**
+
 - **Drag & Drop:** Move the battery box
 - **S:** Spawn Entity (Iron Golem or Enderman)
 - **F:** Launch Firework Rocket
@@ -165,6 +166,7 @@ A high-voltage physics sandbox featuring a draggable battery that arcs electrici
 - **R:** Reset Simulation
 
 **Features:**
+
 - Dynamic lightning generation using recursive displacement
 - Particle effects for sparks and fireworks
 - "Soft ceiling" mechanic to keep objects in bounds
@@ -184,6 +186,7 @@ A high-voltage physics sandbox featuring a draggable battery that arcs electrici
 Classic Tetris game with modern features. Complete implementation with all 7 tetrominoes, SRS rotation system, ghost piece preview, hold piece, and level progression.
 
 **Controls:**
+
 - **← →:** Move piece
 - **↑:** Rotate
 - **↓:** Soft drop
@@ -192,6 +195,7 @@ Classic Tetris game with modern features. Complete implementation with all 7 tet
 - **P:** Pause
 
 **Features:**
+
 - Standard 10×20 grid with all 7 tetrominoes (I, O, T, L, J, S, Z)
 - Super Rotation System (SRS) with wall kicks
 - Ghost piece showing landing position

@@ -3,6 +3,7 @@
 ## Initial Prompt Requirements
 
 Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the following features:
+
 - Many balloons with different colors
 - User controls a needle to pop individual balloons
 - Sound effects for popping
@@ -11,9 +12,11 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ## Stepwise Development Process
 
 ### 1. Initial Implementation
+
 **Goal:** Core functionality with all basic features
 
 **Implemented:**
+
 - 20 floating balloons with reversed gravity (-0.3 y-axis)
 - Random colors (8 color palette)
 - Strings anchoring balloons to ground using constraints
@@ -28,9 +31,11 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ---
 
 ### 2. Fix #1: Infinite Loop Bug
+
 **Problem:** Completion dialog "All balloons popped! Play again?" appeared infinitely
 
 **Solution:**
+
 - Added `gameCompleted` boolean flag
 - Dialog only shows once when all balloons are popped
 - Flag resets on game restart
@@ -39,9 +44,11 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ---
 
 ### 3. Enhancement #1: Syringe Design
+
 **Problem:** Simple needle didn't look like a syringe
 
 **Solution:**
+
 - Transformed needle into medical syringe with three parts:
   - Needle tip (dark gray, thin 2px)
   - Barrel (light gray with outline)
@@ -51,9 +58,11 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ---
 
 ### 4. Fix #2: Syringe Rendering Issues
+
 **Problem:** Composite body caused flickering and dangling parts
 
 **Solution:**
+
 - Replaced multi-body composite with single invisible physics body
 - Implemented custom rendering using Matter.js `afterRender` event
 - Drew syringe appearance directly on canvas each frame
@@ -63,9 +72,11 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ---
 
 ### 5. Enhancement #2: Realistic 3D Balloons
+
 **Problem:** Balloons looked flat like simple circles
 
 **Solution:**
+
 - **Radial gradient shading:** Light top-left to dark edges for 3D sphere effect
 - **Highlight spot:** White semi-transparent ellipse for light reflection/shine
 - **Slightly oval shape:** 95% width for more natural balloon appearance
@@ -74,6 +85,7 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 - Custom balloon rendering in `afterRender` event
 
 **Visual improvements:**
+
 - Glossy, realistic appearance
 - Proper depth perception
 - Natural balloon shape vs perfect circles
@@ -81,9 +93,11 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ---
 
 ### 6. Fix #3: Smooth Needle Rotation
+
 **Problem:** Needle flickered and circled around when moving mouse
 
 **Solution:**
+
 - Implemented `lerpAngle()` function for smooth angle interpolation
 - Added angle wrapping to take shortest rotation path (handles 359° → 0° transitions)
 - 20% interpolation per frame for responsive yet smooth feel
@@ -97,6 +111,7 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ## Final Technical Implementation
 
 **Physics Engine:** Matter.js
+
 - Reverse gravity for floating effect
 - Constraint-based strings
 - Shockwave force application on nearby objects
@@ -104,6 +119,7 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 - Spawn overlap detection to prevent collision chaos
 
 **Rendering:** Custom Canvas 2D
+
 - Invisible physics bodies
 - Custom `afterRender` drawing
 - Radial gradients for 3D effects
@@ -111,17 +127,20 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 - Particle system for explosion effects
 
 **Audio:** Web Audio API
+
 - Oscillator-based pop sounds
 - Dynamic frequency based on balloon size
 - No external audio files required
 
 **Interaction:**
+
 - Real-time mouse tracking
 - Smooth angle interpolation
 - Collision-based popping
 - Runtime physics control sliders with live feedback
 
 **Initialization:**
+
 - Distance-based spawn validation with 10px buffer
 - Retry logic (up to 50 attempts) for placement
 - Gradual physics settling (high damping → normal)
@@ -142,9 +161,11 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ---
 
 ## Enhancement #3: Particle Explosion System
+
 **Goal:** Make balloon pops more visually satisfying with animated particles
 
 **Implemented:**
+
 - **Particle class** with full physics simulation
 - **Three particle types:**
   - Confetti (60%): Rectangular pieces for festive effect
@@ -170,9 +191,11 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ---
 
 ## Enhancement #4: Timer Feature
+
 **Goal:** Track how long it takes to pop all balloons
 
 **Features:**
+
 - Timer starts on first balloon pop
 - Real-time display updates (0.1s precision)
 - Stops automatically when all balloons are popped
@@ -185,9 +208,11 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ---
 
 ## Enhancement #5: Improved Initial Needle Position
+
 **Problem:** Needle spawning at center (400, 300) could immediately pop balloons
 
 **Solution:**
+
 - Changed initial needle position to top of screen (400, 50)
 - Updated both `mousePos` and `lastMousePos` initialization
 - Prevents accidental pops on game start
@@ -198,9 +223,11 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ---
 
 ## Enhancement #6: Prevent Balloon Overlap on Initialization
+
 **Problem:** Balloons spawning randomly could overlap, causing heavy bouncing and pushing down
 
 **Solution:**
+
 - **`isPositionValid(x, y, size)` function** - Checks if position overlaps with existing balloons
 - **Distance-based collision detection** - Uses `Math.hypot()` for efficient distance calculation
 - **10px buffer zone** - Maintains minimum distance of `balloon.size + new.size + 10px`
@@ -214,9 +241,11 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ---
 
 ## Enhancement #7: Balloon Numbering
+
 **Goal:** Identify individual balloons visually during gameplay
 
 **Implemented:**
+
 - **Balloon ID storage** - Each balloon assigned unique number (1-20) at creation
 - **Number rendering** - Displayed in center of each balloon
 - **Dynamic font sizing** - Text size is 80% of balloon radius for readability
@@ -228,9 +257,11 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ---
 
 ## Enhancement #8: Physics Runtime Controls
+
 **Goal:** Allow real-time adjustment of balloon physics properties during simulation
 
 **Implemented:**
+
 - **Physics parameter object** - Centralized `physicsParams` with `friction` and `frictionAir` values
 - **Runtime sliders** - Two range input sliders in left control panel:
   - Friction Air slider (0-0.2, step 0.01)
@@ -243,6 +274,7 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
   - Reduces to 0.10 after 0.5 seconds (enables natural motion)
 
 **Features:**
+
 - Sliders update physics on all non-popped balloons immediately
 - Display values update with 2 decimal precision
 - Allows experimentation with physics feel during gameplay
@@ -255,6 +287,7 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ## Future Enhancement Ideas
 
 ### Pause Functionality
+
 - **Feature:** Pause (P) key analog to Reset (R) key
 - **Behavior:**
   - Pause/unpause physics engine
@@ -266,9 +299,11 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ---
 
 ### Visual Trails & Glow Effects
+
 **Goal:** Add atmospheric visual effects for enhanced aesthetics
 
 **Implementation Ideas:**
+
 - Glowing aura/bloom around balloons
 - Motion trails following the syringe cursor
 - Proximity glow (needle glows brighter near balloons)
@@ -280,9 +315,11 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ---
 
 ### Animated Background
+
 **Goal:** Dynamic, living background instead of static gradient
 
 **Implementation Ideas:**
+
 - Floating clouds using Perlin noise movement
 - Animated sky gradient (day/night cycle over time)
 - Twinkling stars at night
@@ -294,9 +331,11 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ---
 
 ### Advanced Color Effects
+
 **Goal:** Dynamic color manipulation and harmonies
 
 **Implementation Ideas:**
+
 - Color interpolation between nearby balloons (energy field effect)
 - Rainbow gradient balloons that shift over time
 - Pulsing/breathing color animations
@@ -309,9 +348,11 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ---
 
 ### Organic Movement Patterns
+
 **Goal:** Use Perlin noise for natural, organic motion
 
 **Implementation Ideas:**
+
 - Natural balloon swaying/bobbing independent of physics
 - Smooth wind gusts with gradual transitions
 - Realistic string oscillation and waves
@@ -323,9 +364,11 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ---
 
 ### Enhanced Audio Visualization
+
 **Goal:** Visual representation of sound
 
 **Implementation Ideas:**
+
 - Waveforms radiating from popped balloons
 - Frequency spectrum bars at bottom
 - Sound-reactive balloon sizes (pulse to audio)
@@ -338,9 +381,11 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ---
 
 ### Screen Shake & Camera Effects
+
 **Goal:** Dynamic camera movement and effects
 
 **Implementation Ideas:**
+
 - Screen shake intensity based on explosion size
 - Zoom effects when multiple balloons pop
 - Camera rotation wobble
@@ -353,9 +398,11 @@ Create a new HTML simulation using Matter.js, p5.js, MediaPipe with the followin
 ---
 
 ### More Complex Shapes
+
 **Goal:** Custom balloon shapes beyond circles
 
 **Implementation Ideas:**
+
 - Star-shaped balloons (harder to hit)
 - Heart balloons (special events)
 - Animal-shaped balloons

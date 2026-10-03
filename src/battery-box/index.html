@@ -323,7 +323,9 @@
 
         function resetSimulation() {
             // Remove all golems
-            golems.forEach(golem => Composite.remove(world, golem));
+            for (const golem of golems) {
+                Composite.remove(world, golem);
+            }
             golems = [];
 
             // Clear fireworks and sparks
@@ -540,7 +542,7 @@
         const stepHeight = 80;
         const stepWidths = [600, 400, 200];
 
-        stepWidths.forEach((w, i) => {
+        for (const [i, w] of stepWidths.entries()) {
             // Align left edge to x=0 (approx)
             // Center x = w / 2
             // y = ground top (innerHeight) - half height - (index * height)
@@ -553,7 +555,7 @@
                 stepHeight,
                 { ...wallOptions, label: 'stairs' }
             ));
-        });
+        }
 
         Composite.add(world, [battery, ground, leftWall, rightWall, ...stairs]);
 
@@ -736,7 +738,7 @@
                 }
 
                 // Arc to Golems
-                golems.forEach(golem => {
+                for (const golem of golems) {
                     const gPos = golem.position;
 
                     // Soft ceiling logic: push down if too high
@@ -756,12 +758,12 @@
                         drawLightning(ctx, t2Pos, gPos, '#aaf');
                          Body.applyForce(golem, golem.position, { x: (Math.random()-0.5)*0.05, y: -0.05 });
                     }
-                });
+                }
 
                 // Arc to ground/walls
                 // Cast a few rays out from terminals
-                [t1Pos, t2Pos].forEach(startPos => {
-                    if (Math.random() > 0.3) return; // Not every frame
+                for (const startPos of [t1Pos, t2Pos]) {
+                    if (Math.random() > 0.3) continue; // Not every frame
 
                     const angleBase = angle - Math.PI/2; // pointing up relative to box
                     // Random angle
@@ -794,15 +796,15 @@
                              drawLightning(ctx, startPos, end, '#fff'); // Weaker color?
                         }
                     }
-                });
+                }
             } else {
                 // Keep soft ceiling logic active even if lightning is off
-                golems.forEach(golem => {
+                for (const golem of golems) {
                     const gPos = golem.position;
                     if (gPos.y < -50) {
                          Body.applyForce(golem, gPos, { x: 0, y: 1 * golem.mass * 0.002 });
                     }
-                });
+                }
             }
 
         });
@@ -822,12 +824,12 @@
             Body.setVertices(ground, Bodies.rectangle(globalThis.innerWidth / 2, globalThis.innerHeight + 50, globalThis.innerWidth, 100).vertices);
 
             // Reposition stairs
-            stairs.forEach((step, i) => {
+            for (const [i, step] of stairs.entries()) {
                 Body.setPosition(step, {
                     x: step.position.x, // Keep x constant
                     y: globalThis.innerHeight - (stepHeight/2) - (i * stepHeight)
                 });
-            });
+            }
         });
 
     </script>
