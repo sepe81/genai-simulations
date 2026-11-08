@@ -76,7 +76,12 @@ async function playDragonRounds(page) {
         await page.evaluate((save) => localStorage.setItem('einmaleins-abenteuer-v2', JSON.stringify(save)), dragonProfile(style));
         await page.reload();
         await page.clock.runFor(500);
+        // HUD state is driven by :has() on the active screen.
+        await expect(page.locator('#playersBtn')).toBeVisible();
+        await expect(page.locator('#homeBtn')).toBeHidden();
         await page.getByRole('button', { name: /1er-Reihe/ }).first().click();
+        await expect(page.locator('#keypad')).toBeVisible();
+        await expect(page.locator('#homeBtn')).toBeVisible();
         await page.evaluate(() => {
             round.queue.splice(3);
             round.total = round.queue.length;
@@ -96,5 +101,7 @@ async function playDragonRounds(page) {
             await page.clock.runFor(100);
         }
         await expect(page.locator('#resultCard')).toContainText('Aufgaben');
+        await expect(page.locator('#keypad')).toBeHidden();
+        await expect(page.locator('.play-head')).toBeHidden();
     }
 }
