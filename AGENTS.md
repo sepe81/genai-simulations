@@ -4,35 +4,24 @@ This file provides guidance to AI coding assistants when working with code in th
 
 ## Project Overview
 
-GenAI Simulations is a collection of interactive physics simulations and creative coding experiments built with Matter.js and modern web technologies. All simulations are self-contained single HTML files with no build process or dependencies required.
+GenAI Simulations is a collection of interactive physics simulations and creative coding experiments built with Matter.js and modern web technologies.
+Simulations run directly in the browser without a build step; `package.json` only holds dev tooling (linting).
 
 ## Architecture
 
-Each simulation is a complete, standalone HTML file that includes:
+- One folder per simulation under `src/`, opened via its `index.html`.
+- Start with inline `<script>` and `<style>`; split into `script.js` and `style.css` (as in `src/tetris/`) once the file passes about 1,500 lines.
+- Load external libraries (Matter.js, p5.js, fonts) from a CDN.
 
-- All JavaScript code embedded in `<script>` tags
-- CSS styling in `<style>` tags
-- CDN imports for external libraries (Matter.js, p5.js, etc.)
+## Adding a Simulation
 
-This architecture means:
-
-- No package.json or build tools needed
-- No compilation or bundling step
-- Works directly in browser by opening the HTML file
-- Easy to share and deploy (just copy the HTML file)
-
-## Development Workflow
-
-- Edit the HTML file directly
-- Refresh browser to see changes
-- Use browser DevTools console for debugging
-- No build or compile step needed
+- Add a README entry under "Simulations" by copying an existing one.
+- A math game also gets a card on `src/math-games/index.html`, including its game count in the texts.
 
 ## Code Style & Conventions
 
 - Write all code in English: identifiers, comments, commit messages and console output.
 - Only user-facing UI text keeps the language of the simulation, for example the German labels, headings and button captions in an existing German simulation.
-- Use natural language style for commit messages.
 - Run `npm run lint` before committing.
 
 ## Common Gotchas

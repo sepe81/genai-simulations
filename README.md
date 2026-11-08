@@ -253,16 +253,6 @@ All simulations are self-contained HTML files. To run:
 git clone https://github.com/sepe81/genai-simulations.git
 cd genai-simulations
 open src/balloon-pop/index.html
-open src/battery-box/index.html
-open src/cosine-similarity/index.html
-open src/fish-quiz/index.html
-open src/graffiti-spray/index.html
-open src/math-games/balloon/index.html
-open src/math-games/dragon/index.html
-open src/math-games/monster/index.html
-open src/math-games/rocket/index.html
-open src/nerf-gun/index.html
-open src/tetris/index.html
 # or just double-click any file
 ```
 
