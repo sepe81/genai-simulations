@@ -20,8 +20,6 @@ Interactive balloon popping game with realistic physics and 3D-styled balloons. 
 
 **Tech:** Matter.js, Web Audio API, Canvas 2D
 
-**How to run:** Simply open `src/balloon-pop/index.html` in your browser. No build process or dependencies needed!
-
 ---
 
 ### Nerf Gun Shooting Gallery
@@ -41,8 +39,6 @@ Interactive shooting gallery with two game modes: precision target shooting and 
 - Dynamic projectile behavior based on aim angle
 
 **Tech:** Matter.js, SVG Graphics, Web Audio API, Canvas 2D
-
-**How to run:** Simply open `src/nerf-gun/index.html` in your browser. No build process or dependencies needed!
 
 ---
 
@@ -80,8 +76,6 @@ Educational multiplication game where students pop balloons with the correct ans
 
 **Target audience:** Elementary school students learning multiplication tables (1×1)
 
-**How to run:** Simply open `src/math-games/balloon/index.html` in your browser. No build process or dependencies needed!
-
 ---
 
 ### Rocket Math (1×1 Learning)
@@ -102,8 +96,6 @@ Space-themed multiplication practice where students shoot down rockets carrying 
 **Tech:** Matter.js, Web Audio API, Canvas 2D
 
 **Target audience:** Elementary school students learning multiplication tables (1×1)
-
-**How to run:** Simply open `src/math-games/rocket/index.html` in your browser. No build process or dependencies needed!
 
 ---
 
@@ -127,8 +119,6 @@ Physics-based multiplication game where students drag falling fruits to feed hun
 
 **Target audience:** Elementary school students learning multiplication tables (1×1)
 
-**How to run:** Simply open `src/math-games/monster/index.html` in your browser. No build process or dependencies needed!
-
 ---
 
 ### Cosine Similarity Visualization
@@ -145,8 +135,6 @@ Interactive visualization of cosine similarity between two vectors. Adjust the a
 - Angle visualization
 
 **Tech:** p5.js, Canvas 2D
-
-**How to run:** Simply open `src/cosine-similarity/index.html` in your browser.
 
 ---
 
@@ -174,8 +162,6 @@ A high-voltage physics sandbox featuring a draggable battery that arcs electrici
 - Industrial dark mode with optional brick wall aesthetic
 
 **Tech:** Matter.js, Canvas 2D
-
-**How to run:** Open `src/battery-box/index.html` in your browser.
 
 ---
 
@@ -207,8 +193,6 @@ Classic Tetris game with modern features. Complete implementation with all 7 tet
 
 **Tech:** Vanilla JavaScript, Canvas 2D
 
-**How to run:** Open `src/tetris/index.html` in your browser.
-
 ---
 
 ### Fish Quiz
@@ -232,8 +216,6 @@ The quiz interface and the species descriptions are in German, since the German 
 Additional boards can be registered in `SPRITES`.
 
 **Tech:** Vanilla JavaScript, CSS sprite cropping, Web Audio API, localStorage
-
-**How to run:** Open `src/fish-quiz/index.html` in your browser.
 
 ---
 
