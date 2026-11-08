@@ -1,14 +1,17 @@
 {
   "name": "genai-simulations",
   "private": true,
-  "description": "Dev tooling only: the simulations themselves need no build step.",
+  "description": "Dev tooling only (linting, smoke tests): the simulations themselves need no build step.",
   "type": "module",
   "scripts": {
+    "check": "npm run lint && npm test",
     "lint": "npm run lint:js && npm run lint:md",
     "lint:js": "eslint .",
-    "lint:md": "markdownlint \"**/*.md\" --ignore node_modules"
+    "lint:md": "markdownlint \"**/*.md\" --ignore-path .gitignore",
+    "test": "playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.0",
     "eslint": "^10.12.0",
     "eslint-plugin-html": "^8.2.1",
     "eslint-plugin-unicorn": "^77.0.0",

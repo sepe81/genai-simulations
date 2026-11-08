@@ -5,7 +5,7 @@ import globals from 'globals';
 // Enforces the code style rules listed in AGENTS.md.
 export default [
     {
-        ignores: ['node_modules/', 'logs/'],
+        ignores: ['node_modules/', 'logs/', 'test-results/', 'playwright-report/'],
     },
     {
         files: ['**/*.html', '**/*.js'],
@@ -24,7 +24,7 @@ export default [
         },
     },
     {
-        files: ['eslint.config.js'],
+        files: ['eslint.config.js', 'playwright.config.js', 'tests/**/*.js'],
         languageOptions: { sourceType: 'module', globals: globals.node },
     },
 ];

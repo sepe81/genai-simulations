@@ -5,7 +5,7 @@ This file provides guidance to AI coding assistants when working with code in th
 ## Project Overview
 
 GenAI Simulations is a collection of interactive physics simulations and creative coding experiments built with Matter.js and modern web technologies.
-Simulations run directly in the browser without a build step; `package.json` only holds dev tooling (linting).
+Simulations run directly in the browser without a build step; `package.json` only holds dev tooling (linting, smoke tests).
 
 ## Architecture
 
@@ -17,12 +17,13 @@ Simulations run directly in the browser without a build step; `package.json` onl
 
 - Add a README entry under "Simulations" by copying an existing one.
 - A math game also gets a card on `src/math-games/index.html`, including its game count in the texts.
+- When important code only runs during play (rounds, scoring, effects), add a scripted interaction to `tests/smoke.spec.js`.
 
 ## Code Style & Conventions
 
 - Write all code in English: identifiers, comments, commit messages and console output.
 - Only user-facing UI text keeps the language of the simulation, for example the German labels, headings and button captions in an existing German simulation.
-- Run `npm run lint` before committing.
+- Run `npm run check` (lint and smoke tests) before committing.
 
 ## Common Gotchas
 
