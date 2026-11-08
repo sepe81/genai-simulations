@@ -121,6 +121,28 @@ Physics-based multiplication game where students drag falling fruits to feed hun
 
 ---
 
+### Dragon Times Tables (1×1 Learning)
+
+**[src/math-games/dragon/index.html](src/math-games/dragon/index.html)**
+
+Story-driven multiplication game for the "kleines Einmaleins": the child hatches and names a pet dragon, then defeats a monster in each of ten themed worlds (one per times table) by answering correctly, which makes the dragon breathe fireballs.
+
+**Features:**
+
+- Hand-drawn canvas graphics: parallax worlds with weather effects, animated dragon and monsters, particles and screen shake
+- The dragon grows through five stages with collected gems and unlocks new colours with stars
+- Wrong answers come back later in the round, with strategy hints (doubling, ×10 minus, "Kraft der Fünf" dot arrays)
+- Star map shows the mastery of all 100 facts; a training mode practises the weakest ones
+- Missing-factor tasks, a mixed boss round, combos, stickers and on-screen keypad for touch devices
+- Two visual styles per player: a cute "Drachen-Abenteuer" for younger kids and a darker "Zauber-Akademie" (wizard apprentice vs. shadow creatures, castle backdrop) for older kids
+- Several player profiles, each with its own progress, saved in `localStorage`; no lives, no game over
+
+**Tech:** Canvas 2D, Web Audio API
+
+**Target audience:** Elementary school students learning multiplication tables (1×1)
+
+---
+
 ### Cosine Similarity Visualization
 
 **[src/cosine-similarity/index.html](src/cosine-similarity/index.html)**
@@ -236,6 +258,7 @@ open src/cosine-similarity/index.html
 open src/fish-quiz/index.html
 open src/graffiti-spray/index.html
 open src/math-games/balloon/index.html
+open src/math-games/dragon/index.html
 open src/math-games/monster/index.html
 open src/math-games/rocket/index.html
 open src/nerf-gun/index.html
