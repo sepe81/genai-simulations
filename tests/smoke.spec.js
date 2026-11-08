@@ -10,6 +10,7 @@ const pages = globSync('src/**/index.html', { cwd: root }).sort();
 // Key: page path relative to the repo root.
 const interactions = {
     'src/math-games/dragon/index.html': playDragonRounds,
+    'src/polynomials/index.html': playPolynomials,
 };
 
 function collectErrors(page) {
@@ -97,4 +98,32 @@ async function playDragonRounds(page) {
         }
         await expect(page.locator('#resultCard')).toContainText('Aufgaben');
     }
+}
+
+// Adds polynomials, edits degree and coefficients, toggles options, then pans, zooms and hovers the plot.
+async function playPolynomials(page) {
+    const add = page.getByRole('button', { name: /Polynom hinzufügen/ });
+    await add.click();
+    await add.click();
+    const cards = page.locator('.card');
+    await expect(cards).toHaveCount(3);
+
+    const first = cards.first();
+    await first.locator('.degree').fill('5');
+    await expect(first.locator('.coeffs .row')).toHaveCount(6);
+    await first.locator('.coeffs input[type="number"]').last().fill('-3.5');
+    await first.locator('.opt-derivative').check();
+    await first.getByRole('button', { name: /Zufall/ }).click();
+    await cards.nth(1).getByTitle('Ein-/Ausblenden').click();
+    await cards.last().getByTitle('Entfernen').click();
+    await expect(cards).toHaveCount(2);
+
+    const box = await page.locator('#canvas').boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 3, box.y + box.height / 3, { steps: 5 });
+    await page.mouse.up();
+    await page.mouse.wheel(0, -400);
+    await page.mouse.wheel(0, 1200);
+    await page.getByRole('button', { name: /Ansicht zurücksetzen/ }).click();
 }

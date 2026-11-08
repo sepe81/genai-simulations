@@ -187,6 +187,25 @@ A high-voltage physics sandbox featuring a draggable battery that arcs electrici
 
 ---
 
+### Polynomial Plotter
+
+**[src/polynomials/index.html](src/polynomials/index.html)**
+
+Interactive plotter for polynomials of any degree up to 10, from a simple parabola to higher-order curves.
+Set the degree and every coefficient in the browser and add as many polynomials as you like to compare them.
+
+**Features:**
+
+- Degree and coefficients per polynomial via sliders or exact number input
+- Unlimited polynomials with their own colors, visibility toggle and random coefficients
+- Roots and extrema marked on the curve, vertex and discriminant for quadratics
+- Optional derivative shown as a dashed curve
+- Pan by dragging, zoom with the mouse wheel, hover readout of all function values
+
+**Tech:** Canvas 2D
+
+---
+
 ### Tetris
 
 **[src/tetris/index.html](src/tetris/index.html)**

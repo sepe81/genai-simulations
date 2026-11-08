@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polynom-Plotter</title>
+    <style>
+        :root {
+            --bg: #f4f5f8;
+            --panel: #ffffff;
+            --text: #1d2330;
+            --muted: #6b7385;
+            --border: #dde1ea;
+            --accent: #3b5bdb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        #sidebar {
+            width: 380px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            background: var(--panel);
+            border-right: 1px solid var(--border);
+        }
+
+        header {
+            padding: 18px 20px 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 {
+            margin: 0 0 4px;
+            font-size: 1.3rem;
+        }
+
+        header p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+
+        #polyList {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .card {
+            border: 1px solid var(--border);
+            border-left: 5px solid var(--color);
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .card.hidden-poly {
+            opacity: 0.5;
+        }
+
+        .card-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-head .name {
+            font-weight: 600;
+            font-family: "Cambria Math", Georgia, serif;
+            font-style: italic;
+        }
+
+        .card-head input[type="color"] {
+            width: 26px;
+            height: 26px;
+            padding: 0;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+        .card-head .spacer {
+            flex: 1;
+        }
+
+        .icon-btn {
+            border: 1px solid var(--border);
+            background: #fff;
+            border-radius: 6px;
+            padding: 3px 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .icon-btn:hover {
+            background: #eef1f8;
+        }
+
+        .formula {
+            margin: 8px 0;
+            font-family: "Cambria Math", Georgia, serif;
+            font-size: 1.05rem;
+            word-break: break-word;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 4px 0;
+            font-size: 0.85rem;
+        }
+
+        .row label {
+            width: 34px;
+            font-family: "Cambria Math", Georgia, serif;
+            font-style: italic;
+        }
+
+        .row input[type="range"] {
+            flex: 1;
+            accent-color: var(--color);
+        }
+
+        .row input[type="number"] {
+            width: 68px;
+            padding: 2px 4px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 14px;
+            margin-top: 6px;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .info {
+            margin-top: 6px;
+            font-size: 0.78rem;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+
+        footer {
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+        }
+
+        footer button {
+            flex: 1;
+            padding: 9px;
+            border-radius: 8px;
+            border: 1px solid var(--accent);
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        footer button.secondary {
+            background: #fff;
+            color: var(--accent);
+        }
+
+        #plot {
+            position: relative;
+            flex: 1;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+
+        canvas.dragging {
+            cursor: grabbing;
+        }
+
+        #hint {
+            position: absolute;
+            right: 12px;
+            bottom: 10px;
+            font-size: 0.75rem;
+            color: var(--muted);
+            background: rgba(255, 255, 255, 0.85);
+            padding: 4px 8px;
+            border-radius: 6px;
+            pointer-events: none;
+        }
+
+        @media (max-width: 760px) {
+            body {
+                flex-direction: column-reverse;
+            }
+
+            #sidebar {
+                width: 100%;
+                height: 50vh;
+                border-right: none;
+                border-top: 1px solid var(--border);
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside id="sidebar">
+        <header>
+            <h1>Polynom-Plotter</h1>
+            <p>Polynome n-ten Grades: f(x) = aₙxⁿ + … + a₁x + a₀.
+                Grad und Koeffizienten frei wählen, beliebig viele Polynome vergleichen.</p>
+        </header>
+        <div id="polyList"></div>
+        <footer>
+            <button id="addBtn">+ Polynom hinzufügen</button>
+            <button id="resetViewBtn" class="secondary">Ansicht zurücksetzen</button>
+        </footer>
+    </aside>
+    <main id="plot">
+        <canvas id="canvas"></canvas>
+        <div id="hint">Ziehen: verschieben · Mausrad: zoomen</div>
+    </main>
+
+    <script>
+        const MAX_DEGREE = 10;
+        const COEFF_RANGE = 10;
+        const COLORS = ['#3b5bdb', '#e8590c', '#2b8a3e', '#c2255c', '#7048e8', '#0c8599', '#e67700', '#495057'];
+        const NAMES = 'fghpqrstuvw';
+        const SUPERSCRIPTS = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+        const SUBSCRIPTS = '₀₁₂₃₄₅₆₇₈₉';
+        const DEFAULT_VIEW = { cx: 0, cy: 0, scale: 50 };
+
+        const canvas = document.querySelector('#canvas');
+        const ctx = canvas.getContext('2d');
+        const polyList = document.querySelector('#polyList');
+
+        // view.scale = pixels per unit; (cx, cy) = world point at the canvas center
+        const view = { ...DEFAULT_VIEW };
+        const polynomials = [];
+        let nextId = 0;
+        let mouse = null;
+
+        // ---------- Math ----------
+
+        // coeffs[i] belongs to x^i
+        function evaluate(coeffs, x) {
+            let y = 0;
+            for (let i = coeffs.length - 1; i >= 0; i--) {
+                y = y * x + coeffs[i];
+            }
+            return y;
+        }
+
+        function derivative(coeffs) {
+            const result = coeffs.slice(1).map((c, i) => c * (i + 1));
+            return result.length > 0 ? result : [0];
+        }
+
+        function effectiveDegree(coeffs) {
+            for (let i = coeffs.length - 1; i > 0; i--) {
+                if (coeffs[i] !== 0) {
+                    return i;
+                }
+            }
+            return 0;
+        }
+
+        // Real roots inside [xMin, xMax] via sign changes, touching zeros and bisection.
+        function findRoots(coeffs, xMin, xMax, steps = 2000) {
+            if (effectiveDegree(coeffs) === 0) {
+                return [];
+            }
+            const roots = [];
+            const dx = (xMax - xMin) / steps;
+            const tolerance = 1e-9 * Math.max(1, ...coeffs.map(Math.abs));
+            let prevX = xMin;
+            let prevY = evaluate(coeffs, prevX);
+            for (let i = 1; i <= steps; i++) {
+                const x = xMin + i * dx;
+                const y = evaluate(coeffs, x);
+                if (Math.abs(prevY) < tolerance) {
+                    roots.push(prevX);
+                } else if (prevY * y < 0) {
+                    roots.push(bisect(coeffs, prevX, x));
+                }
+                prevX = x;
+                prevY = y;
+            }
+            // Double roots without a sign change are extrema of f touching zero.
+            for (const x of findRootsOfDerivative(coeffs, xMin, xMax, steps)) {
+                if (Math.abs(evaluate(coeffs, x)) < 1e-6 * Math.max(1, ...coeffs.map(Math.abs))) {
+                    roots.push(x);
+                }
+            }
+            return dedupe(roots, dx * 2);
+        }
+
+        function findRootsOfDerivative(coeffs, xMin, xMax, steps) {
+            const d = derivative(coeffs);
+            if (effectiveDegree(d) === 0) {
+                return [];
+            }
+            const result = [];
+            const dx = (xMax - xMin) / steps;
+            // Only sign changes of f′ count, so saddle points like x³ at 0 are skipped.
+            // An exact zero keeps the last non-zero sample for comparison.
+            let prevX = xMin;
+            let prevY = evaluate(d, xMin);
+            for (let i = 1; i <= steps; i++) {
+                const x = xMin + i * dx;
+                const y = evaluate(d, x);
+                if (y === 0) {
+                    continue;
+                }
+                if (prevY * y < 0) {
+                    result.push(bisect(d, prevX, x));
+                }
+                prevX = x;
+                prevY = y;
+            }
+            return result;
+        }
+
+        function bisect(coeffs, a, b) {
+            let fa = evaluate(coeffs, a);
+            for (let i = 0; i < 60; i++) {
+                const m = (a + b) / 2;
+                const fm = evaluate(coeffs, m);
+                if (fa * fm <= 0) {
+                    b = m;
+                } else {
+                    a = m;
+                    fa = fm;
+                }
+            }
+            return (a + b) / 2;
+        }
+
+        function dedupe(values, epsilon) {
+            values.sort((a, b) => a - b);
+            return values.filter((v, i) => i === 0 || v - values[i - 1] > epsilon);
+        }
+
+        // ---------- Formatting ----------
+
+        function formatNumber(value, digits = 2) {
+            const rounded = Number(value.toFixed(digits));
+            return (Object.is(rounded, -0) ? 0 : rounded).toLocaleString('de-DE');
+        }
+
+        function toScript(n, chars) {
+            return String(n).split('').map((d) => chars[d]).join('');
+        }
+
+        function formatPolynomial(coeffs) {
+            const terms = [];
+            for (let i = coeffs.length - 1; i >= 0; i--) {
+                const c = coeffs[i];
+                if (c === 0) {
+                    continue;
+                }
+                const abs = Math.abs(c);
+                let power = '';
+                if (i === 1) {
+                    power = 'x';
+                } else if (i > 1) {
+                    power = 'x' + toScript(i, SUPERSCRIPTS);
+                }
+                const number = abs === 1 && i > 0 ? '' : formatNumber(abs);
+                const sign = c < 0 ? '−' : '+';
+                terms.push({ sign, body: number + power });
+            }
+            if (terms.length === 0) {
+                return '0';
+            }
+            return terms.map((t, i) => {
+                if (i === 0) {
+                    return (t.sign === '−' ? '−' : '') + t.body;
+                }
+                return ` ${t.sign} ${t.body}`;
+            }).join('');
+        }
+
+        // ---------- Polynomial state & UI ----------
+
+        function addPolynomial(coeffs) {
+            const id = nextId++;
+            const poly = {
+                id,
+                name: NAMES[id % NAMES.length] + (id >= NAMES.length ? Math.floor(id / NAMES.length) : ''),
+                color: COLORS[id % COLORS.length],
+                coeffs: coeffs ?? [0, 0, 1],
+                visible: true,
+                showDerivative: false,
+                showMarkers: true,
+            };
+            polynomials.push(poly);
+            buildCard(poly);
+            draw();
+        }
+
+        function removePolynomial(poly) {
+            polynomials.splice(polynomials.indexOf(poly), 1);
+            poly.card.remove();
+            draw();
+        }
+
+        function setDegree(poly, degree) {
+            degree = Math.max(0, Math.min(MAX_DEGREE, Math.round(degree) || 0));
+            if (degree === poly.coeffs.length - 1) {
+                return;
+            }
+            const coeffs = poly.coeffs.slice(0, degree + 1);
+            while (coeffs.length < degree + 1) {
+                coeffs.push(0);
+            }
+            // A freshly added leading coefficient starts at 1 so the new degree is visible.
+            if (degree > 0 && coeffs[degree] === 0) {
+                coeffs[degree] = 1;
+            }
+            poly.coeffs = coeffs;
+            renderCoefficients(poly);
+            updateCard(poly);
+            draw();
+        }
+
+        function buildCard(poly) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.style.setProperty('--color', poly.color);
+            card.innerHTML = `
+                <div class="card-head">
+                    <input type="color" value="${poly.color}" title="Farbe">
+                    <span class="name">${poly.name}(x)</span>
+                    <span class="spacer"></span>
+                    <label class="row" style="margin:0">Grad
+                        <input type="number" class="degree" min="0" max="${MAX_DEGREE}" step="1" value="${poly.coeffs.length - 1}">
+                    </label>
+                    <button class="icon-btn toggle" title="Ein-/Ausblenden">👁</button>
+                    <button class="icon-btn remove" title="Entfernen">✕</button>
+                </div>
+                <div class="formula"></div>
+                <div class="coeffs"></div>
+                <div class="options">
+                    <label><input type="checkbox" class="opt-derivative"> Ableitung ${poly.name}′ zeigen</label>
+                    <label><input type="checkbox" class="opt-markers" checked> Nullstellen &amp; Extrema</label>
+                    <button class="icon-btn random" title="Zufällige Koeffizienten">🎲 Zufall</button>
+                </div>
+                <div class="info"></div>`;
+            poly.card = card;
+
+            card.querySelector('input[type="color"]').addEventListener('input', (e) => {
+                poly.color = e.target.value;
+                card.style.setProperty('--color', poly.color);
+                draw();
+            });
+            // Apply valid degrees while typing; normalize the field once editing ends.
+            const degreeInput = card.querySelector('.degree');
+            degreeInput.addEventListener('input', () => {
+                if (degreeInput.value !== '') {
+                    setDegree(poly, Number(degreeInput.value));
+                }
+            });
+            degreeInput.addEventListener('change', () => {
+                degreeInput.value = poly.coeffs.length - 1;
+            });
+            card.querySelector('.toggle').addEventListener('click', () => {
+                poly.visible = !poly.visible;
+                card.classList.toggle('hidden-poly', !poly.visible);
+                draw();
+            });
+            card.querySelector('.remove').addEventListener('click', () => removePolynomial(poly));
+            card.querySelector('.opt-derivative').addEventListener('change', (e) => {
+                poly.showDerivative = e.target.checked;
+                draw();
+            });
+            card.querySelector('.opt-markers').addEventListener('change', (e) => {
+                poly.showMarkers = e.target.checked;
+                updateCard(poly);
+                draw();
+            });
+            card.querySelector('.random').addEventListener('click', () => {
+                const degree = poly.coeffs.length - 1;
+                poly.coeffs = poly.coeffs.map((_, i) => {
+                    // Shrink higher coefficients so the curve stays readable.
+                    const range = 4 / (1 + i);
+                    return Number(((Math.random() * 2 - 1) * range).toFixed(1));
+                });
+                if (degree > 0 && poly.coeffs[degree] === 0) {
+                    poly.coeffs[degree] = 0.1;
+                }
+                renderCoefficients(poly);
+                updateCard(poly);
+                draw();
+            });
+
+            polyList.append(card);
+            renderCoefficients(poly);
+            updateCard(poly);
+            card.scrollIntoView({ block: 'nearest' });
+        }
+
+        function renderCoefficients(poly) {
+            const container = poly.card.querySelector('.coeffs');
+            container.replaceChildren();
+            for (let i = poly.coeffs.length - 1; i >= 0; i--) {
+                const row = document.createElement('div');
+                row.className = 'row';
+                row.innerHTML = `
+                    <label title="Koeffizient vor x${toScript(i, SUPERSCRIPTS)}">a${toScript(i, SUBSCRIPTS)}</label>
+                    <input type="range" min="${-COEFF_RANGE}" max="${COEFF_RANGE}" step="0.1" value="${poly.coeffs[i]}">
+                    <input type="number" step="0.1" value="${poly.coeffs[i]}">`;
+                const [slider, number] = row.querySelectorAll('input');
+                slider.addEventListener('input', () => {
+                    poly.coeffs[i] = Number(slider.value);
+                    number.value = slider.value;
+                    updateCard(poly);
+                    draw();
+                });
+                number.addEventListener('input', () => {
+                    const value = Number.parseFloat(number.value);
+                    if (Number.isFinite(value)) {
+                        poly.coeffs[i] = value;
+                        slider.value = String(value);
+                        updateCard(poly);
+                        draw();
+                    }
+                });
+                container.append(row);
+            }
+        }
+
+        function updateCard(poly) {
+            poly.card.querySelector('.formula').textContent = `${poly.name}(x) = ${formatPolynomial(poly.coeffs)}`;
+            const info = poly.card.querySelector('.info');
+            const degree = effectiveDegree(poly.coeffs);
+            const lines = [`Effektiver Grad: ${degree}`];
+            if (degree === 2) {
+                const [c, b, a] = poly.coeffs;
+                const xs = -b / (2 * a);
+                lines.push(`Scheitelpunkt: S(${formatNumber(xs)} | ${formatNumber(evaluate(poly.coeffs, xs))}), `
+                    + `Diskriminante: ${formatNumber(b * b - 4 * a * c)}`);
+            }
+            if (degree > 0) {
+                const roots = findRoots(poly.coeffs, -100, 100, 20_000);
+                lines.push(roots.length > 0
+                    ? `Nullstellen (|x| ≤ 100): ${roots.map((r) => formatNumber(r)).join('; ')}`
+                    : 'Keine reellen Nullstellen (|x| ≤ 100)');
+            }
+            lines.push(`Schnittpunkt y-Achse: (0 | ${formatNumber(poly.coeffs[0])})`);
+            info.innerHTML = lines.join('<br>');
+        }
+
+        // ---------- Drawing ----------
+
+        function toScreenX(x) {
+            return canvas.clientWidth / 2 + (x - view.cx) * view.scale;
+        }
+
+        function toScreenY(y) {
+            return canvas.clientHeight / 2 - (y - view.cy) * view.scale;
+        }
+
+        function toWorldX(px) {
+            return view.cx + (px - canvas.clientWidth / 2) / view.scale;
+        }
+
+        function toWorldY(py) {
+            return view.cy - (py - canvas.clientHeight / 2) / view.scale;
+        }
+
+        // Picks a grid step of 1, 2 or 5 × 10^k so lines are roughly 50–120 px apart.
+        function gridStep() {
+            const raw = 80 / view.scale;
+            const magnitude = 10 ** Math.floor(Math.log10(raw));
+            const normalized = raw / magnitude;
+            if (normalized < 1.5) {
+                return magnitude;
+            }
+            if (normalized < 3.5) {
+                return 2 * magnitude;
+            }
+            return 5 * magnitude;
+        }
+
+        function drawGrid() {
+            const w = canvas.clientWidth;
+            const h = canvas.clientHeight;
+            const step = gridStep();
+            const digits = Math.max(0, -Math.floor(Math.log10(step)));
+            const xMin = toWorldX(0);
+            const xMax = toWorldX(w);
+            const yMin = toWorldY(h);
+            const yMax = toWorldY(0);
+
+            ctx.save();
+            // Minor grid
+            ctx.strokeStyle = '#eceef3';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            const minor = step / 5;
+            for (let x = Math.ceil(xMin / minor) * minor; x <= xMax; x += minor) {
+                ctx.moveTo(Math.round(toScreenX(x)) + 0.5, 0);
+                ctx.lineTo(Math.round(toScreenX(x)) + 0.5, h);
+            }
+            for (let y = Math.ceil(yMin / minor) * minor; y <= yMax; y += minor) {
+                ctx.moveTo(0, Math.round(toScreenY(y)) + 0.5);
+                ctx.lineTo(w, Math.round(toScreenY(y)) + 0.5);
+            }
+            ctx.stroke();
+
+            // Major grid
+            ctx.strokeStyle = '#d6dae3';
+            ctx.beginPath();
+            for (let x = Math.ceil(xMin / step) * step; x <= xMax; x += step) {
+                ctx.moveTo(Math.round(toScreenX(x)) + 0.5, 0);
+                ctx.lineTo(Math.round(toScreenX(x)) + 0.5, h);
+            }
+            for (let y = Math.ceil(yMin / step) * step; y <= yMax; y += step) {
+                ctx.moveTo(0, Math.round(toScreenY(y)) + 0.5);
+                ctx.lineTo(w, Math.round(toScreenY(y)) + 0.5);
+            }
+            ctx.stroke();
+
+            // Axes (clamped to the border when out of view)
+            const axisX = Math.min(Math.max(toScreenY(0), 0), h);
+            const axisY = Math.min(Math.max(toScreenX(0), 0), w);
+            ctx.strokeStyle = '#4a5162';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(0, axisX);
+            ctx.lineTo(w, axisX);
+            ctx.moveTo(axisY, 0);
+            ctx.lineTo(axisY, h);
+            ctx.stroke();
+
+            // Labels
+            ctx.fillStyle = '#6b7385';
+            ctx.font = '12px -apple-system, Segoe UI, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            const labelY = axisX > h - 18 ? axisX - 16 : axisX + 4;
+            for (let x = Math.ceil(xMin / step) * step; x <= xMax; x += step) {
+                if (Math.abs(x) < step / 2) {
+                    continue;
+                }
+                ctx.fillText(formatNumber(x, digits), toScreenX(x), labelY);
+            }
+            ctx.textBaseline = 'middle';
+            const rightSide = axisY < 40;
+            ctx.textAlign = rightSide ? 'left' : 'right';
+            for (let y = Math.ceil(yMin / step) * step; y <= yMax; y += step) {
+                if (Math.abs(y) < step / 2) {
+                    continue;
+                }
+                ctx.fillText(formatNumber(y, digits), axisY + (rightSide ? 6 : -6), toScreenY(y));
+            }
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'top';
+            ctx.fillText('0', axisY - 4, axisX + 4);
+            ctx.font = 'italic 14px Georgia, serif';
+            ctx.fillText('x', w - 8, axisX + 4);
+            ctx.textAlign = 'left';
+            ctx.fillText('y', axisY + 6, 6);
+            ctx.restore();
+        }
+
+        function drawCurve(coeffs, color, dashed) {
+            const w = canvas.clientWidth;
+            const h = canvas.clientHeight;
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = dashed ? 1.75 : 2.5;
+            ctx.setLineDash(dashed ? [7, 6] : []);
+            ctx.beginPath();
+            let penDown = false;
+            for (let px = 0; px <= w; px += 1) {
+                const py = toScreenY(evaluate(coeffs, toWorldX(px)));
+                // Break the path far outside the canvas to avoid huge coordinates.
+                if (!Number.isFinite(py) || py < -10 * h || py > 11 * h) {
+                    penDown = false;
+                    continue;
+                }
+                if (penDown) {
+                    ctx.lineTo(px, py);
+                } else {
+                    ctx.moveTo(px, py);
+                    penDown = true;
+                }
+            }
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function drawPoint(x, y, color, filled) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(toScreenX(x), toScreenY(y), 5, 0, Math.PI * 2);
+            ctx.fillStyle = filled ? color : '#fff';
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function drawMarkers(poly) {
+            const xMin = toWorldX(0);
+            const xMax = toWorldX(canvas.clientWidth);
+            for (const x of findRoots(poly.coeffs, xMin, xMax)) {
+                drawPoint(x, 0, poly.color, true);
+            }
+            if (effectiveDegree(poly.coeffs) >= 2) {
+                const extrema = dedupe(findRootsOfDerivative(poly.coeffs, xMin, xMax, 2000), (xMax - xMin) / 1000);
+                for (const x of extrema) {
+                    drawPoint(x, evaluate(poly.coeffs, x), poly.color, false);
+                }
+            }
+        }
+
+        function drawLabels() {
+            const w = canvas.clientWidth;
+            const h = canvas.clientHeight;
+            const x = toWorldX(w - 40);
+            ctx.save();
+            ctx.font = 'italic bold 15px Georgia, serif';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'bottom';
+            for (const poly of polynomials) {
+                if (!poly.visible) {
+                    continue;
+                }
+                const py = toScreenY(evaluate(poly.coeffs, x));
+                if (py > 20 && py < h - 20) {
+                    ctx.fillStyle = poly.color;
+                    ctx.fillText(poly.name, w - 44, py - 6);
+                }
+            }
+            ctx.restore();
+        }
+
+        function drawHover() {
+            if (!mouse) {
+                return;
+            }
+            const h = canvas.clientHeight;
+            const x = toWorldX(mouse.x);
+            ctx.save();
+            ctx.strokeStyle = 'rgba(74, 81, 98, 0.4)';
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(mouse.x + 0.5, 0);
+            ctx.lineTo(mouse.x + 0.5, h);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            const lines = [`x = ${formatNumber(x, 3)}`];
+            const colors = ['#1d2330'];
+            for (const poly of polynomials) {
+                if (!poly.visible) {
+                    continue;
+                }
+                const y = evaluate(poly.coeffs, x);
+                drawPoint(x, y, poly.color, true);
+                lines.push(`${poly.name}(x) = ${formatNumber(y, 3)}`);
+                colors.push(poly.color);
+                if (poly.showDerivative) {
+                    lines.push(`${poly.name}′(x) = ${formatNumber(evaluate(derivative(poly.coeffs), x), 3)}`);
+                    colors.push(poly.color);
+                }
+            }
+
+            ctx.font = '13px -apple-system, Segoe UI, sans-serif';
+            const boxW = Math.max(...lines.map((l) => ctx.measureText(l).width)) + 20;
+            const boxH = lines.length * 18 + 10;
+            let bx = mouse.x + 14;
+            if (bx + boxW > canvas.clientWidth) {
+                bx = mouse.x - 14 - boxW;
+            }
+            const by = Math.min(mouse.y + 14, h - boxH - 4);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.94)';
+            ctx.strokeStyle = '#dde1ea';
+            ctx.beginPath();
+            ctx.roundRect(bx, by, boxW, boxH, 6);
+            ctx.fill();
+            ctx.stroke();
+            ctx.textBaseline = 'top';
+            for (const [i, line] of lines.entries()) {
+                ctx.fillStyle = colors[i];
+                ctx.fillText(line, bx + 10, by + 6 + i * 18);
+            }
+            ctx.restore();
+        }
+
+        function draw() {
+            const w = canvas.clientWidth;
+            const h = canvas.clientHeight;
+            ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, w, h);
+            drawGrid();
+            for (const poly of polynomials) {
+                if (!poly.visible) {
+                    continue;
+                }
+                if (poly.showDerivative) {
+                    drawCurve(derivative(poly.coeffs), poly.color, true);
+                }
+                drawCurve(poly.coeffs, poly.color, false);
+                if (poly.showMarkers) {
+                    drawMarkers(poly);
+                }
+            }
+            drawLabels();
+            drawHover();
+        }
+
+        function resize() {
+            canvas.width = Math.round(canvas.clientWidth * devicePixelRatio);
+            canvas.height = Math.round(canvas.clientHeight * devicePixelRatio);
+            draw();
+        }
+
+        // ---------- Interaction ----------
+
+        let drag = null;
+
+        canvas.addEventListener('pointerdown', (e) => {
+            drag = { x: e.offsetX, y: e.offsetY, cx: view.cx, cy: view.cy };
+            canvas.classList.add('dragging');
+            canvas.setPointerCapture(e.pointerId);
+        });
+
+        canvas.addEventListener('pointermove', (e) => {
+            mouse = { x: e.offsetX, y: e.offsetY };
+            if (drag) {
+                view.cx = drag.cx - (e.offsetX - drag.x) / view.scale;
+                view.cy = drag.cy + (e.offsetY - drag.y) / view.scale;
+            }
+            draw();
+        });
+
+        canvas.addEventListener('pointerup', () => {
+            drag = null;
+            canvas.classList.remove('dragging');
+        });
+
+        canvas.addEventListener('pointerleave', () => {
+            mouse = null;
+            draw();
+        });
+
+        // Zoom around the cursor so the point under it stays fixed.
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const wx = toWorldX(e.offsetX);
+            const wy = toWorldY(e.offsetY);
+            const factor = Math.exp(-e.deltaY * 0.0015);
+            view.scale = Math.min(Math.max(view.scale * factor, 0.5), 20_000);
+            view.cx = wx - (e.offsetX - canvas.clientWidth / 2) / view.scale;
+            view.cy = wy + (e.offsetY - canvas.clientHeight / 2) / view.scale;
+            draw();
+        }, { passive: false });
+
+        document.querySelector('#addBtn').addEventListener('click', () => {
+            // Each new polynomial gets the next degree as a starting point: x², x³, x⁴, …
+            const degree = Math.min(MAX_DEGREE, polynomials.length + 2);
+            const coeffs = Array.from({ length: degree + 1 }, () => 0);
+            coeffs[degree] = degree > 3 ? 0.1 : 1;
+            addPolynomial(coeffs);
+        });
+
+        document.querySelector('#resetViewBtn').addEventListener('click', () => {
+            Object.assign(view, DEFAULT_VIEW);
+            draw();
+        });
+
+        globalThis.addEventListener('resize', resize);
+
+        // Start with a simple parabola: f(x) = 0.5x² − 2x − 1
+        addPolynomial([-1, -2, 0.5]);
+        resize();
+    </script>
+</body>
+</html>
